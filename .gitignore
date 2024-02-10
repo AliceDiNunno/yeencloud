@@ -1,0 +1,4 @@
+.idea
+back/.env
+front/.env
+front/node_modules
