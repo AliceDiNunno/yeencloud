@@ -21,6 +21,10 @@ import (
 func initConfig(c *cli.Context) *config.Config {
 	configFile := c.String("config")
 
+	if configFile == "" {
+		configFile = ".env"
+	}
+
 	log.Info().Msg(fmt.Sprintf("Loading configuration from %s", configFile))
 	err := godotenv.Load(configFile)
 	if err != nil {
@@ -111,12 +115,6 @@ func initApp(c *cli.Context) *domain.ApplicationBundle {
 }
 
 func main() {
-	/*vdtor := govalidator.NewValidator()
-	spew.Dump(vdtor.ValidateStruct(domain.NewUser{}))
-	spew.Dump(vdtor.ValidateStructWithLang(domain.NewUser{}, "fr"))
-	spew.Dump(vdtor.ValidateStructWithLang(domain.NewUser{}, "fr-FR"))
-	return*/
-
 	app := &cli.App{
 		Name:  "backend",
 		Usage: "start backend server",

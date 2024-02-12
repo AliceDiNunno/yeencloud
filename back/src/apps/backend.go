@@ -7,6 +7,7 @@ import (
 	"back/src/adapters/validator/govalidator"
 	"back/src/core/domain"
 	"back/src/core/usecases"
+	"github.com/rs/zerolog/log"
 )
 
 func MainBackend(bundle *domain.ApplicationBundle) error {
@@ -20,13 +21,14 @@ func MainBackend(bundle *domain.ApplicationBundle) error {
 	_ = kubernetesConfig
 
 	//TODO: make database dependent on config in order to have a local database for tests
+	log.Info().Msg("Connecting to database")
 	database := postgres.StartGormDatabase(databaseConfig, "default")
 	database.Migrate()
 
 	//TODO: pass the kubernetes config to the k8s adapter
 	cluster := k8s.NewCluster()
 
-	ucs := usecases.NewInteractor(cluster, database, database, database, bundle.Translator, validator)
+	ucs := usecases.NewInteractor(cluster, database, database, database, database, bundle.Translator, validator)
 
 	http := gin.NewServiceHttpServer(ucs, httpConfig, bundle.Translator, validator)
 
