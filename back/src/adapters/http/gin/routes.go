@@ -20,8 +20,17 @@ func (server *ServiceHTTPServer) SetRoutes() {
 	users := r.Group("/users")
 	users.POST("/", server.createUserHandler)
 
+	session := r.Group("/session")
+	session.POST("/", server.createSessionHandler)
+
 	organizations := r.Group("/organizations")
 	organizations.GET("/", server.getOrganizationsHandler)
+
+	//Authenticated routes
+	authenticated := r.Group("/")
+	authenticated.Use(server.requireSessionMiddleware())
+
+	authenticated.GET("/me", server.getCurrentUserHandler)
 
 	server.SetErrors(r)
 }

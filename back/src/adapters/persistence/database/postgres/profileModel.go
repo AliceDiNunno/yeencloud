@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"back/src/core/domain"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -29,6 +30,18 @@ func (db *Database) CreateProfile(profile domain.Profile) (domain.Profile, error
 	}
 
 	return profileToDomain(profileToCreate), nil
+}
+
+func (db *Database) FindProfileByUserID(userID uuid.UUID) (domain.Profile, error) {
+	var profile Profile
+
+	result := db.engine.Where("user_id = ?", userID).First(&profile)
+
+	if result.Error != nil {
+		return domain.Profile{}, result.Error
+	}
+
+	return profileToDomain(profile), nil
 }
 
 func domainToProfile(profile domain.Profile) Profile {

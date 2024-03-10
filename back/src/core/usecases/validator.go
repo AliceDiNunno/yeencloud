@@ -1,6 +1,8 @@
 package usecases
 
-import "github.com/go-playground/validator/v10"
+import (
+	"github.com/go-playground/validator/v10"
+)
 
 func (i interactor) PasswordValidator() validator.Func {
 	return func(fl validator.FieldLevel) bool {

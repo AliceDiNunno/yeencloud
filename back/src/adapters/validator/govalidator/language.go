@@ -20,5 +20,4 @@ func (v *Validator) LoadLanguages() {
 
 	transFr, _ := v.validateTranslator.GetTranslator("fr")
 	fr_translations.RegisterDefaultTranslations(v.validate, transFr)
-
 }

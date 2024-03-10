@@ -1,0 +1,40 @@
+#!/bin/bash
+echo "Pre-push checks!"
+cd back || exit 1
+# Run backend unit tests
+echo "Running backend unit tests"
+go test -short ./...
+status=$?
+if test $status -eq 0; then
+  echo "backend test success"
+else
+  echo "backend test failed"
+  exit 1
+fi
+
+# Run backend linter
+if ! command -v golangci-lint &>/dev/null; then
+  echo "Linter golangci-lint not found in PATH"
+  exit 1
+else
+  echo "Running Go linter"
+  golangci-lint run -E gosec -E gofmt -E gocognit
+  status=$?
+  if test $status -eq 0; then
+    echo "Golang lint success"
+  else
+    echo "Golang lint failed"
+    exit 1
+  fi
+fi
+# Run frontend linter
+echo "Lint webapp"
+cd ../webapp || exit 1
+npm run lint
+status=$?
+if test $status -eq 0; then
+  echo "npm lint success"
+else
+  echo "npm lint failed"
+  exit 1
+fi

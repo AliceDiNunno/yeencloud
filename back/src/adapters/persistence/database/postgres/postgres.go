@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"back/src/core/config"
+	"back/src/core/domain/config"
 	"fmt"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"

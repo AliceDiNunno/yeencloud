@@ -2,7 +2,7 @@ package main
 
 import (
 	"back/src/apps"
-	"back/src/core/config"
+	"back/src/core/config/env"
 	"back/src/core/domain"
 	"fmt"
 	"github.com/BurntSushi/toml"
@@ -18,7 +18,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func initConfig(c *cli.Context) *config.Config {
+func initConfig(c *cli.Context) *env.Config {
 	configFile := c.String("config")
 
 	if configFile == "" {
@@ -31,7 +31,7 @@ func initConfig(c *cli.Context) *config.Config {
 		log.Err(err).Msg("Error loading configuration")
 	}
 
-	cfg := config.NewConfig(c)
+	cfg := env.NewConfig(c)
 
 	return cfg
 }
@@ -69,7 +69,7 @@ func loadLogger() {
 	isDev := os.Getenv("ENV") != "prod" && os.Getenv("ENV") != "production"
 
 	if isDev {
-		zerolog.SetGlobalLevel(zerolog.InfoLevel)
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	}
 	// Short caller (file:line)
 	zerolog.CallerMarshalFunc = func(pc uintptr, file string, line int) string {

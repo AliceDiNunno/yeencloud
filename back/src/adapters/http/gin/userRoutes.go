@@ -3,13 +3,26 @@ package gin
 import (
 	"back/src/core/domain"
 	"back/src/core/domain/requests"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 )
 
 func (server *ServiceHTTPServer) getUserMiddleware() gin.HandlerFunc {
 	return func(context *gin.Context) {
+		session, exists := context.Get("session")
 
+		if !exists {
+			return
+		}
+
+		//This is necessary to make sure the user is still valid
+		user, err := server.ucs.GetUserByID(session.(domain.Session).UserID)
+
+		if err != nil {
+			server.abortWithError(context, *err)
+			return
+		}
+
+		context.Set("user", user.ID)
 	}
 }
 
@@ -39,13 +52,34 @@ func (server *ServiceHTTPServer) createUserHandler(context *gin.Context) {
 	}
 
 	language := context.GetString("lang")
-	spew.Dump(language)
-	user, err := server.ucs.CreateUser(createUserRequest, language)
+
+	profile, err := server.ucs.CreateUser(createUserRequest, language)
 
 	if err != nil {
 		server.abortWithError(context, *err)
 		return
 	}
 
-	context.JSON(201, user)
+	context.JSON(201, profile)
+}
+
+func (server *ServiceHTTPServer) getCurrentUserHandler(context *gin.Context) {
+	userID := context.GetString("user")
+
+	user, err := server.ucs.GetUserByID(userID)
+	if err != nil {
+		server.abortWithError(context, *err)
+		return
+	}
+
+	profile, err := server.ucs.GetProfileByUserID(userID)
+	if err != nil {
+		server.abortWithError(context, *err)
+		return
+	}
+
+	context.JSON(200, map[string]interface{}{
+		"user":    user,
+		"profile": profile,
+	})
 }
