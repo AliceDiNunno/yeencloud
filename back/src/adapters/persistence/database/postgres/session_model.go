@@ -6,14 +6,10 @@ import (
 	"time"
 )
 
-type sessionsRepo struct {
-	db *gorm.DB
-}
-
 type Session struct {
 	gorm.Model
 
-	Token    string `gorm:"type:uuid;primary_key"`
+	Token    string `gorm:"primary_key"`
 	IP       string
 	ExpireAt time.Time
 
@@ -50,7 +46,7 @@ func sessionToDomain(session Session) domain.Session {
 		Token:    session.Token,
 		ExpireAt: session.ExpireAt.Unix(),
 		IP:       session.IP,
-		UserID:   session.UserID,
+		UserID:   domain.UserID(session.UserID),
 	}
 }
 
@@ -59,6 +55,6 @@ func domainToSession(session domain.Session) Session {
 		Token:    session.Token,
 		IP:       session.IP,
 		ExpireAt: time.Unix(session.ExpireAt, 0),
-		UserID:   session.UserID,
+		UserID:   session.UserID.String(),
 	}
 }

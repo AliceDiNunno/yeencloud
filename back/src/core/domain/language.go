@@ -5,3 +5,9 @@ type Language struct {
 	Flag        string
 	DisplayName string
 }
+
+// Translation keys
+const (
+	DefaultOrganizationDescription    = "DefaultOrganizationDescription"
+	DefaultOrganizationDescriptionKey = "UserFullName"
+)

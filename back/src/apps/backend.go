@@ -26,7 +26,9 @@ func MainBackend(bundle *domain.ApplicationBundle) error {
 	//TODO: pass the kubernetes config to the k8s adapter
 	cluster := k8s.NewCluster()
 
-	ucs := usecases.NewInteractor(cluster, database, database, database, database, database, bundle.Translator, validator)
+	ucs := usecases.NewInteractor(cluster, bundle.Translator, validator,
+		database, database, database, database, database, database,
+		database)
 
 	http := gin.NewServiceHttpServer(ucs, httpConfig, bundle.Translator, validator)
 
