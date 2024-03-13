@@ -21,17 +21,6 @@ type ResponseError struct {
 func (server *ServiceHTTPServer) abortWithError(c *gin.Context, error domain.ErrorDescription) {
 	lang := c.GetString("lang")
 
-	// #YC-9 TODO: move language to a middleware
-	if lang == "" {
-		userID, found := c.Get("user")
-		if found {
-			user, err := server.ucs.GetProfileByUserID(userID.(domain.UserID))
-			if err == nil {
-				lang = user.Language
-			}
-		}
-	}
-
 	msg := i18n.NewLocalizer(server.translator, lang)
 
 	localized, _, _ := msg.LocalizeWithTag(&i18n.LocalizeConfig{

@@ -26,20 +26,6 @@ func (server *ServiceHTTPServer) getUserMiddleware() gin.HandlerFunc {
 	}
 }
 
-func (server *ServiceHTTPServer) getLangMiddleware() gin.HandlerFunc {
-	return func(context *gin.Context) {
-		_, exists := context.Get("user")
-		if !exists {
-			acceptLanguage := context.GetHeader("Accept-Language")
-			if acceptLanguage != "" {
-				context.Set("lang", acceptLanguage)
-				return
-			}
-			context.Set("lang", "enUS")
-		}
-	}
-}
-
 func (server *ServiceHTTPServer) createUserHandler(context *gin.Context) {
 	var createUserRequest requests.NewUser
 	if err := context.ShouldBindJSON(&createUserRequest); err != nil {
