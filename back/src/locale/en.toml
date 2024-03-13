@@ -1,6 +1,6 @@
 LanguageDisplayName = "English"
 LanguageFlag = "🇺🇸"
-#TODO: this is used as a quick way to identify the language if we need the short code for other libraries (currently validator since it doesn't support full language codes, (I guess ?))
+#this is used as a quick way to identify the language if we need the short code for other libraries (currently validator since it doesn't support full language codes, (I guess ?))
 ShortLanguageCode = "en"
 
 MethodNotAllowed = "Method not allowed"

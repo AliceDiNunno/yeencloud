@@ -94,7 +94,7 @@ func NewInteractor(c ClusterAdapter, i18n *i18n.Bundle, validator Validator,
 	}
 
 	// custom validations
-	// TODO: add better validation system that allows for custom error messages
+	// #YC-16 TODO: add better validation system that allows for custom error messages
 	inter.validator.AddCustomValidation("password", inter.PasswordValidator())
 	inter.validator.AddCustomValidation("unique_email", inter.UniqueMailValidator())
 

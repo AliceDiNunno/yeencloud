@@ -26,7 +26,7 @@ func (db *Database) CreateOrganization(organization domain.Organization) (domain
 }
 
 func (db *Database) DeleteOrganizationByID(id domain.OrganizationID) error {
-	//TODO implement me
+	// #YC-10 TODO implement me
 	panic("implement me")
 }
 

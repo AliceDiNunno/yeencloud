@@ -8,9 +8,9 @@ import (
 	"time"
 )
 
-// TODO: should a session be in the usecases or the http layer?
+// #YC-21 TODO: should a session be in the usecases or the http layer?
 func (i interactor) CreateSession(newSessionRequest requests.NewSession) (domain.Session, *domain.ErrorDescription) {
-	//TODO: implement OTP
+	// #YC-3 TODO: implement OTP
 	us, err := i.userRepo.FindUserByEmail(newSessionRequest.Email)
 
 	if err != nil {
@@ -22,7 +22,7 @@ func (i interactor) CreateSession(newSessionRequest requests.NewSession) (domain
 	}
 
 	sessionToken := uuid.New().String()
-	//TODO: expiration time should be configurable
+	// #YC-18 TODO: expiration time should be configurable
 	expiration := time.Now().Add(365 * 24 * time.Hour)
 	newSession := domain.Session{
 		Token:    sessionToken,
@@ -40,7 +40,7 @@ func (i interactor) CreateSession(newSessionRequest requests.NewSession) (domain
 }
 
 func (i interactor) GetSessionByToken(token string) (domain.Session, *domain.ErrorDescription) {
-	//TODO: this should check if the user still exists and if the session is still valid
+	// #YC-20 TODO: this should check if the user still exists and if the session is still valid
 
 	session, err := i.sessionRepo.FindSessionByToken(token)
 	if err != nil {

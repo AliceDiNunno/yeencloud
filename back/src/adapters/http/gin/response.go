@@ -21,7 +21,7 @@ type ResponseError struct {
 func (server *ServiceHTTPServer) abortWithError(c *gin.Context, error domain.ErrorDescription) {
 	lang := c.GetString("lang")
 
-	//TODO: move language to a middleware
+	// #YC-9 TODO: move language to a middleware
 	if lang == "" {
 		userID, found := c.Get("user")
 		if found {

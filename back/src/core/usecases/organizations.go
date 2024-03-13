@@ -10,7 +10,7 @@ import (
 func (i interactor) CreateOrganization(userID domain.UserID, newOrganization requests.NewOrganization) (domain.Organization, *domain.ErrorDescription) {
 	organizationToCreate := domain.Organization{
 		ID:          domain.OrganizationID(uuid.New().String()),
-		Slug:        newOrganization.Name, //TODO: generate unique slug
+		Slug:        newOrganization.Name, // #YC-17 TODO: generate unique slug
 		Name:        newOrganization.Name,
 		Description: newOrganization.Description,
 	}
