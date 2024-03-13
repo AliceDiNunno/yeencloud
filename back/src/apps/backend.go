@@ -1,6 +1,7 @@
 package apps
 
 import (
+	"back/src/adapters/audit"
 	"back/src/adapters/cluster/k8s"
 	"back/src/adapters/http/gin"
 	"back/src/adapters/persistence/database/postgres"
@@ -26,11 +27,13 @@ func MainBackend(bundle *domain.ApplicationBundle) error {
 	// #YC-13 TODO: pass the kubernetes config to the k8s adapter
 	cluster := k8s.NewCluster()
 
-	ucs := usecases.NewInteractor(cluster, bundle.Translator, validator,
+	auditer := audit.NewAuditer(nil)
+
+	ucs := usecases.NewInteractor(cluster, bundle.Translator, validator, auditer,
 		database, database, database, database, database, database,
 		database)
 
-	http := gin.NewServiceHttpServer(ucs, httpConfig, bundle.Translator, validator)
+	http := gin.NewServiceHttpServer(ucs, httpConfig, bundle.Translator, validator, auditer)
 
 	return http.Listen()
 }

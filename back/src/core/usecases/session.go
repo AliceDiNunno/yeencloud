@@ -9,7 +9,9 @@ import (
 )
 
 // #YC-21 TODO: should a session be in the usecases or the http layer?
-func (i interactor) CreateSession(newSessionRequest requests.NewSession) (domain.Session, *domain.ErrorDescription) {
+func (i interactor) CreateSession(auditID domain.AuditID, newSessionRequest requests.NewSession) (domain.Session, *domain.ErrorDescription) {
+	i.auditer.AddStep(auditID, newSessionRequest.Secure())
+
 	// #YC-3 TODO: implement OTP
 	us, err := i.userRepo.FindUserByEmail(newSessionRequest.Email)
 
@@ -39,9 +41,10 @@ func (i interactor) CreateSession(newSessionRequest requests.NewSession) (domain
 	return session, nil
 }
 
-func (i interactor) GetSessionByToken(token string) (domain.Session, *domain.ErrorDescription) {
-	// #YC-20 TODO: this should check if the user still exists and if the session is still valid
+func (i interactor) GetSessionByToken(auditID domain.AuditID, token string) (domain.Session, *domain.ErrorDescription) {
+	i.auditer.AddStep(auditID)
 
+	// #YC-20 TODO: this should check if the user still exists and if the session is still valid
 	session, err := i.sessionRepo.FindSessionByToken(token)
 	if err != nil {
 		return domain.Session{}, &domain.ErrorSessionNotFound

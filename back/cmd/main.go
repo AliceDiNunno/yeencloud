@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -115,6 +116,9 @@ func initApp(c *cli.Context) *domain.ApplicationBundle {
 }
 
 func main() {
+	zerolog.DurationFieldInteger = false
+	zerolog.DurationFieldUnit = time.Millisecond
+
 	app := &cli.App{
 		Name:  "backend",
 		Usage: "start backend server",

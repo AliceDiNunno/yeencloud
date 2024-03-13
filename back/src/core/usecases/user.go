@@ -13,7 +13,9 @@ func (i interactor) newUserID() domain.UserID {
 	return domain.UserID(uuid.New().String())
 }
 
-func (i interactor) CreateUser(newUser requests.NewUser, profileLanguage string) (domain.Profile, *domain.ErrorDescription) {
+func (i interactor) CreateUser(auditID domain.AuditID, newUser requests.NewUser, profileLanguage string) (domain.Profile, *domain.ErrorDescription) {
+	i.auditer.AddStep(auditID, newUser.Secure())
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
 
 	userToCreate := domain.User{
@@ -54,7 +56,7 @@ func (i interactor) CreateUser(newUser requests.NewUser, profileLanguage string)
 		Description: localizedDescription,
 	}
 
-	_, derr := i.CreateOrganization(user.ID, organizationToCreate)
+	_, derr := i.CreateOrganization(auditID, user.ID, organizationToCreate)
 
 	if derr != nil {
 		return domain.Profile{}, derr
@@ -64,7 +66,7 @@ func (i interactor) CreateUser(newUser requests.NewUser, profileLanguage string)
 	return profileToCreate, nil
 }
 
-func (i interactor) GetUserByID(id domain.UserID) (domain.User, *domain.ErrorDescription) {
+func (i interactor) GetUserByID(auditID domain.AuditID, id domain.UserID) (domain.User, *domain.ErrorDescription) {
 	user, err := i.userRepo.FindUserByID(id)
 
 	if err != nil {
@@ -75,12 +77,13 @@ func (i interactor) GetUserByID(id domain.UserID) (domain.User, *domain.ErrorDes
 	return user, nil
 }
 
-func (i interactor) GetProfileByUserID(id domain.UserID) (domain.Profile, *domain.ErrorDescription) {
-	profile, err := i.profileRepo.FindProfileByUserID(id)
+func (i interactor) GetProfileByUserID(auditID domain.AuditID, userID domain.UserID) (domain.Profile, *domain.ErrorDescription) {
+	i.auditer.AddStep(auditID)
+	profile, err := i.profileRepo.FindProfileByUserID(userID)
 
 	// #YC-22 TODO: this should never happen, a profile should be created if it ever is missing (while also reporting the error so it can be investigated)
 	if err != nil {
-		log.Err(err).Str("id", id.String()).Msg("Error finding profile")
+		log.Err(err).Str("id", userID.String()).Msg("Error finding profile")
 		return domain.Profile{}, &domain.ErrorProfileNotFound
 	}
 

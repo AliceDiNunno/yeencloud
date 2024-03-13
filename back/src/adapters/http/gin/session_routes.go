@@ -7,53 +7,57 @@ import (
 )
 
 func (server *ServiceHTTPServer) getSessionMiddleware() gin.HandlerFunc {
-	return func(context *gin.Context) {
-		token := context.GetHeader("Authorization")
+	return func(ctx *gin.Context) {
+		server.auditer.AddStep(server.getTrace(ctx))
+
+		token := ctx.GetHeader("Authorization")
 		if token == "" {
 			return
 		}
 
-		session, err := server.ucs.GetSessionByToken(token)
+		session, err := server.ucs.GetSessionByToken(server.getTrace(ctx), token)
 		if err != nil {
-			server.abortWithError(context, *err)
+			server.abortWithError(ctx, *err)
 			return
 		}
 
-		context.Set("session", session)
+		ctx.Set("session", session)
 	}
-}
-
-func (server *ServiceHTTPServer) createSessionHandler(context *gin.Context) {
-	var createSessionRequest requests.NewSession
-	if err := context.ShouldBindJSON(&createSessionRequest); err != nil {
-		server.abortWithError(context, domain.ErrorBadRequest)
-		return
-	}
-
-	createSessionRequest.IP = context.ClientIP()
-
-	if !server.validate(createSessionRequest, context) {
-		return
-	}
-
-	session, err := server.ucs.CreateSession(createSessionRequest)
-
-	if err != nil {
-		server.abortWithError(context, *err)
-		return
-	}
-
-	context.JSON(201, session)
 }
 
 func (server *ServiceHTTPServer) requireSessionMiddleware() gin.HandlerFunc {
-	return func(context *gin.Context) {
-		_, exists := context.Get("session")
+	return func(ctx *gin.Context) {
+		server.auditer.AddStep(server.getTrace(ctx))
+
+		_, exists := ctx.Get("session")
 		if !exists {
-			server.abortWithError(context, domain.ErrorAuthenticationTokenMissing)
+			server.abortWithError(ctx, domain.ErrorAuthenticationTokenMissing)
 			return
 		}
 
-		_, exists = context.Get("user")
+		_, exists = ctx.Get("user")
 	}
+}
+
+func (server *ServiceHTTPServer) createSessionHandler(ctx *gin.Context) {
+	var createSessionRequest requests.NewSession
+	if err := ctx.ShouldBindJSON(&createSessionRequest); err != nil {
+		server.abortWithError(ctx, domain.ErrorBadRequest)
+		return
+	}
+
+	createSessionRequest.IP = ctx.ClientIP()
+
+	if !server.validate(createSessionRequest, ctx) {
+		return
+	}
+
+	session, err := server.ucs.CreateSession(server.getTrace(ctx), createSessionRequest)
+
+	if err != nil {
+		server.abortWithError(ctx, *err)
+		return
+	}
+
+	server.created(ctx, session)
 }

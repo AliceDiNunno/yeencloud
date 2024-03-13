@@ -10,25 +10,25 @@ type LanguageUsecases interface {
 }
 
 type UserUsecases interface {
-	CreateUser(user requests.NewUser, language string) (domain.Profile, *domain.ErrorDescription)
+	CreateUser(auditID domain.AuditID, user requests.NewUser, language string) (domain.Profile, *domain.ErrorDescription)
 
-	GetUserByID(id domain.UserID) (domain.User, *domain.ErrorDescription)
+	GetUserByID(auditID domain.AuditID, userID domain.UserID) (domain.User, *domain.ErrorDescription)
 }
 
 type ProfileUsecases interface {
-	GetProfileByUserID(id domain.UserID) (domain.Profile, *domain.ErrorDescription)
+	GetProfileByUserID(auditID domain.AuditID, userID domain.UserID) (domain.Profile, *domain.ErrorDescription)
 }
 
 type SessionUsecases interface {
-	CreateSession(user requests.NewSession) (domain.Session, *domain.ErrorDescription)
+	CreateSession(auditID domain.AuditID, user requests.NewSession) (domain.Session, *domain.ErrorDescription)
 
-	GetSessionByToken(token string) (domain.Session, *domain.ErrorDescription)
+	GetSessionByToken(auditID domain.AuditID, token string) (domain.Session, *domain.ErrorDescription)
 }
 
 type OrganizationUsecases interface {
-	CreateOrganization(user domain.UserID, organization requests.NewOrganization) (domain.Organization, *domain.ErrorDescription)
+	CreateOrganization(auditID domain.AuditID, userID domain.UserID, organization requests.NewOrganization) (domain.Organization, *domain.ErrorDescription)
 
-	GetOrganizationsByUserID(userID domain.UserID) ([]domain.OrganizationMember, *domain.ErrorDescription)
+	GetOrganizationsByUserID(auditID domain.AuditID, userID domain.UserID) ([]domain.OrganizationMember, *domain.ErrorDescription)
 }
 
 type Usecases interface {

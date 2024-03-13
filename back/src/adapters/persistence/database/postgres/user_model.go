@@ -10,7 +10,7 @@ type User struct {
 
 	ID string `gorm:"primary_key"`
 
-	Email    string
+	Email    string `gorm:"unique"`
 	Password string
 
 	Organizations []OrganizationUser

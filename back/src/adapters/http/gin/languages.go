@@ -6,24 +6,24 @@ import (
 )
 
 // #YC-8 TODO: move to status route
-func (server *ServiceHTTPServer) getLanguagesHandler(context *gin.Context) {
+func (server *ServiceHTTPServer) getLanguagesHandler(ctx *gin.Context) {
 	languages := server.ucs.GetAvailableLanguages()
 
-	context.JSON(200, languages)
+	server.success(ctx, languages)
 }
 
 func (server *ServiceHTTPServer) getLangMiddleware() gin.HandlerFunc {
-	return func(context *gin.Context) {
+	return func(ctx *gin.Context) {
 		lang := ""
 
 		// priority to accept-language header over user profile so an api call can override the set language if needed
-		acceptLanguage := context.GetHeader("Accept-Language")
+		acceptLanguage := ctx.GetHeader("Accept-Language")
 		if acceptLanguage != "" {
 			lang = acceptLanguage
 		} else {
-			userID, exists := context.Get("user")
+			userID, exists := ctx.Get("user")
 			if exists {
-				user, err := server.ucs.GetProfileByUserID(userID.(domain.UserID))
+				user, err := server.ucs.GetProfileByUserID(server.getTrace(ctx), userID.(domain.UserID))
 				if err == nil {
 					lang = user.Language
 				}
@@ -34,6 +34,6 @@ func (server *ServiceHTTPServer) getLangMiddleware() gin.HandlerFunc {
 			lang = "enUS"
 		}
 
-		context.Set("lang", lang)
+		ctx.Set("lang", lang)
 	}
 }

@@ -7,6 +7,8 @@ import (
 )
 
 func (server *ServiceHTTPServer) validate(i interface{}, c *gin.Context) bool {
+	server.auditer.AddStep(server.getTrace(c))
+
 	lang := c.GetString("lang")
 	msg := i18n.NewLocalizer(server.translator, lang)
 	shortLanguage, _, _ := msg.LocalizeWithTag(&i18n.LocalizeConfig{
@@ -19,19 +21,7 @@ func (server *ServiceHTTPServer) validate(i interface{}, c *gin.Context) bool {
 		return true
 	}
 
-	err := domain.ErrorBadRequest
+	server.abortWithError(c, domain.ErrorBadRequest, validationErrors)
 
-	localized, _, _ := msg.LocalizeWithTag(&i18n.LocalizeConfig{
-		MessageID: err.Code,
-	})
-
-	c.AbortWithStatusJSON(err.HttpCode, Response{
-		StatusCode: err.HttpCode,
-		Error: &ResponseError{
-			Code:    err.Code,
-			Message: localized,
-		},
-		Body: validationErrors,
-	})
 	return false
 }
