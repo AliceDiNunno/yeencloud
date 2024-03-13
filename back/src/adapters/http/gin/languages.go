@@ -5,13 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// #YC-8 TODO: move to status route
-func (server *ServiceHTTPServer) getLanguagesHandler(ctx *gin.Context) {
-	languages := server.ucs.GetAvailableLanguages()
-
-	server.success(ctx, languages)
-}
-
 func (server *ServiceHTTPServer) getLangMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		lang := ""
