@@ -18,7 +18,7 @@ if ! command -v golangci-lint &>/dev/null; then
   exit 1
 else
   echo "Running Go linter"
-  golangci-lint run -E gosec -E gofmt -E gocognit
+  golangci-lint run -E gosec -E gofmt -E gocognit -E errcheck -E prealloc -E revive -E unused -E errchkjson -E errorlint -E predeclared -E staticcheck -E forcetypeassert -E gosimple -E govet -E inamedparam -E perfsprint -E nlreturn
   status=$?
   if test $status -eq 0; then
     echo "Golang lint success"
