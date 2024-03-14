@@ -1,4 +1,4 @@
-name: Build and Push Backend Docker Image
+name: Build & Deploy
 
 on:
   push:
@@ -22,7 +22,8 @@ jobs:
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
   back:
-    runs-on: ubuntu-latest0
+    runs-on: ubuntu-latest
+    needs: quality
     permissions:
       packages: write
     steps:
@@ -68,6 +69,7 @@ jobs:
           no-cache: true
   front:
     runs-on: ubuntu-latest
+    needs: quality
     permissions:
       packages: write
     steps:
