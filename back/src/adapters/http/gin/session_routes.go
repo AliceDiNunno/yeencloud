@@ -10,7 +10,7 @@ func (server *ServiceHTTPServer) getSessionMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		server.auditer.AddStep(server.getTrace(ctx))
 
-		token := ctx.GetHeader("Authorization")
+		token := ctx.GetHeader(HeaderAuthorization)
 		if token == "" {
 			return
 		}
@@ -21,7 +21,7 @@ func (server *ServiceHTTPServer) getSessionMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		ctx.Set("session", session)
+		ctx.Set(CtxSessionField, session)
 	}
 }
 
@@ -29,13 +29,17 @@ func (server *ServiceHTTPServer) requireSessionMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		server.auditer.AddStep(server.getTrace(ctx))
 
-		_, exists := ctx.Get("session")
+		_, exists := ctx.Get(CtxSessionField)
 		if !exists {
 			server.abortWithError(ctx, domain.ErrorAuthenticationTokenMissing)
 			return
 		}
 
-		_, exists = ctx.Get("user")
+		_, exists = ctx.Get(CtxUserField)
+		if !exists {
+			server.abortWithError(ctx, domain.ErrorUserNotFound)
+			return
+		}
 	}
 }
 

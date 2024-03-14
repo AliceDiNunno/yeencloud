@@ -55,7 +55,7 @@ type SessionRepository interface {
 
 type ClusterAdapter interface {
 	IsRunningInsideCluster() bool
-	IsConfigurationValid([]byte) bool
+	IsConfigurationValid(ClusterConfiguration []byte) bool
 }
 
 type Validator interface {
@@ -70,7 +70,7 @@ type interactor struct {
 	translator *i18n.Bundle
 	auditer    Audit
 
-	//Main models
+	// Main models
 	settingsRepo     SettingsRepository
 	userRepo         UserRepository
 	serviceRepo      ServiceRepository
@@ -78,7 +78,7 @@ type interactor struct {
 	profileRepo      ProfileRepository
 	organizationRepo OrganizationRepository
 
-	//Linking models
+	// Linking models
 	organizationUserRepo OrganizationUserRepository
 }
 
@@ -101,7 +101,7 @@ func NewInteractor(c ClusterAdapter, i18n *i18n.Bundle, validator Validator, aud
 		organizationUserRepo: ouR,
 	}
 
-	// custom validations
+	// Custom validations.
 	// #YC-16 TODO: add better validation system that allows for custom error messages
 	inter.validator.AddCustomValidation("password", inter.PasswordValidator())
 	inter.validator.AddCustomValidation("unique_email", inter.UniqueMailValidator())

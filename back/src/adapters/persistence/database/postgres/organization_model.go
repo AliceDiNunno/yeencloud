@@ -30,14 +30,6 @@ func (db *Database) DeleteOrganizationByID(id domain.OrganizationID) error {
 	panic("implement me")
 }
 
-func organizationsToDomain(orgs []Organization) []domain.Organization {
-	var result []domain.Organization
-	for _, org := range orgs {
-		result = append(result, organizationToDomain(org))
-	}
-	return result
-}
-
 func domainToOrganization(org domain.Organization) Organization {
 	return Organization{
 		ID:          org.ID.String(),

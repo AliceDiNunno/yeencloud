@@ -1,6 +1,24 @@
 #!/bin/bash
 echo "Pre-commit formating!"
 
+# Run backend linter
+if ! command -v golangci-lint &>/dev/null; then
+  echo "Linter golangci-lint not found in PATH"
+  exit 1
+else
+  cd back
+  echo "Running Go linter"
+  golangci-lint run
+  cd ..
+  status=$?
+  if test $status -eq 0; then
+    echo "Golang lint success"
+  else
+    echo "Golang lint failed"
+    exit 1
+  fi
+fi
+
 ## this will retrieve all of the .go files that have been
 ## changed since the last commit
 STAGED_GO_FILES=$(git diff --cached --diff-filter=AM --name-only -- '*.go')

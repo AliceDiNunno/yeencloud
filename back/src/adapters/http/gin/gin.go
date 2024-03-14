@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/rs/zerolog/log"
-	"net"
 	"net/http"
 	"os"
 	"time"
@@ -66,18 +65,18 @@ func NewServiceHttpServer(ucs usecases.Usecases, config config.HTTPConfig, versi
 }
 
 func (server *ServiceHTTPServer) Listen() error {
-	ln, err := net.Listen("tcp", fmt.Sprintf("%s:%d", server.config.ListeningAddress, server.config.ListeningPort))
+	httpserver := &http.Server{
+		Addr:              fmt.Sprintf("%s:%d", server.config.ListeningAddress, server.config.ListeningPort),
+		ReadHeaderTimeout: 3 * time.Second,
+		Handler:           server.engine,
+	}
 
+	err := httpserver.ListenAndServe()
 	if err != nil {
 		return err
 	}
 
-	log.Info().Str("Address", ln.Addr().String()).Msg("Now Listening !")
-
-	err = http.Serve(ln, server.engine)
-	if err != nil {
-		return err
-	}
+	log.Info().Str("Address", httpserver.Addr).Msg("Now Listening !")
 	err = server.engine.Run()
 
 	if err != nil {

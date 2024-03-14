@@ -3,11 +3,9 @@ package main
 import (
 	"back/src/apps"
 	"back/src/core/config/env"
-	"back/src/core/domain"
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"golang.org/x/text/language"
-	"io/ioutil"
 	"os"
 	"strings"
 	"time"
@@ -26,7 +24,7 @@ func initConfig(c *cli.Context) *env.Config {
 		configFile = ".env"
 	}
 
-	log.Info().Msg(fmt.Sprintf("Loading configuration from %s", configFile))
+	log.Info().Msg("Loading configuration from %s + configFile")
 	err := godotenv.Load(configFile)
 	if err != nil {
 		log.Err(err).Msg("Error loading configuration")
@@ -43,7 +41,7 @@ func loadTranslator() *i18n.Bundle {
 
 	translationDir := "./src/locale"
 
-	files, err := ioutil.ReadDir(translationDir)
+	files, err := os.ReadDir(translationDir)
 	if err != nil {
 		log.Err(err).Msg("Error reading translation directory")
 	}
@@ -73,10 +71,8 @@ func loadLogger() {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	}
 	// Short caller (file:line)
-	zerolog.CallerMarshalFunc = func(pc uintptr, file string, line int) string {
-		if strings.HasPrefix(file, "/app/") {
-			file = strings.TrimPrefix(file, "/app/")
-		}
+	zerolog.CallerMarshalFunc = func(_ uintptr, file string, line int) string {
+		file = strings.TrimPrefix(file, "/app/")
 
 		return fmt.Sprintf("%s:%d", file, line)
 	}
@@ -103,13 +99,13 @@ func loadLogger() {
 	}
 }
 
-func initApp(c *cli.Context) *domain.ApplicationBundle {
+func initApp(c *cli.Context) *apps.ApplicationBundle {
 	cfg := initConfig(c)
 
 	loadLogger()
 	i18nTranslator := loadTranslator()
 
-	return &domain.ApplicationBundle{
+	return &apps.ApplicationBundle{
 		Config:     cfg,
 		Translator: i18nTranslator,
 	}

@@ -10,13 +10,13 @@ func (server *ServiceHTTPServer) getUserMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		server.auditer.AddStep(server.getTrace(ctx))
 
-		session, exists := ctx.Get("session")
+		session, exists := ctx.Get(CtxSessionField)
 
 		if !exists {
 			return
 		}
 
-		//This is necessary to make sure the user is still valid
+		// This is necessary to make sure the user is still valid
 		user, err := server.ucs.GetUserByID(server.getTrace(ctx), session.(domain.Session).UserID)
 
 		if err != nil {
@@ -24,7 +24,7 @@ func (server *ServiceHTTPServer) getUserMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		ctx.Set("user", user.ID)
+		ctx.Set(CtxUserField, user.ID)
 	}
 }
 
@@ -39,7 +39,7 @@ func (server *ServiceHTTPServer) createUserHandler(ctx *gin.Context) {
 		return
 	}
 
-	language := ctx.GetString("lang")
+	language := ctx.GetString(CtxLanguageField)
 
 	profile, err := server.ucs.CreateUser(server.getTrace(ctx), createUserRequest, language)
 
@@ -52,7 +52,7 @@ func (server *ServiceHTTPServer) createUserHandler(ctx *gin.Context) {
 }
 
 func (server *ServiceHTTPServer) getCurrentUserHandler(ctx *gin.Context) {
-	id, found := ctx.Get("user")
+	id, found := ctx.Get(CtxUserField)
 
 	if !found {
 		return

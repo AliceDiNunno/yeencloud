@@ -10,11 +10,11 @@ func (server *ServiceHTTPServer) getLangMiddleware() gin.HandlerFunc {
 		lang := ""
 
 		// priority to accept-language header over user profile so an api call can override the set language if needed
-		acceptLanguage := ctx.GetHeader("Accept-Language")
+		acceptLanguage := ctx.GetHeader(HeaderAcceptLanguage)
 		if acceptLanguage != "" {
 			lang = acceptLanguage
 		} else {
-			userID, exists := ctx.Get("user")
+			userID, exists := ctx.Get(CtxUserField)
 			if exists {
 				user, err := server.ucs.GetProfileByUserID(server.getTrace(ctx), userID.(domain.UserID))
 				if err == nil {
@@ -27,6 +27,6 @@ func (server *ServiceHTTPServer) getLangMiddleware() gin.HandlerFunc {
 			lang = "enUS"
 		}
 
-		ctx.Set("lang", lang)
+		ctx.Set(CtxLanguageField, lang)
 	}
 }

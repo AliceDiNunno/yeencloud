@@ -1,4 +1,4 @@
-package domain
+package apps
 
 import (
 	"back/src/core/config/env"

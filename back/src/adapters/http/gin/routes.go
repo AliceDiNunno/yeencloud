@@ -25,16 +25,16 @@ func (server *ServiceHTTPServer) setAuthenticatedRoutes(authenticated *gin.Route
 func (server *ServiceHTTPServer) SetRoutes() {
 	r := server.engine
 
-	//Get prerequisites
+	// Get prerequisites
 	r.Use(server.traceHandlerMiddleware())
 	r.Use(server.getSessionMiddleware())
 	r.Use(server.getUserMiddleware())
 	r.Use(server.getLangMiddleware())
 
-	//Unauthenticated routes
+	// Unauthenticated routes
 	server.setPublicRoutes(r.Group("/"))
 
-	//Authenticated routes
+	// Authenticated routes
 	authenticated := r.Group("/")
 	authenticated.Use(server.requireSessionMiddleware())
 	server.setAuthenticatedRoutes(authenticated)

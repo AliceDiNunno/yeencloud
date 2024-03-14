@@ -11,10 +11,8 @@ type Cluster struct {
 
 func (c Cluster) IsRunningInsideCluster() bool {
 	_, err := rest.InClusterConfig()
-	if err != nil {
-		return false
-	}
-	return true
+
+	return err == nil
 }
 
 func (c Cluster) IsConfigurationValid(rawConfig []byte) bool {
@@ -25,11 +23,7 @@ func (c Cluster) IsConfigurationValid(rawConfig []byte) bool {
 
 	_, err = kubernetes.NewForConfig(kubeConfig)
 
-	if err != nil {
-		return false
-	}
-
-	return true
+	return err == nil
 }
 
 func NewCluster() *Cluster {
