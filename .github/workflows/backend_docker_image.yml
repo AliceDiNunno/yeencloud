@@ -6,7 +6,22 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  quality:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}  # to check out the actual pull request commit, not the merge commit
+          fetch-depth: 0  # a full history is required for pull request analysis
+      - name: 'Qodana Scan'
+        uses: JetBrains/qodana-action@v2023.3
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+  back:
     runs-on: ubuntu-latest0
     permissions:
       packages: write
@@ -50,4 +65,49 @@ jobs:
           file: ./back/Dockerfile
           push: true
           tags: ghcr.io/${{ steps.repository_owner.outputs.lowercase }}/${{ steps.repository_name.outputs.lowercase }}-back:latest
+          no-cache: true
+  front:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Check Out Repo
+        uses: actions/checkout@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@master
+        with:
+          platforms: all
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+
+      - id: repository_owner
+        uses: ASzc/change-string-case-action@v6
+        with:
+          string: ${{ github.repository_owner }}
+
+      - id: repository_name
+        uses: ASzc/change-string-case-action@v6
+        with:
+          string: ${{ github.event.repository.name }}
+
+      - name: Build image
+        id: docker_build
+        uses: docker/build-push-action@v4
+        with:
+          build-args: GITHUB_SHA=${{github.sha}} GITHUB_REPOSITORY=${{github.repository}} GITHUB_REPOSITORY_URL=${{github.repositoryUrl}}
+          context: ./front
+          file: ./front/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ghcr.io/${{ steps.repository_owner.outputs.lowercase }}/${{ steps.repository_name.outputs.lowercase }}-front:latest
           no-cache: true
