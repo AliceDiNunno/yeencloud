@@ -19,7 +19,17 @@ jobs:
         run: go mod tidy
       - name: Test with Go
         working-directory: ./back
-        run: go test -short ./...
+        run: go test -short -v -json -cover ./... > report.json
+      - uses: actions/upload-artifact@v3  # upload test results
+        if: success() || failure()        # run this step even if previous step failed
+        with:
+          name: test-results
+          path: back/report.json
+      - name: Report
+        uses: robherley/go-test-action@v0.1.0
+        with:
+          moduleDirectory: ./back
+          testArguments: -short -v -cover ./...
 
   quality:
     runs-on: ubuntu-latest
