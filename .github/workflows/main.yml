@@ -15,9 +15,7 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
       - name: Install dependencies
-        run: go get .
-        with:
-          context: ./back
+        run: ./back/go get .
       - name: Test with Go
         run: go test
         with:
