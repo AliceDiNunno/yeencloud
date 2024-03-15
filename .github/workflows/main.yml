@@ -15,11 +15,11 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
       - name: Install dependencies
-        run: ./back/go get .
+        working-directory: ./back
+        run: go mod tidy
       - name: Test with Go
-        run: go test
-        with:
-          context: ./back
+        working-directory: ./back
+        run: go test ./...
 
   quality:
     runs-on: ubuntu-latest
