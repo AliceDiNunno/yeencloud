@@ -11,6 +11,7 @@ var (
 	ErrorNotFound   = ErrorDescription{HttpCode: http.StatusNotFound, Code: "PageNotFound"}
 	ErrorNoMethod   = ErrorDescription{HttpCode: http.StatusMethodNotAllowed, Code: "MethodNotAllowed"}
 	ErrorBadRequest = ErrorDescription{HttpCode: http.StatusBadRequest, Code: "BadRequest"}
+	ErrorInternal   = ErrorDescription{HttpCode: http.StatusInternalServerError, Code: "InternalError"}
 
 	ErrorUserNotFound    = ErrorDescription{HttpCode: http.StatusNotFound, Code: "UserNotFound"}
 	ErrorProfileNotFound = ErrorDescription{HttpCode: http.StatusNotFound, Code: "ProfileNotFound"}

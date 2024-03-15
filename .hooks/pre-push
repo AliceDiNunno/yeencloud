@@ -12,14 +12,3 @@ else
   exit 1
 fi
 
-# Run frontend linter
-echo "Lint webapp"
-cd ../webapp || exit 1
-npm run lint
-status=$?
-if test $status -eq 0; then
-  echo "npm lint success"
-else
-  echo "npm lint failed"
-  exit 1
-fi

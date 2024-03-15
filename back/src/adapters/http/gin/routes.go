@@ -27,8 +27,9 @@ func (server *ServiceHTTPServer) SetRoutes() {
 
 	// Get prerequisites
 	r.Use(server.traceHandlerMiddleware())
+	r.Use(server.noResponseHandlerMiddleware())
 	r.Use(server.getSessionMiddleware())
-	r.Use(server.getUserMiddleware())
+	r.Use(server.getUserProfileMiddleware())
 	r.Use(server.getLangMiddleware())
 
 	// Unauthenticated routes
@@ -50,4 +51,19 @@ func (server *ServiceHTTPServer) SetErrors(r *gin.Engine) {
 	r.NoMethod(func(ctx *gin.Context) {
 		server.abortWithError(ctx, domain.ErrorNoMethod)
 	})
+}
+
+func (server *ServiceHTTPServer) noResponseHandlerMiddleware() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		// This should never happen, if a router does not write a response, we're returning an internal error
+		ctx.Next()
+
+		// TODO: add error to audit
+
+		if ctx.Writer.Written() {
+			return
+		}
+
+		server.abortWithError(ctx, domain.ErrorInternal)
+	}
 }

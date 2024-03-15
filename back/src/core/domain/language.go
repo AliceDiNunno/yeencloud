@@ -1,9 +1,9 @@
 package domain
 
 type Language struct {
-	Identifier  string
-	Flag        string
-	DisplayName string
+	Identifier  string `json:"id"`
+	Flag        string `json:"flag"`
+	DisplayName string `json:"displayName"`
 }
 
 // Translation keys.

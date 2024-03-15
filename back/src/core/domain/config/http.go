@@ -1,8 +1,8 @@
 package config
 
 type HTTPConfig struct {
-	ListeningAddress string
-	ListeningPort    int
+	ListeningAddress string `json:"-"`
+	ListeningPort    int    `json:"-"`
 
-	FrontendURL string
+	FrontendURL string `json:"-"`
 }

@@ -9,7 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func (v Validator) LoadLanguages() {
+func (v *Validator) LoadLanguages() {
 	enLg := en.New()
 	frLg := fr.New()
 

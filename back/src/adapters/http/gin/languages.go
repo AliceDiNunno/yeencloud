@@ -14,11 +14,11 @@ func (server *ServiceHTTPServer) getLangMiddleware() gin.HandlerFunc {
 		if acceptLanguage != "" {
 			lang = acceptLanguage
 		} else {
-			userID, exists := ctx.Get(CtxUserField)
+			profileField, exists := ctx.Get(CtxProfileField)
 			if exists {
-				user, err := server.ucs.GetProfileByUserID(server.getTrace(ctx), userID.(domain.UserID))
-				if err == nil {
-					lang = user.Language
+				profile, ok := profileField.(domain.Profile)
+				if ok {
+					lang = profile.Language
 				}
 			}
 		}

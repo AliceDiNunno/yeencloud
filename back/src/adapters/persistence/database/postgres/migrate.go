@@ -11,7 +11,7 @@ func (db *Database) Migrate() {
 		return
 	}
 
-	err = db.engine.Debug().AutoMigrate(&OrganizationUser{})
+	err = db.engine.Debug().AutoMigrate(&OrganizationProfile{})
 	if err != nil {
 		log.Err(err).Msg("Error migrating linking tables")
 		return

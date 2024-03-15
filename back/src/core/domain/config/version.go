@@ -1,9 +1,9 @@
 package config
 
 type VersionConfig struct {
-	SHA           string
-	Repository    string
-	RepositoryURL string
+	SHA           string `json:"sha,omitempty"`
+	Repository    string `json:"repository,omitempty"`
+	RepositoryURL string `json:"repositoryUrl,omitempty"`
 
-	Present bool
+	Present bool `json:"present"`
 }

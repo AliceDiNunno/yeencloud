@@ -26,9 +26,9 @@ type SessionUsecases interface {
 }
 
 type OrganizationUsecases interface {
-	CreateOrganization(auditID domain.AuditID, userID domain.UserID, organization requests.NewOrganization) (domain.Organization, *domain.ErrorDescription)
+	CreateOrganization(auditID domain.AuditID, profileID domain.ProfileID, organization requests.NewOrganization) (domain.Organization, *domain.ErrorDescription)
 
-	GetOrganizationsByUserID(auditID domain.AuditID, userID domain.UserID) ([]domain.OrganizationMember, *domain.ErrorDescription)
+	GetOrganizationsByProfileID(auditID domain.AuditID, profileID domain.ProfileID) ([]domain.OrganizationMember, *domain.ErrorDescription)
 }
 
 type Usecases interface {

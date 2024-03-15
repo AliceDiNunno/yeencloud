@@ -2,15 +2,15 @@ package audit
 
 import "back/src/core/domain"
 
-type root struct {
-	ID        domain.AuditID
-	StartedAt int64
-	EndedAt   int64
+type Request struct {
+	ID        domain.AuditID `json:"id"`
+	StartedAt int64          `json:"startedAt"`
+	EndedAt   int64          `json:"endedAt"`
 
-	Trigger     string
-	TriggerData []interface{}
+	Trigger     string        `json:"trigger"`
+	TriggerData []interface{} `json:"triggerData"`
 
-	Result []interface{}
+	Result []interface{} `json:"result"`
 
-	Content *step
+	Content *Step `json:"content"`
 }

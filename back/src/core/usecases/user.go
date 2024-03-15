@@ -12,6 +12,9 @@ import (
 func (i interactor) newUserID() domain.UserID {
 	return domain.UserID(uuid.New().String())
 }
+func (i interactor) newProfileID() domain.ProfileID {
+	return domain.ProfileID(uuid.New().String())
+}
 
 func (i interactor) CreateUser(auditID domain.AuditID, newUser requests.NewUser, profileLanguage string) (domain.Profile, *domain.ErrorDescription) {
 	i.auditer.AddStep(auditID, newUser.Secure())
@@ -36,12 +39,13 @@ func (i interactor) CreateUser(auditID domain.AuditID, newUser requests.NewUser,
 	}
 
 	profileToCreate := domain.Profile{
+		ID:       i.newProfileID(),
 		UserID:   user.ID,
 		Name:     newUser.Name,
 		Language: profileLanguage,
 	}
 
-	_, err = i.profileRepo.CreateProfile(profileToCreate)
+	profile, err := i.profileRepo.CreateProfile(profileToCreate)
 
 	if err != nil {
 		log.Err(err).Str(domain.LogFieldMail, newUser.Email).Msg("Error creating profile for user")
@@ -61,13 +65,13 @@ func (i interactor) CreateUser(auditID domain.AuditID, newUser requests.NewUser,
 		Description: localizedDescription,
 	}
 
-	_, derr := i.CreateOrganization(auditID, user.ID, organizationToCreate)
+	_, derr := i.CreateOrganization(auditID, profile.ID, organizationToCreate)
 
 	if derr != nil {
 		return domain.Profile{}, derr
 	}
 
-	log.Info().Str(domain.LogFieldMail, newUser.Email).Msg("User created")
+	log.Info().Str(domain.LogFieldMail, newUser.Email).Msg("Profile created")
 	return profileToCreate, nil
 }
 
@@ -84,7 +88,7 @@ func (i interactor) GetUserByID(auditID domain.AuditID, id domain.UserID) (domai
 }
 
 func (i interactor) GetProfileByUserID(auditID domain.AuditID, userID domain.UserID) (domain.Profile, *domain.ErrorDescription) {
-	i.auditer.AddStep(auditID)
+	log.Debug().Str("audit", auditID.String()).Msg("Getting profile by user id")
 	profile, err := i.profileRepo.FindProfileByUserID(userID)
 
 	// #YC-22 TODO: this should never happen, a profile should be created if it ever is missing (while also reporting the error so it can be investigated)

@@ -1,6 +1,6 @@
 package config
 
 type KubernetesConfig struct {
-	UsingInternalConfig bool
-	KubeconfigPath      string
+	UsingInternalConfig bool   `json:"-"`
+	KubeconfigPath      string `json:"-"`
 }

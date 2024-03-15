@@ -38,9 +38,9 @@ type OrganizationRepository interface {
 }
 
 type OrganizationUserRepository interface {
-	LinkUserToOrganization(userID domain.UserID, organizationID domain.OrganizationID, role domain.OrganizationRole) error
+	LinkProfileToOrganization(profileID domain.ProfileID, organizationID domain.OrganizationID, role domain.OrganizationRole) error
 
-	GetUserOrganizationsByUserID(userID domain.UserID) ([]domain.OrganizationMember, error)
+	GetProfileOrganizationsByProfileID(profileID domain.ProfileID) ([]domain.OrganizationMember, error)
 	GetOrganizationMembers(organizationID domain.OrganizationID) ([]domain.OrganizationMember, error)
 }
 

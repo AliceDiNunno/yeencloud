@@ -12,8 +12,6 @@ type User struct {
 
 	Email    string `gorm:"unique"`
 	Password string
-
-	Organizations []OrganizationUser
 }
 
 func (db *Database) CountUsers() int64 {

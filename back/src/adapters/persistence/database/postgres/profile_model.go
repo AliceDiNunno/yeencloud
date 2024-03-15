@@ -8,11 +8,15 @@ import (
 type Profile struct {
 	gorm.Model
 
-	UserID string `gorm:"foreignkey:User;not null;unique"`
+	ID string `gorm:"type:uuid;primary_key"`
+
+	UserID string `gorm:"foreignkey:Profile;not null;unique"`
 	User   User
 
 	Name     string
 	Language string
+
+	Organizations []OrganizationProfile
 }
 
 func (db *Database) CreateProfile(profile domain.Profile) (domain.Profile, error) {
@@ -41,6 +45,7 @@ func (db *Database) FindProfileByUserID(userID domain.UserID) (domain.Profile, e
 
 func domainToProfile(profile domain.Profile) Profile {
 	return Profile{
+		ID:       profile.ID.String(),
 		UserID:   profile.UserID.String(),
 		Name:     profile.Name,
 		Language: profile.Language,
@@ -49,6 +54,7 @@ func domainToProfile(profile domain.Profile) Profile {
 
 func profileToDomain(profile Profile) domain.Profile {
 	return domain.Profile{
+		ID:       domain.ProfileID(profile.ID),
 		UserID:   domain.UserID(profile.UserID),
 		Name:     profile.Name,
 		Language: profile.Language,
