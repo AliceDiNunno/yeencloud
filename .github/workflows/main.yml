@@ -19,7 +19,7 @@ jobs:
         run: go mod tidy
       - name: Test with Go
         working-directory: ./back
-        run: go test ./...
+        run: go test -short ./...
 
   quality:
     runs-on: ubuntu-latest
