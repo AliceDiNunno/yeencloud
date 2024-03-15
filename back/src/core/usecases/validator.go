@@ -4,6 +4,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+// TODO: move string checks to a separate file probably outside of the usecases package
 func stringHasNumber(value string) bool {
 	for _, char := range value {
 		if char >= '0' && char <= '9' {
@@ -43,7 +44,7 @@ func stringHasSpecialCharacter(value string) bool {
 	return false
 }
 
-func (i interactor) PasswordValidator() validator.Func {
+func (i Interactor) PasswordValidator() validator.Func {
 	return func(fl validator.FieldLevel) bool {
 		password := fl.Field().String()
 
@@ -67,7 +68,7 @@ func (i interactor) PasswordValidator() validator.Func {
 	}
 }
 
-func (i interactor) UniqueMailValidator() validator.Func {
+func (i Interactor) UniqueMailValidator() validator.Func {
 	return func(fl validator.FieldLevel) bool {
 		email := fl.Field().String()
 		_, err := i.userRepo.FindUserByEmail(email)

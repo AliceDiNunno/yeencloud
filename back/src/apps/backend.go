@@ -20,7 +20,11 @@ func MainBackend(bundle *ApplicationBundle) error {
 
 	// #YC-12 TODO: make database dependent on config in order to have a local database for tests
 	log.Info().Msg("Connecting to database")
-	database := postgres.StartGormDatabase(databaseConfig, "default")
+	database, err := postgres.StartGormDatabase(databaseConfig)
+	if err != nil {
+		log.Info().Err(err).Msg("Error connecting to database")
+		return err
+	}
 	database.Migrate()
 
 	// #YC-13 TODO: pass the kubernetes config to the k8s adapter

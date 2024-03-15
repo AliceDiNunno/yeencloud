@@ -7,7 +7,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func (i interactor) CreateOrganization(auditID domain.AuditID, profileID domain.ProfileID, newOrganization requests.NewOrganization) (domain.Organization, *domain.ErrorDescription) {
+func (i Interactor) CreateOrganization(auditID domain.AuditID, profileID domain.ProfileID, newOrganization requests.NewOrganization) (domain.Organization, *domain.ErrorDescription) {
 	i.auditer.AddStep(auditID, newOrganization)
 
 	organizationToCreate := domain.Organization{
@@ -32,7 +32,7 @@ func (i interactor) CreateOrganization(auditID domain.AuditID, profileID domain.
 	return organization, nil
 }
 
-func (i interactor) GetOrganizationsByProfileID(auditID domain.AuditID, profileID domain.ProfileID) ([]domain.OrganizationMember, *domain.ErrorDescription) {
+func (i Interactor) GetOrganizationsByProfileID(auditID domain.AuditID, profileID domain.ProfileID) ([]domain.OrganizationMember, *domain.ErrorDescription) {
 	i.auditer.AddStep(auditID, profileID)
 
 	organizations, err := i.organizationUserRepo.GetProfileOrganizationsByProfileID(profileID)

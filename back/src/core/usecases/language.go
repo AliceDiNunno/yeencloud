@@ -5,7 +5,7 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
-func (i interactor) GetAvailableLanguages() []domain.Language {
+func (i Interactor) GetAvailableLanguages() []domain.Language {
 	tags := i.translator.LanguageTags()
 
 	languages := []domain.Language{}

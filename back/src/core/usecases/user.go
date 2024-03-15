@@ -9,14 +9,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (i interactor) newUserID() domain.UserID {
+func (i Interactor) newUserID() domain.UserID {
 	return domain.UserID(uuid.New().String())
 }
-func (i interactor) newProfileID() domain.ProfileID {
+func (i Interactor) newProfileID() domain.ProfileID {
 	return domain.ProfileID(uuid.New().String())
 }
 
-func (i interactor) CreateUser(auditID domain.AuditID, newUser requests.NewUser, profileLanguage string) (domain.Profile, *domain.ErrorDescription) {
+func (i Interactor) CreateUser(auditID domain.AuditID, newUser requests.NewUser, profileLanguage string) (domain.Profile, *domain.ErrorDescription) {
 	i.auditer.AddStep(auditID, newUser.Secure())
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
@@ -75,7 +75,7 @@ func (i interactor) CreateUser(auditID domain.AuditID, newUser requests.NewUser,
 	return profileToCreate, nil
 }
 
-func (i interactor) GetUserByID(auditID domain.AuditID, id domain.UserID) (domain.User, *domain.ErrorDescription) {
+func (i Interactor) GetUserByID(auditID domain.AuditID, id domain.UserID) (domain.User, *domain.ErrorDescription) {
 	i.auditer.AddStep(auditID)
 	user, err := i.userRepo.FindUserByID(id)
 
@@ -87,7 +87,7 @@ func (i interactor) GetUserByID(auditID domain.AuditID, id domain.UserID) (domai
 	return user, nil
 }
 
-func (i interactor) GetProfileByUserID(auditID domain.AuditID, userID domain.UserID) (domain.Profile, *domain.ErrorDescription) {
+func (i Interactor) GetProfileByUserID(auditID domain.AuditID, userID domain.UserID) (domain.Profile, *domain.ErrorDescription) {
 	log.Debug().Str("audit", auditID.String()).Msg("Getting profile by user id")
 	profile, err := i.profileRepo.FindProfileByUserID(userID)
 

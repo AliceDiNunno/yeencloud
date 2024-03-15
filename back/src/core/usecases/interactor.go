@@ -64,7 +64,7 @@ type Validator interface {
 	AddCustomValidation(tag string, fn validator.Func)
 }
 
-type interactor struct {
+type Interactor struct {
 	cluster    ClusterAdapter
 	validator  Validator
 	translator *i18n.Bundle
@@ -84,8 +84,8 @@ type interactor struct {
 
 func NewInteractor(c ClusterAdapter, i18n *i18n.Bundle, validator Validator, audit Audit,
 	sR SettingsRepository, uR UserRepository, proR ProfileRepository, servR ServiceRepository, sesR SessionRepository, oR OrganizationRepository,
-	ouR OrganizationUserRepository) *interactor {
-	inter := &interactor{
+	ouR OrganizationUserRepository) *Interactor {
+	inter := &Interactor{
 		cluster:    c,
 		translator: i18n,
 		validator:  validator,

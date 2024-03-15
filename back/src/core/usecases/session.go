@@ -9,7 +9,7 @@ import (
 )
 
 // #YC-21 TODO: should a session be in the usecases or the http layer?
-func (i interactor) CreateSession(auditID domain.AuditID, newSessionRequest requests.NewSession) (domain.Session, *domain.ErrorDescription) {
+func (i Interactor) CreateSession(auditID domain.AuditID, newSessionRequest requests.NewSession) (domain.Session, *domain.ErrorDescription) {
 	i.auditer.AddStep(auditID, newSessionRequest.Secure())
 
 	// #YC-3 TODO: implement OTP
@@ -41,7 +41,7 @@ func (i interactor) CreateSession(auditID domain.AuditID, newSessionRequest requ
 	return session, nil
 }
 
-func (i interactor) GetSessionByToken(auditID domain.AuditID, token string) (domain.Session, *domain.ErrorDescription) {
+func (i Interactor) GetSessionByToken(auditID domain.AuditID, token string) (domain.Session, *domain.ErrorDescription) {
 	i.auditer.AddStep(auditID)
 
 	// #YC-20 TODO: this should check if the user still exists and if the session is still valid
