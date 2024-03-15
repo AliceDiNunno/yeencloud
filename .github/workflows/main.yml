@@ -16,8 +16,12 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - name: Install dependencies
         run: go get .
+        with:
+          context: ./back
       - name: Test with Go
         run: go test
+        with:
+          context: ./back
 
   quality:
     runs-on: ubuntu-latest
