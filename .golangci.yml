@@ -1,6 +1,6 @@
 output:
   sort-results: true
-  uniq-by-line: false
+  uniq-by-line: true
 
 run:
   skip-files:

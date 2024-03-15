@@ -16,7 +16,7 @@ func TestInteractor() /*usecases.Interactor*/ {
 
 	_, _ = httpConfig, databaseConfig
 
-	/*ucs := usecases.NewInteractor(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
+	/*ucs := usecases.NewInteractor(a, b, c, d, e, f, g, h, i, j, k, l, m, n)
 
 	return ucs*/
 }

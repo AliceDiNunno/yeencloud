@@ -1,7 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="go build back/cmd" type="GoApplicationRunConfiguration" factoryName="Go Application" nameIsGenerated="true">
+  <configuration default="false" name="[Backend] Full tests" type="GoTestRunConfiguration" factoryName="Go Test">
     <module name="YeeenCloud" />
     <working_directory value="$PROJECT_DIR$/back" />
+    <useCustomBuildTags value="true" />
+    <parameters value="-cover" />
     <EXTENSION ID="net.ashald.envfile">
       <option name="IS_ENABLED" value="false" />
       <option name="IS_SUBST" value="false" />
@@ -12,12 +14,11 @@
         <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
       </ENTRIES>
     </EXTENSION>
-    <kind value="PACKAGE" />
-    <package value="back/cmd" />
-    <directory value="$PROJECT_DIR$" />
-    <filePath value="$PROJECT_DIR$/back/cmd/main.go" />
-    <method v="2">
-      <option name="GoBeforeRunTask" command="mod tidy" />
-    </method>
+    <kind value="DIRECTORY" />
+    <package value="back/src/adapters/persistence/database/postgres" />
+    <directory value="$PROJECT_DIR$/back" />
+    <filePath value="$PROJECT_DIR$" />
+    <framework value="gotest" />
+    <method v="2" />
   </configuration>
 </component>

@@ -25,7 +25,11 @@ func MainBackend(bundle *ApplicationBundle) error {
 		log.Info().Err(err).Msg("Error connecting to database")
 		return err
 	}
-	database.Migrate()
+	err = database.Migrate()
+	if err != nil {
+		log.Info().Err(err).Msg("Error migrating database")
+		return err
+	}
 
 	// #YC-13 TODO: pass the kubernetes config to the k8s adapter
 	cluster := k8s.NewCluster()
@@ -33,7 +37,7 @@ func MainBackend(bundle *ApplicationBundle) error {
 	auditer := audit.NewAuditer(nil)
 
 	ucs := usecases.NewInteractor(cluster, bundle.Translator, validator, auditer,
-		database, database, database, database, database, database,
+		database, database, database, database, database,
 		database)
 
 	http := gin.NewServiceHttpServer(ucs, httpConfig, version, bundle.Translator, validator, auditer)

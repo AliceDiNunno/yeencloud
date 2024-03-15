@@ -8,10 +8,23 @@ import (
 type User struct {
 	gorm.Model
 
-	ID string `gorm:"primary_key"`
+	// Setting default to null while preventing null values helps to avoid inserting a user with an ID
+	ID string `gorm:"primary_key;unique;not null;default:null"`
 
 	Email    string `gorm:"unique"`
 	Password string
+}
+
+func (db *Database) CreateUser(user domain.User) (domain.User, error) {
+	userToCreate := domainToUser(user)
+
+	result := db.engine.Create(&userToCreate)
+
+	if result.Error != nil {
+		return domain.User{}, result.Error
+	}
+
+	return userToDomain(userToCreate), nil
 }
 
 func (db *Database) CountUsers() int64 {
@@ -40,18 +53,6 @@ func (db *Database) FindUserByEmail(email string) (domain.User, error) {
 	}
 
 	return userToDomain(user), nil
-}
-
-func (db *Database) CreateUser(user domain.User) (domain.User, error) {
-	userToCreate := domainToUser(user)
-
-	result := db.engine.Create(&userToCreate)
-
-	if result.Error != nil {
-		return domain.User{}, result.Error
-	}
-
-	return userToDomain(userToCreate), nil
 }
 
 func userToDomain(user User) domain.User {
