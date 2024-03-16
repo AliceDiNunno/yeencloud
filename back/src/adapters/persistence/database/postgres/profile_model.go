@@ -10,7 +10,7 @@ type Profile struct {
 
 	ID string `gorm:"type:uuid;primary_key"`
 
-	UserID string `gorm:"foreignkey:Profile;not null;unique"`
+	UserID string `gorm:"foreignkey:Profile;not null;unique;default:null;<-:create"`
 	User   User
 
 	Name     string

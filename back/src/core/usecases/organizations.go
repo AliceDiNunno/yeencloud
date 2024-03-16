@@ -17,13 +17,13 @@ func (i Interactor) CreateOrganization(auditID domain.AuditID, profileID domain.
 		Description: newOrganization.Description,
 	}
 
-	organization, err := i.organizationRepo.CreateOrganization(organizationToCreate)
+	organization, err := i.persistence.organization.CreateOrganization(organizationToCreate)
 
 	if err != nil {
 		log.Err(err).Str("id", profileID.String()).Msg("Error creating organization for user")
 	}
 
-	err = i.organizationUserRepo.LinkProfileToOrganization(profileID, organization.ID, "admin")
+	err = i.persistence.organizationProfile.LinkProfileToOrganization(profileID, organization.ID, "admin")
 
 	if err != nil {
 		log.Err(err).Str("id", profileID.String()).Msg("Error linking user to organization")
@@ -35,7 +35,7 @@ func (i Interactor) CreateOrganization(auditID domain.AuditID, profileID domain.
 func (i Interactor) GetOrganizationsByProfileID(auditID domain.AuditID, profileID domain.ProfileID) ([]domain.OrganizationMember, *domain.ErrorDescription) {
 	i.auditer.AddStep(auditID, profileID)
 
-	organizations, err := i.organizationUserRepo.GetProfileOrganizationsByProfileID(profileID)
+	organizations, err := i.persistence.organizationProfile.GetProfileOrganizationsByProfileID(profileID)
 
 	if err != nil {
 		log.Err(err).Str("id", profileID.String()).Msg("Error getting organizations for user")

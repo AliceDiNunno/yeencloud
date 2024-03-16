@@ -2,10 +2,16 @@ package postgres
 
 import (
 	"back/src/core/domain"
+	"github.com/stretchr/testify/suite"
 )
 
+type UserModelIntegrationTestSuite struct {
+	suite.Suite
+	database *Database
+}
+
 var testUser = domain.User{
-	ID:       "User ID",
+	ID:       domain.UserID("f1ec7fce-9d1c-4cd4-a9e4-f2f0538f466f"),
 	Email:    "test@mail.com",
 	Password: "-CurrentUserPassword123-",
 }
@@ -52,7 +58,14 @@ func (suite *DatabaseDomainBridgeTestSuite) TestUserDomainToModelToDomain() {
 	suite.Assert().Equal(domainUser, userDomain)
 }
 
-func (suite *DatabaseIntegrationTestSuite) TestCreateUserIntegration() {
+func (suite *UserModelIntegrationTestSuite) SetupTest() {
+}
+
+func (suite *UserModelIntegrationTestSuite) TearDownTest() {
+	globalTearDown(suite.database, suite.T())
+}
+
+func (suite *UserModelIntegrationTestSuite) TestCreateUserIntegration() {
 	// Given
 	user := testUser
 
@@ -67,7 +80,7 @@ func (suite *DatabaseIntegrationTestSuite) TestCreateUserIntegration() {
 	suite.Assert().Equal(testUser, foundUser)
 }
 
-func (suite *DatabaseIntegrationTestSuite) TestCreateUserWithoutIdIntegration() {
+func (suite *UserModelIntegrationTestSuite) TestCreateUserWithoutIdIntegration() {
 	// Given
 	user := testUser
 	user.ID = ""
@@ -83,13 +96,13 @@ func (suite *DatabaseIntegrationTestSuite) TestCreateUserWithoutIdIntegration() 
 	suite.Assert().Equal(domain.User{}, foundUser)
 }
 
-func (suite *DatabaseIntegrationTestSuite) TestCreateUserWithDuplicateMailIntegration() {
+func (suite *UserModelIntegrationTestSuite) TestCreateUserWithDuplicateMailIntegration() {
 	// Given
 	user := testUser
 
 	// When
 	_, err := suite.database.CreateUser(user)
-	user.ID = "User ID 2"
+	user.ID = "b7c8e647-c859-4ebb-8b10-449fab8909d9"
 	suite.Assert().NoError(err)
 	_, err = suite.database.CreateUser(user)
 
@@ -97,7 +110,7 @@ func (suite *DatabaseIntegrationTestSuite) TestCreateUserWithDuplicateMailIntegr
 	suite.Assert().Error(err)
 }
 
-func (suite *DatabaseIntegrationTestSuite) TestCreateUserWithDuplicateIdsIntegration() {
+func (suite *UserModelIntegrationTestSuite) TestCreateUserWithDuplicateIdsIntegration() {
 	// Given
 	user := testUser
 
@@ -111,7 +124,7 @@ func (suite *DatabaseIntegrationTestSuite) TestCreateUserWithDuplicateIdsIntegra
 	suite.Assert().Error(err)
 }
 
-func (suite *DatabaseIntegrationTestSuite) TestFindUserByIdIntegration() {
+func (suite *UserModelIntegrationTestSuite) TestFindUserByIdIntegration() {
 	// Given
 	user := testUser
 
@@ -126,7 +139,7 @@ func (suite *DatabaseIntegrationTestSuite) TestFindUserByIdIntegration() {
 	suite.Assert().Equal(testUser, foundUser)
 }
 
-func (suite *DatabaseIntegrationTestSuite) TestFindUserByEmailIntegration() {
+func (suite *UserModelIntegrationTestSuite) TestFindUserByEmailIntegration() {
 	// Given
 	user := testUser
 
@@ -141,7 +154,7 @@ func (suite *DatabaseIntegrationTestSuite) TestFindUserByEmailIntegration() {
 	suite.Assert().Equal(testUser, foundUser)
 }
 
-func (suite *DatabaseIntegrationTestSuite) TestCountUsersEmptyIntegration() {
+func (suite *UserModelIntegrationTestSuite) TestCountUsersEmptyIntegration() {
 	// When
 	count := suite.database.CountUsers()
 
@@ -149,7 +162,7 @@ func (suite *DatabaseIntegrationTestSuite) TestCountUsersEmptyIntegration() {
 	suite.Assert().Equal(int64(0), count)
 }
 
-func (suite *DatabaseIntegrationTestSuite) TestCountUsersIntegration() {
+func (suite *UserModelIntegrationTestSuite) TestCountUsersIntegration() {
 	// Given
 	user := testUser
 
@@ -162,26 +175,34 @@ func (suite *DatabaseIntegrationTestSuite) TestCountUsersIntegration() {
 	suite.Assert().Equal(int64(1), count)
 }
 
-func (suite *DatabaseIntegrationTestSuite) TestUpdateUserMailIntegration() {
+func (suite *UserModelIntegrationTestSuite) TestTryUpdatingUserIdIntegration() {
 	suite.T().Skip("Not implemented")
 }
 
-func (suite *DatabaseIntegrationTestSuite) TestUpdateUserPasswordIntegration() {
+func (suite *UserModelIntegrationTestSuite) TestUpdateUserMailIntegration() {
 	suite.T().Skip("Not implemented")
 }
 
-func (suite *DatabaseIntegrationTestSuite) TestUpdateUserMailAndPasswordIntegration() {
+func (suite *UserModelIntegrationTestSuite) TestUpdateUserPasswordIntegration() {
 	suite.T().Skip("Not implemented")
 }
 
-func (suite *DatabaseIntegrationTestSuite) TestUpdateNotExistingUserShouldThrowErrorIntegration() {
+func (suite *UserModelIntegrationTestSuite) TestUpdateUserMailAndPasswordIntegration() {
 	suite.T().Skip("Not implemented")
 }
 
-func (suite *DatabaseIntegrationTestSuite) TestDeleteUserIntegration() {
+func (suite *UserModelIntegrationTestSuite) TestUpdateNotExistingUserShouldThrowErrorIntegration() {
 	suite.T().Skip("Not implemented")
 }
 
-func (suite *DatabaseIntegrationTestSuite) TestDeleteNotExistingUserShouldThrowErrorIntegration() {
+func (suite *UserModelIntegrationTestSuite) TestDeleteUserIntegration() {
+	suite.T().Skip("Not implemented")
+}
+
+func (suite *UserModelIntegrationTestSuite) TestDeleteNotExistingUserShouldThrowErrorIntegration() {
+	suite.T().Skip("Not implemented")
+}
+
+func (suite *UserModelIntegrationTestSuite) TestRecreatingDeletedUser() {
 	suite.T().Skip("Not implemented")
 }

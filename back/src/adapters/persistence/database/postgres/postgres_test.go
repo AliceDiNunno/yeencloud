@@ -17,31 +17,26 @@ type DatabaseDomainBridgeTestSuite struct {
 	suite.Suite
 }
 
-func (suite *DatabaseIntegrationTestSuite) TestFirst() {
-	println("first")
-}
-
-func (suite *DatabaseIntegrationTestSuite) TestSecond() {
-	println("second")
-}
-
-func (suite *DatabaseIntegrationTestSuite) TearDownTest() {
+func globalTearDown(database *Database, t *testing.T) {
 	// The tables are deleted in the following order to avoid foreign key constraints errors
 
 	// Linking tables
-	err := suite.database.engine.Session(&gorm.Session{AllowGlobalUpdate: true}).Unscoped().Delete(&OrganizationProfile{}).Error
-	suite.NoError(err)
+	err := database.engine.Session(&gorm.Session{AllowGlobalUpdate: true}).Unscoped().Delete(&OrganizationProfile{}).Error
+	assert.NoError(t, err)
 
 	// Models
-	err = suite.database.engine.Session(&gorm.Session{AllowGlobalUpdate: true}).Unscoped().Delete(&Organization{}).Error
-	suite.NoError(err)
-	err = suite.database.engine.Session(&gorm.Session{AllowGlobalUpdate: true}).Unscoped().Delete(&Profile{}).Error
-	suite.NoError(err)
-	err = suite.database.engine.Session(&gorm.Session{AllowGlobalUpdate: true}).Unscoped().Delete(&Session{}).Error
-	suite.NoError(err)
-	err = suite.database.engine.Session(&gorm.Session{AllowGlobalUpdate: true}).Unscoped().Delete(&User{}).Error
-	suite.NoError(err)
+	err = database.engine.Session(&gorm.Session{AllowGlobalUpdate: true}).Unscoped().Delete(&Organization{}).Error
+	assert.NoError(t, err)
+	err = database.engine.Session(&gorm.Session{AllowGlobalUpdate: true}).Unscoped().Delete(&Profile{}).Error
+	assert.NoError(t, err)
+	err = database.engine.Session(&gorm.Session{AllowGlobalUpdate: true}).Unscoped().Delete(&Session{}).Error
+	assert.NoError(t, err)
+	err = database.engine.Session(&gorm.Session{AllowGlobalUpdate: true}).Unscoped().Delete(&User{}).Error
+	assert.NoError(t, err)
+}
 
+func (suite *DatabaseIntegrationTestSuite) TearDownTest() {
+	globalTearDown(suite.database, suite.T())
 }
 
 func (suite *DatabaseIntegrationTestSuite) migrateTestDB() error {
@@ -71,6 +66,29 @@ func TestDatabaseSuite(t *testing.T) {
 		integrationTests := new(DatabaseIntegrationTestSuite)
 		err := integrationTests.migrateTestDB()
 		assert.NoError(t, err)
+
 		suite.Run(t, integrationTests)
+
+		userModelIntegrationTestSuite := new(UserModelIntegrationTestSuite)
+		userModelIntegrationTestSuite.database = integrationTests.database
+
+		profileModelIntegrationTestSuite := new(ProfileModelIntegrationTestSuite)
+		profileModelIntegrationTestSuite.database = integrationTests.database
+
+		sessionModelIntegrationTestSuite := new(SessionModelIntegrationTestSuite)
+		sessionModelIntegrationTestSuite.database = integrationTests.database
+
+		organizationModelIntegrationTestSuite := new(OrganizationModelIntegrationTestSuite)
+		organizationModelIntegrationTestSuite.database = integrationTests.database
+
+		organizationProfileModelIntegrationTestSuite := new(OrganizationProfileModelIntegrationTestSuite)
+		organizationProfileModelIntegrationTestSuite.database = integrationTests.database
+
+		suite.Run(t, userModelIntegrationTestSuite)
+		suite.Run(t, profileModelIntegrationTestSuite)
+		suite.Run(t, sessionModelIntegrationTestSuite)
+		suite.Run(t, organizationModelIntegrationTestSuite)
+
+		suite.Run(t, organizationProfileModelIntegrationTestSuite)
 	}
 }

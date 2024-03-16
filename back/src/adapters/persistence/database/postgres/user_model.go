@@ -9,7 +9,7 @@ type User struct {
 	gorm.Model
 
 	// Setting default to null while preventing null values helps to avoid inserting a user with an ID
-	ID string `gorm:"primary_key;unique;not null;default:null"`
+	ID string `gorm:"primary_key;unique;not null;default:null;<-:create"`
 
 	Email    string `gorm:"unique"`
 	Password string

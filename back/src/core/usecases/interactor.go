@@ -31,7 +31,7 @@ type OrganizationRepository interface {
 	DeleteOrganizationByID(id domain.OrganizationID) error
 }
 
-type OrganizationUserRepository interface {
+type OrganizationProfileRepository interface {
 	LinkProfileToOrganization(profileID domain.ProfileID, organizationID domain.OrganizationID, role domain.OrganizationRole) error
 
 	GetProfileOrganizationsByProfileID(profileID domain.ProfileID) ([]domain.OrganizationMember, error)
@@ -58,39 +58,35 @@ type Validator interface {
 	AddCustomValidation(tag string, fn validator.Func)
 }
 
+type Persistence struct {
+	// Main models
+	user         UserRepository
+	service      ServiceRepository
+	session      SessionRepository
+	profile      ProfileRepository
+	organization OrganizationRepository
+
+	// Linking models
+	organizationProfile OrganizationProfileRepository
+}
+
 type Interactor struct {
 	cluster    ClusterAdapter
 	validator  Validator
 	translator *i18n.Bundle
 	auditer    Audit
 
-	// Main models
-	userRepo         UserRepository
-	serviceRepo      ServiceRepository
-	sessionRepo      SessionRepository
-	profileRepo      ProfileRepository
-	organizationRepo OrganizationRepository
-
-	// Linking models
-	organizationUserRepo OrganizationUserRepository
+	persistence Persistence
 }
 
-func NewInteractor(c ClusterAdapter, i18n *i18n.Bundle, validator Validator, audit Audit,
-	uR UserRepository, proR ProfileRepository, servR ServiceRepository, sesR SessionRepository, oR OrganizationRepository,
-	ouR OrganizationUserRepository) *Interactor {
+func NewInteractor(c ClusterAdapter, i18n *i18n.Bundle, validator Validator, audit Audit, per Persistence) *Interactor {
 	inter := &Interactor{
 		cluster:    c,
 		translator: i18n,
 		validator:  validator,
 		auditer:    audit,
 
-		userRepo:         uR,
-		profileRepo:      proR,
-		serviceRepo:      servR,
-		sessionRepo:      sesR,
-		organizationRepo: oR,
-
-		organizationUserRepo: ouR,
+		persistence: per,
 	}
 
 	// Custom validations.
@@ -99,4 +95,16 @@ func NewInteractor(c ClusterAdapter, i18n *i18n.Bundle, validator Validator, aud
 	inter.validator.AddCustomValidation("unique_email", inter.UniqueMailValidator())
 
 	return inter
+}
+
+func NewPersistence(user UserRepository, service ServiceRepository, session SessionRepository, profile ProfileRepository, organization OrganizationRepository, organizationProfile OrganizationProfileRepository) Persistence {
+	return Persistence{
+		user:         user,
+		service:      service,
+		session:      session,
+		profile:      profile,
+		organization: organization,
+
+		organizationProfile: organizationProfile,
+	}
 }
