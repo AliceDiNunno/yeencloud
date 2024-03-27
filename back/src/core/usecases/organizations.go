@@ -1,14 +1,12 @@
 package usecases
 
 import (
-	"back/src/core/domain"
-	"back/src/core/domain/requests"
+	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/google/uuid"
-	"github.com/rs/zerolog/log"
 )
 
-func (i Interactor) CreateOrganization(auditID domain.AuditID, profileID domain.ProfileID, newOrganization requests.NewOrganization) (domain.Organization, *domain.ErrorDescription) {
-	i.auditer.AddStep(auditID, newOrganization)
+func (self UCs) CreateOrganization(auditID domain.AuditID, profileID domain.ProfileID, newOrganization domain.NewOrganization) (domain.Organization, *domain.ErrorDescription) {
+	auditStepID := self.i.Auditer.AddStep(auditID, newOrganization)
 
 	organizationToCreate := domain.Organization{
 		ID:          domain.OrganizationID(uuid.New().String()),
@@ -17,28 +15,40 @@ func (i Interactor) CreateOrganization(auditID domain.AuditID, profileID domain.
 		Description: newOrganization.Description,
 	}
 
-	organization, err := i.persistence.organization.CreateOrganization(organizationToCreate)
+	organization, err := self.i.Persistence.Organization.CreateOrganization(organizationToCreate)
 
 	if err != nil {
-		log.Err(err).Str("id", profileID.String()).Msg("Error creating organization for user")
+		self.i.Auditer.Log(auditID, auditStepID).WithFields(map[string]interface{}{
+			"error": err,
+			"id":    profileID.String()}).
+			Msg("Error creating organization for user")
 	}
 
-	err = i.persistence.organizationProfile.LinkProfileToOrganization(profileID, organization.ID, "admin")
+	err = self.i.Persistence.OrganizationProfile.LinkProfileToOrganization(profileID, organization.ID, "admin")
 
 	if err != nil {
-		log.Err(err).Str("id", profileID.String()).Msg("Error linking user to organization")
+		self.i.Auditer.Log(auditID, auditStepID).WithFields(map[string]interface{}{
+			"error": err,
+			"id":    profileID.String()}).
+			Msg("Error linking user to organization")
 	}
+
+	self.i.Auditer.EndStep(auditID, auditStepID)
 
 	return organization, nil
 }
 
-func (i Interactor) GetOrganizationsByProfileID(auditID domain.AuditID, profileID domain.ProfileID) ([]domain.OrganizationMember, *domain.ErrorDescription) {
-	i.auditer.AddStep(auditID, profileID)
+func (self UCs) GetOrganizationsByProfileID(auditID domain.AuditID, profileID domain.ProfileID) ([]domain.OrganizationMember, *domain.ErrorDescription) {
+	auditStepID := self.i.Auditer.AddStep(auditID, profileID)
 
-	organizations, err := i.persistence.organizationProfile.GetProfileOrganizationsByProfileID(profileID)
+	organizations, err := self.i.Persistence.OrganizationProfile.GetProfileOrganizationsByProfileID(profileID)
 
 	if err != nil {
-		log.Err(err).Str("id", profileID.String()).Msg("Error getting organizations for user")
+		self.i.Auditer.Log(auditID, auditStepID).WithLevel(domain.LogLevelError).WithFields(map[string]interface{}{
+			"error": err,
+			"id":    profileID.String()}).
+			Msg("Error getting organizations for user")
+
 		return nil, &domain.ErrorUnableToGetUserOrganizations
 	}
 

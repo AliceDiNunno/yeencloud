@@ -122,8 +122,8 @@ func (suite *SessionModelIntegrationTestSuite) TestCreateMultipleSessionsIntegra
 	suite.Assert().NoError(err)
 	suite.Assert().Equal(testValidSession, createdSession1)
 	suite.Assert().Equal(testValidSession, foundSession1)
-	suite.Assert().Equal(testValidSession, createdSession2)
-	suite.Assert().Equal(testValidSession, foundSession2)
+	suite.Assert().Equal(session2, createdSession2)
+	suite.Assert().Equal(session2, foundSession2)
 }
 
 func (suite *SessionModelIntegrationTestSuite) TestCreateSessionWithInvalidTokenIntegration() {
@@ -199,10 +199,6 @@ func (suite *SessionModelIntegrationTestSuite) TestCreateSessionWithInvalidUserI
 	suite.Assert().Error(err)
 	suite.Assert().Equal(domain.Session{}, createdSession)
 	suite.Assert().Equal(domain.Session{}, foundSession)
-}
-
-func (suite *SessionModelIntegrationTestSuite) TestTryToUpdateSessionIntegration() {
-	suite.T().Skip("Not implemented")
 }
 
 func (suite *SessionModelIntegrationTestSuite) TestDeleteSessionByTokenIntegration() {

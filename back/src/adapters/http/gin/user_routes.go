@@ -1,8 +1,7 @@
 package gin
 
 import (
-	"back/src/core/domain"
-	"back/src/core/domain/requests"
+	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/gin-gonic/gin"
 )
 
@@ -38,7 +37,7 @@ func (server *ServiceHTTPServer) getUserProfileMiddleware() gin.HandlerFunc {
 }
 
 func (server *ServiceHTTPServer) createUserHandler(ctx *gin.Context) {
-	var createUserRequest requests.NewUser
+	var createUserRequest domain.NewUser
 	if err := ctx.ShouldBindJSON(&createUserRequest); err != nil {
 		server.abortWithError(ctx, domain.ErrorBadRequest)
 		return

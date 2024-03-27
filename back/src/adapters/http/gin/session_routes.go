@@ -1,8 +1,7 @@
 package gin
 
 import (
-	"back/src/core/domain"
-	"back/src/core/domain/requests"
+	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/gin-gonic/gin"
 )
 
@@ -44,13 +43,13 @@ func (server *ServiceHTTPServer) requireSessionMiddleware() gin.HandlerFunc {
 }
 
 func (server *ServiceHTTPServer) createSessionHandler(ctx *gin.Context) {
-	var createSessionRequest requests.NewSession
+	var createSessionRequest domain.NewSession
 	if err := ctx.ShouldBindJSON(&createSessionRequest); err != nil {
 		server.abortWithError(ctx, domain.ErrorBadRequest)
 		return
 	}
 
-	createSessionRequest.IP = ctx.ClientIP()
+	createSessionRequest.Origin = ctx.ClientIP()
 
 	if !server.validate(createSessionRequest, ctx) {
 		return

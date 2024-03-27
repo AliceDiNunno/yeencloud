@@ -158,16 +158,26 @@ func (suite *OrganizationModelIntegrationTestSuite) TestFindOrganizationBySlugIn
 	suite.Assert().Equal(testOrganization, foundOrganization)
 }
 
-func (suite *OrganizationModelIntegrationTestSuite) TestTryUpdatingOrganizationIdIntegration() {
-	suite.T().Skip("Not implemented")
-}
-
-func (suite *OrganizationModelIntegrationTestSuite) TestTryUpdatingOrganizationSlugIntegration() {
-	suite.T().Skip("Not implemented")
-}
-
 func (suite *OrganizationModelIntegrationTestSuite) TestUpdateOrganizationFieldsIntegration() {
-	suite.T().Skip("Not implemented")
+	// Given
+	organization := testOrganization
+	update := domain.UpdateOrganization{
+		Name:        "Updated Test Organization",
+		Description: "Updated description for the organization.",
+	}
+
+	// When
+	createdOrganization, err := suite.database.CreateOrganization(organization)
+	suite.Assert().NoError(err)
+	updatedOrganization, err := suite.database.UpdateOrganization(organization.ID, update)
+
+	// Then
+	suite.Assert().NoError(err)
+	suite.Assert().Equal(testOrganization, createdOrganization)
+	suite.Assert().Equal(updatedOrganization.Name, update.Name)
+	suite.Assert().Equal(updatedOrganization.Description, update.Description)
+	suite.Assert().Equal(updatedOrganization.ID, createdOrganization.ID)
+	suite.Assert().Equal(updatedOrganization.Slug, createdOrganization.Slug)
 }
 
 func (suite *OrganizationModelIntegrationTestSuite) TestUpdateNotExistingOrganizationShouldThrowErrorIntegration() {

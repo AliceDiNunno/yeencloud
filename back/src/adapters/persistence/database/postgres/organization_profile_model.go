@@ -1,6 +1,6 @@
 package postgres
 
-import "back/src/core/domain"
+import "github.com/AliceDiNunno/yeencloud/src/core/domain"
 
 type OrganizationProfile struct {
 	OrganizationID string

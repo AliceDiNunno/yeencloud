@@ -1,19 +1,18 @@
 package usecases
 
 import (
-	"back/src/core/domain"
-	"back/src/core/domain/requests"
+	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )
 
 // #YC-21 TODO: should a session be in the usecases or the http layer?
-func (i Interactor) CreateSession(auditID domain.AuditID, newSessionRequest requests.NewSession) (domain.Session, *domain.ErrorDescription) {
-	i.auditer.AddStep(auditID, newSessionRequest.Secure())
+func (self UCs) CreateSession(auditID domain.AuditID, newSessionRequest domain.NewSession) (domain.Session, *domain.ErrorDescription) {
+	self.i.Auditer.AddStep(auditID, newSessionRequest.Secure())
 
 	// #YC-3 TODO: implement OTP
-	us, err := i.persistence.user.FindUserByEmail(newSessionRequest.Email)
+	us, err := self.i.Persistence.User.FindUserByEmail(newSessionRequest.Email)
 
 	if err != nil {
 		return domain.Session{}, &domain.ErrorUserNotFound
@@ -29,11 +28,11 @@ func (i Interactor) CreateSession(auditID domain.AuditID, newSessionRequest requ
 	newSession := domain.Session{
 		Token:    sessionToken,
 		ExpireAt: expiration.Unix(),
-		IP:       newSessionRequest.IP,
+		IP:       newSessionRequest.Origin,
 		UserID:   us.ID,
 	}
 
-	session, err := i.persistence.session.CreateSession(newSession)
+	session, err := self.i.Persistence.Session.CreateSession(newSession)
 	if err != nil {
 		return domain.Session{}, nil
 	}
@@ -41,11 +40,11 @@ func (i Interactor) CreateSession(auditID domain.AuditID, newSessionRequest requ
 	return session, nil
 }
 
-func (i Interactor) GetSessionByToken(auditID domain.AuditID, token string) (domain.Session, *domain.ErrorDescription) {
-	i.auditer.AddStep(auditID)
+func (self UCs) GetSessionByToken(auditID domain.AuditID, token string) (domain.Session, *domain.ErrorDescription) {
+	self.i.Auditer.AddStep(auditID)
 
 	// #YC-20 TODO: this should check if the user still exists and if the session is still valid
-	session, err := i.persistence.session.FindSessionByToken(token)
+	session, err := self.i.Persistence.Session.FindSessionByToken(token)
 	if err != nil {
 		return domain.Session{}, &domain.ErrorSessionNotFound
 	}

@@ -175,10 +175,6 @@ func (suite *UserModelIntegrationTestSuite) TestCountUsersIntegration() {
 	suite.Assert().Equal(int64(1), count)
 }
 
-func (suite *UserModelIntegrationTestSuite) TestTryUpdatingUserIdIntegration() {
-	suite.T().Skip("Not implemented")
-}
-
 func (suite *UserModelIntegrationTestSuite) TestUpdateUserMailIntegration() {
 	suite.T().Skip("Not implemented")
 }

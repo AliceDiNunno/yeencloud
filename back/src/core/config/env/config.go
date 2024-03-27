@@ -1,8 +1,6 @@
 package env
 
 import (
-	"back/src/core/domain"
-	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 	"os"
 	"strconv"
@@ -69,15 +67,7 @@ func (config *Config) GetEnvBoolOrDefault(key string, defaultValue bool) bool {
 }
 
 func (config *Config) GetEnvStringOrDefault(key string, defaultValue string) string {
-	value := config.getEnvStringOrDefault(key, defaultValue)
-
-	if strings.Contains(key, "SECRET") || strings.Contains(key, "KEY") || strings.Contains(key, "TOKEN") || strings.Contains(key, "PASSWORD") {
-		log.Info().Str(domain.LogFieldEnvironmentVariable, key).Msg("****")
-	} else {
-		log.Info().Str(domain.LogFieldEnvironmentVariable, key).Msg(value)
-	}
-
-	return value
+	return config.getEnvStringOrDefault(key, defaultValue)
 }
 
 func (config *Config) getEnvIntOrDefault(key string, defaultValue int) int {
@@ -108,13 +98,5 @@ func (config *Config) getEnvIntOrDefault(key string, defaultValue int) int {
 }
 
 func (config *Config) GetEnvIntOrDefault(key string, defaultValue int) int {
-	value := config.getEnvIntOrDefault(key, defaultValue)
-
-	if strings.Contains(key, "SECRET") || strings.Contains(key, "KEY") || strings.Contains(key, "TOKEN") || strings.Contains(key, "PASSWORD") {
-		log.Info().Str(domain.LogFieldEnvironmentVariable, key).Msg("****")
-	} else {
-		log.Info().Str(domain.LogFieldEnvironmentVariable, key).Msg(strconv.Itoa(value))
-	}
-
-	return value
+	return config.getEnvIntOrDefault(key, defaultValue)
 }

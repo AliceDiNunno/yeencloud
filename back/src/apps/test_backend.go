@@ -1,8 +1,8 @@
 package apps
 
 import (
-	"back/src/adapters/validator/govalidator"
-	testConf "back/src/core/config/testConfig"
+	"github.com/AliceDiNunno/yeencloud/src/adapters/validator"
+	testConf "github.com/AliceDiNunno/yeencloud/src/core/config/testConfig"
 )
 
 func TestInteractor() /*usecases.Interactor*/ {
@@ -11,7 +11,7 @@ func TestInteractor() /*usecases.Interactor*/ {
 	httpConfig := testConfig.GetHTTPConfig()
 	databaseConfig := testConfig.GetDatabaseConfig()
 
-	validator := govalidator.NewValidator()
+	validator := validator.NewValidator()
 	_ = validator
 
 	_, _ = httpConfig, databaseConfig

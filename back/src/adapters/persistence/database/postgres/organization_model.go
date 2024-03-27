@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"back/src/core/domain"
+	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 )
 
 type Organization struct {
@@ -26,11 +26,37 @@ func (db *Database) CreateOrganization(organization domain.Organization) (domain
 }
 
 func (db *Database) FindOrganizationByID(id domain.OrganizationID) (domain.Organization, error) {
-	panic("implement me")
+	org := Organization{}
+
+	result := db.engine.Where("id = ?", id.String()).First(&org)
+
+	if result.Error != nil {
+		return domain.Organization{}, result.Error
+	}
+
+	return organizationToDomain(org), nil
 }
 
 func (db *Database) FindOrganizationBySlug(slug string) (domain.Organization, error) {
-	panic("implement me")
+	org := Organization{}
+
+	result := db.engine.Where("slug = ?", slug).First(&org)
+
+	if result.Error != nil {
+		return domain.Organization{}, result.Error
+	}
+
+	return organizationToDomain(org), nil
+}
+
+func (db *Database) UpdateOrganization(organization domain.OrganizationID, updateOrganization domain.UpdateOrganization) (domain.Organization, error) {
+	err := db.engine.Model(&Organization{}).Where("id = ?", organization.String()).Updates(updateOrganization).Error
+
+	if err != nil {
+		return domain.Organization{}, err
+	}
+
+	return db.FindOrganizationByID(organization)
 }
 
 func (db *Database) DeleteOrganizationByID(id domain.OrganizationID) error {

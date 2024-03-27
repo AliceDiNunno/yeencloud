@@ -1,6 +1,6 @@
 package env
 
-import configDomain "back/src/core/domain/config"
+import configDomain "github.com/AliceDiNunno/yeencloud/src/core/domain/config"
 
 func (config *Config) GetVersionConfig() configDomain.VersionConfig {
 	return configDomain.VersionConfig{

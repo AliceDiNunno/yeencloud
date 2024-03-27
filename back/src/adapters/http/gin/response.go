@@ -1,7 +1,7 @@
 package gin
 
 import (
-	"back/src/core/domain"
+	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/gin-gonic/gin"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"net/http"
@@ -21,8 +21,8 @@ type ResponseError struct {
 	Message string `json:"message"`
 }
 
-func (server *ServiceHTTPServer) abortWithError(c *gin.Context, errorDescription domain.ErrorDescription, body ...interface{}) {
-	lang := c.GetString("lang")
+func (server *ServiceHTTPServer) abortWithError(ctx *gin.Context, errorDescription domain.ErrorDescription, body ...interface{}) {
+	lang := ctx.GetString("lang")
 
 	msg := i18n.NewLocalizer(server.translator, lang)
 
@@ -30,13 +30,15 @@ func (server *ServiceHTTPServer) abortWithError(c *gin.Context, errorDescription
 		MessageID: errorDescription.Code,
 	})
 
-	c.AbortWithStatusJSON(errorDescription.HttpCode, Response{
+	ctx.Set("error_code", errorDescription.Code)
+
+	ctx.AbortWithStatusJSON(errorDescription.HttpCode, Response{
 		StatusCode: errorDescription.HttpCode,
 		Error: &ResponseError{
 			Code:    errorDescription.Code,
 			Message: localized,
 		},
-		RequestID: server.getTrace(c).String(),
+		RequestID: server.getTrace(ctx).String(),
 		Body:      body,
 	})
 }

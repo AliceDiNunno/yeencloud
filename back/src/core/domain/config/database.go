@@ -1,10 +1,10 @@
 package config
 
 type DatabaseConfig struct {
-	Engine   string `json:"-"`
-	Host     string `json:"-"`
-	Port     int    `json:"-"`
-	User     string `json:"-"`
+	Engine   string
+	Host     string
+	Port     int
+	User     string
 	Password string `json:"-"`
-	DbName   string `json:"-"`
+	DbName   string
 }

@@ -1,57 +1,60 @@
 package usecases
 
 import (
-	"back/src/core/domain"
-	"back/src/core/domain/requests"
+	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/google/uuid"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (i Interactor) newUserID() domain.UserID {
+func (self UCs) newUserID() domain.UserID {
 	return domain.UserID(uuid.New().String())
 }
-func (i Interactor) newProfileID() domain.ProfileID {
+func (self UCs) newProfileID() domain.ProfileID {
 	return domain.ProfileID(uuid.New().String())
 }
 
-func (i Interactor) CreateUser(auditID domain.AuditID, newUser requests.NewUser, profileLanguage string) (domain.Profile, *domain.ErrorDescription) {
-	i.auditer.AddStep(auditID, newUser.Secure())
+func (self UCs) CreateUser(auditID domain.AuditID, newUser domain.NewUser, profileLanguage string) (domain.Profile, *domain.ErrorDescription) {
+	auditStepID := self.i.Auditer.AddStep(auditID, newUser.Secure())
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
 
 	if err != nil {
-		log.Err(err).Str(domain.LogFieldMail, newUser.Email).Msg("Error hashing password")
+		self.i.Auditer.Log(auditID, auditStepID).WithField(domain.LogFieldMail, newUser.Email).Msg("Error hashing password")
+		self.i.Auditer.EndStep(auditID, auditStepID)
 		return domain.Profile{}, &domain.ErrorUnableToHashPassword
 	}
 
 	userToCreate := domain.User{
-		ID:       i.newUserID(),
+		ID:       self.newUserID(),
 		Email:    newUser.Email,
 		Password: string(hashedPassword),
 	}
 
-	user, err := i.persistence.user.CreateUser(userToCreate)
+	user, err := self.i.Persistence.User.CreateUser(userToCreate)
 
 	if err != nil {
-		log.Err(err).Str(domain.LogFieldMail, newUser.Email).Msg("Error creating user")
+		self.i.Auditer.Log(auditID, auditStepID).WithField(domain.LogFieldMail, newUser.Email).Msg("Error creating user")
+		self.i.Auditer.EndStep(auditID, auditStepID)
+		return domain.Profile{}, &domain.ErrorUserAlreadyExists //TODO: wrong error ?
 	}
 
 	profileToCreate := domain.Profile{
-		ID:       i.newProfileID(),
+		ID:       self.newProfileID(),
 		UserID:   user.ID,
 		Name:     newUser.Name,
 		Language: profileLanguage,
 	}
 
-	profile, err := i.persistence.profile.CreateProfile(profileToCreate)
+	profile, err := self.i.Persistence.Profile.CreateProfile(profileToCreate)
 
 	if err != nil {
-		log.Err(err).Str(domain.LogFieldMail, newUser.Email).Msg("Error creating profile for user")
+		self.i.Auditer.Log(auditID, auditStepID).WithField(domain.LogFieldMail, newUser.Email).Msg("Error creating profile for user")
+		self.i.Auditer.EndStep(auditID, auditStepID)
+		return domain.Profile{}, &domain.ErrorUserAlreadyExists //TODO: wrong error ?
 	}
 
-	msg := i18n.NewLocalizer(i.translator, profileLanguage)
+	msg := i18n.NewLocalizer(self.i.Translator, profileLanguage)
 
 	localizedDescription, _, _ := msg.LocalizeWithTag(&i18n.LocalizeConfig{
 		MessageID: domain.DefaultOrganizationDescription,
@@ -60,42 +63,48 @@ func (i Interactor) CreateUser(auditID domain.AuditID, newUser requests.NewUser,
 		},
 	})
 
-	organizationToCreate := requests.NewOrganization{
+	organizationToCreate := domain.NewOrganization{
 		Name:        newUser.Name,
 		Description: localizedDescription,
 	}
 
-	_, derr := i.CreateOrganization(auditID, profile.ID, organizationToCreate)
+	_, derr := self.CreateOrganization(auditID, profile.ID, organizationToCreate)
 
 	if derr != nil {
+		self.i.Auditer.EndStep(auditID, auditStepID)
 		return domain.Profile{}, derr
 	}
 
-	log.Info().Str(domain.LogFieldMail, newUser.Email).Msg("Profile created")
+	self.i.Auditer.Log(auditID, auditStepID).WithField(domain.LogFieldMail, newUser.Email).Msg("Profile created")
+	self.i.Auditer.EndStep(auditID, auditStepID)
 	return profileToCreate, nil
 }
 
-func (i Interactor) GetUserByID(auditID domain.AuditID, id domain.UserID) (domain.User, *domain.ErrorDescription) {
-	i.auditer.AddStep(auditID)
-	user, err := i.persistence.user.FindUserByID(id)
+func (self UCs) GetUserByID(auditID domain.AuditID, id domain.UserID) (domain.User, *domain.ErrorDescription) {
+	auditStepID := self.i.Auditer.AddStep(auditID)
+	user, err := self.i.Persistence.User.FindUserByID(id)
 
 	if err != nil {
-		log.Err(err).Str("id", id.String()).Msg("Error finding user")
+		self.i.Auditer.Log(auditID, auditStepID).WithLevel(domain.LogLevelError).WithField("error", err).WithField("id", id.String()).Msg("Error finding user")
+		self.i.Auditer.EndStep(auditID, auditStepID)
 		return domain.User{}, &domain.ErrorUserNotFound
 	}
-
+	self.i.Auditer.EndStep(auditID, auditStepID)
 	return user, nil
 }
 
-func (i Interactor) GetProfileByUserID(auditID domain.AuditID, userID domain.UserID) (domain.Profile, *domain.ErrorDescription) {
-	log.Debug().Str("audit", auditID.String()).Msg("Getting profile by user id")
-	profile, err := i.persistence.profile.FindProfileByUserID(userID)
+func (self UCs) GetProfileByUserID(auditID domain.AuditID, userID domain.UserID) (domain.Profile, *domain.ErrorDescription) {
+	auditStepID := self.i.Auditer.AddStep(auditID)
+
+	profile, err := self.i.Persistence.Profile.FindProfileByUserID(userID)
 
 	// #YC-22 TODO: this should never happen, a profile should be created if it ever is missing (while also reporting the error so it can be investigated)
 	if err != nil {
-		log.Err(err).Str("id", userID.String()).Msg("Error finding profile")
+		self.i.Auditer.Log(auditID, auditStepID).WithLevel(domain.LogLevelError).WithField("error", err).Msg("Error finding user")
+		self.i.Auditer.EndStep(auditID, auditStepID)
 		return domain.Profile{}, &domain.ErrorProfileNotFound
 	}
 
+	self.i.Auditer.EndStep(auditID, auditStepID)
 	return profile, nil
 }
