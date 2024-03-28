@@ -13,64 +13,76 @@ import (
 type ZeroLogMiddleware struct {
 }
 
-func (z *ZeroLogMiddleware) colorRestMethodPath(str string) string {
-	regex, err := regexp.Compile(`^(?P<method>\w+)\s(?P<path>\/\S+)$`)
-	if err != nil {
-		return ""
+const clearColor = "\x1b[0m"
+const greenColor = "\x1b[32m"
+const redColor = "\x1b[31m"
+const yellowColor = "\x1b[33m"
+const blueColor = "\x1b[34m"
+const magentaColor = "\x1b[35m"
+const cyanColor = "\x1b[36m"
+const lightMagentaColor = "\x1b[95m"
+
+func (z *ZeroLogMiddleware) colorForMethod(method string) string {
+	switch method {
+	case "GET":
+		return greenColor
+	case "POST":
+		return blueColor
+	case "PUT":
+		return cyanColor
+	case "DELETE":
+		return redColor
+	case "PATCH":
+		return yellowColor
+	default:
+		return clearColor
 	}
+}
+
+func (z *ZeroLogMiddleware) colorForStatus(status int) string {
+	// So gocritic wants me to use a switch statement here instead of if/else but how the f am I supposed to do that with ranges?"z'e<<<<<<<<<<<<<<<
+	//nolint:all
+	if status >= 200 && status < 300 {
+		return greenColor
+	} else if status >= 300 && status < 400 {
+		return yellowColor
+	} else if status >= 400 && status < 500 {
+		return redColor
+	} else if status >= 500 {
+		return lightMagentaColor
+	}
+
+	return clearColor
+}
+
+func (z *ZeroLogMiddleware) colorRestMethodPath(str string) string {
+	regex := regexp.MustCompile(`^(?P<method>\w+)\s(?P<path>\/\S+)$`)
 
 	if regex.MatchString(str) {
 		method := regex.FindStringSubmatch(str)[1]
 		path := regex.FindStringSubmatch(str)[2]
-		color := "\x1b[0m"
+		color := z.colorForMethod(method)
 
-		switch method {
-		case "GET":
-			color = "\x1b[32m"
-		case "POST":
-			color = "\x1b[34m"
-		case "PUT":
-			color = "\x1b[36m"
-		case "DELETE":
-			color = "\x1b[31m"
-		case "PATCH":
-			color = "\x1b[33m"
-		default:
-			color = "\x1b[0m"
-		}
-
-		return color + method + "\u001B[0m " + path
+		return color + method + clearColor + " " + path
 	}
 
 	return str
 }
 
 func (z *ZeroLogMiddleware) colorRestMethodStatus(str string) string {
-	regex, err := regexp.Compile(`^(?P<method>\w+)\s(?P<path>\/\S+)\s(?P<status>\d+)$`)
-	if err != nil {
-		return ""
-	}
+	regex := regexp.MustCompile(`^(?P<method>\w+)\s(?P<path>\/\S+)\s(?P<status>\d+)\s(?P<message>\*)$`)
 
 	if regex.MatchString(str) {
 		method := regex.FindStringSubmatch(str)[1]
 		path := regex.FindStringSubmatch(str)[2]
 		status := regex.FindStringSubmatch(str)[3]
+		message := regex.FindStringSubmatch(str)[4]
 
 		statusCode, _ := strconv.Atoi(status)
 
-		color := "\x1b[0m"
+		color := z.colorForStatus(statusCode)
 
-		if statusCode >= 200 && statusCode < 300 {
-			color = "\x1b[32m"
-		} else if statusCode >= 300 && statusCode < 400 {
-			color = "\x1b[33m"
-		} else if statusCode >= 400 && statusCode < 500 {
-			color = "\x1b[31m"
-		} else if statusCode >= 500 {
-			color = "\x1b[95m"
-		}
-
-		return color + method + "\u001B[0m " + path + " " + color + status + "\u001B[0m"
+		return color + method + clearColor + " " + path + " " + color + status + clearColor + " - " + message
 	}
 
 	return str
@@ -106,13 +118,18 @@ func (z *ZeroLogMiddleware) Log(message log.Message) {
 	currentLog := zlog.WithLevel(level)
 
 	for k, v := range message.Fields {
-		currentLog = currentLog.Any(k, v)
+		// as this middleware is used for terminal logs principally for the dev environment, we don't want to pollute the logs with the trace dump
+		if k.String() == "trace.dump" {
+			continue
+		}
+
+		currentLog = currentLog.Any(k.String(), v)
 	}
 
 	msgStr := message.Message
 
 	if message.Level == domain.LogLevelSQL {
-		msgStr = "\x1b[35m" + msgStr + "\x1b[0m"
+		msgStr = magentaColor + msgStr + clearColor
 	}
 	currentLog.Msg(z.colorize(msgStr))
 }

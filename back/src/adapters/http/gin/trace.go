@@ -9,8 +9,14 @@ import (
 
 func (server *ServiceHTTPServer) traceHandlerMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		requestData := map[string]string{
+			HeaderUserAgent:      ctx.GetHeader(HeaderUserAgent),
+			HeaderAcceptLanguage: ctx.GetHeader(HeaderAcceptLanguage),
+			"IP":                 ctx.ClientIP(),
+		}
+
 		trace := server.auditer.NewTrace(fmt.Sprintf("REST %s %s", ctx.Request.Method, ctx.Request.URL.Path),
-			ctx.Request.Header, ctx.ClientIP(), ctx.GetHeader(HeaderUserAgent))
+			requestData)
 		ctx.Set(CtxAuditField, trace)
 		ctx.Next()
 		defer func() {

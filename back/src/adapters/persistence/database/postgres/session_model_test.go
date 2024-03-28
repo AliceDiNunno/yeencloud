@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"back/src/core/domain"
+	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/stretchr/testify/suite"
 	"time"
 )

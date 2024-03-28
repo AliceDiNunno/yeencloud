@@ -31,7 +31,7 @@ func MainBackend(bundle *ApplicationBundle) error {
 	logger.AddMiddleware(zlogmiddle)
 	logger.AddMiddleware(rollbarmiddle)
 
-	logger.Log(domain.LogLevelDebug).WithFields(map[string]interface{}{
+	logger.Log(domain.LogLevelDebug).WithFields(map[domain.LogField]interface{}{
 		"version":        version,
 		"databaseConfig": databaseConfig,
 		"httpConfig":     httpConfig,

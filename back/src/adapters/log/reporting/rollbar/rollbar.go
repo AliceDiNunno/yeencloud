@@ -2,87 +2,119 @@ package rollbar
 
 import (
 	"errors"
+	"fmt"
 	"github.com/AliceDiNunno/yeencloud/src/adapters/log"
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/AliceDiNunno/yeencloud/src/core/domain/config"
-	"github.com/rogpeppe/go-internal/modfile"
 	"github.com/rollbar/rollbar-go"
-	"io/ioutil"
-	"strings"
 )
 
-type RollbarConfig struct {
+type Config struct {
 	Token string
 }
 
-type RollbarMiddleware struct {
-	config RollbarConfig
+type Middleware struct {
+	config Config
 }
 
-type RollbarLogLevel string
+type LogLevel string
 
 const (
-	RollbarLogLevelDebug    RollbarLogLevel = "debug"
-	RollbarLogLevelInfo     RollbarLogLevel = "info"
-	RollbarLogLevelWarning  RollbarLogLevel = "warning"
-	RollbarLogLevelError    RollbarLogLevel = "error"
-	RollbarLogLevelCritical RollbarLogLevel = "critical"
+	LogLevelDebug    LogLevel = "debug"
+	LogLevelInfo     LogLevel = "info"
+	LogLevelWarning  LogLevel = "warning"
+	LogLevelError    LogLevel = "error"
+	LogLevelCritical LogLevel = "critical"
 )
 
-func (z *RollbarMiddleware) translateLogLevel(level domain.LogLevel) RollbarLogLevel {
+func (r *Middleware) translateLogLevel(level domain.LogLevel) LogLevel {
 	switch level {
 	case domain.LogLevelInfo:
-		return RollbarLogLevelInfo
+		return LogLevelInfo
 	case domain.LogLevelWarn:
-		return RollbarLogLevelWarning
+		return LogLevelWarning
 	case domain.LogLevelError:
-		return RollbarLogLevelError
+		return LogLevelError
 	case domain.LogLevelFatal, domain.LogLevelPanic:
-		return RollbarLogLevelCritical
+		return LogLevelCritical
 	default:
-		return RollbarLogLevelDebug
+		return LogLevelDebug
 	}
 }
 
-func (z *RollbarMiddleware) isLoggable(level RollbarLogLevel) bool {
-	switch level {
-	case RollbarLogLevelWarning, RollbarLogLevelError, RollbarLogLevelCritical:
-		return true
-	}
-
-	return false
+func (r *Middleware) isLoggable(level LogLevel) bool {
+	return level == LogLevelWarning ||
+		level == LogLevelError ||
+		level == LogLevelCritical
 }
 
-func (z *RollbarMiddleware) Log(message log.Message) {
-	if z.config.Token == "" {
+func (r *Middleware) fieldToRollbarField(fields domain.LogFields) map[string]interface{} {
+	rollbarFields := make(map[string]interface{})
+
+	for key, value := range fields {
+		rollbarFields[key.String()] = value
+	}
+
+	return rollbarFields
+}
+
+func (r *Middleware) Log(message log.Message) {
+	if r.config.Token == "" {
 		return
 	}
-	/*
-		trace, exists := message.Fields["trace"]
-		if !exists {
-			trace = nil
+
+	profileID, profilePresent := message.Fields["profile.id"]
+	profileStr, ok := profileID.(domain.ProfileID)
+	if profilePresent && ok {
+		email, mailFound := message.Fields["profile.email"]
+		name, nameFound := message.Fields["profile.name"]
+
+		if mailFound && nameFound {
+			emailStr, emailOk := email.(string)
+			nameStr, nameOk := name.(string)
+
+			if emailOk && nameOk {
+				rollbar.SetPerson(profileStr.String(), nameStr, emailStr)
+			}
+		}
+	}
+
+	if r.isLoggable(r.translateLogLevel(message.Level)) {
+		additionnalFields := make(map[string]interface{})
+
+		for key, v := range message.Fields {
+			if key == "trace.dump" {
+				trace, traceOk := v.(domain.Request)
+
+				if traceOk {
+					for triggerKey, triggerValue := range trace.TriggerData {
+						additionnalFields[triggerKey] = triggerValue
+					}
+
+					additionnalFields["trace.trigger"] = trace.Trigger
+					additionnalFields["trace.id"] = trace.ID.String()
+					additionnalFields["trace.start"] = trace.StartedAt
+					additionnalFields["trace.end"] = trace.EndedAt
+					additionnalFields["trace.steps"] = len(trace.Content)
+					additionnalFields["trace.result"] = trace.Result
+
+					for i, step := range trace.Content {
+						istr := fmt.Sprintf("trace.%d", i)
+						additionnalFields[istr+".caller"] = step.Caller
+						additionnalFields[istr+".details"] = step.Details
+						additionnalFields[istr+".start"] = step.Start
+						additionnalFields[istr+".end"] = step.End
+					}
+				}
+			}
 		}
 
-		message.Fields["trace"] = nil
-	*/
-	if z.isLoggable(z.translateLogLevel(message.Level)) {
-		rollbar.Log(message.Level.String(), errors.New(message.Message), map[string]interface{}(message.Fields))
+		rollbar.Log(message.Level.String(), errors.New(message.Message), r.fieldToRollbarField(message.Fields), additionnalFields)
 	}
 }
 
-func GetModuleName() string {
-	goModBytes, err := ioutil.ReadFile("go.mod")
-	if err != nil {
-		return "unknown"
-	}
-
-	modName := modfile.ModulePath(goModBytes)
-
-	return modName
-}
-
-func NewRollbarMiddleware(config RollbarConfig, runContext config.RunContextConfig, version config.VersionConfig) *RollbarMiddleware {
-	configMw := &RollbarMiddleware{
+func NewRollbarMiddleware(config Config, runContext config.RunContextConfig, version config.VersionConfig) *Middleware {
+	configMw := &Middleware{
 		config: config,
 	}
 
@@ -93,10 +125,10 @@ func NewRollbarMiddleware(config RollbarConfig, runContext config.RunContextConf
 	if codeversion == "" {
 		codeversion = "main"
 	}
-	rollbar.SetCodeVersion(codeversion)        // optional Git hash/branch/tag (required for GitHub integration)
-	rollbar.SetServerHost(runContext.Hostname) // optional override; defaults to hostname
-	s, _ := strings.CutSuffix(runContext.WorkingDirectory, "/back")
-	rollbar.SetServerRoot(s) // path of project (required for GitHub integration and non-project stacktrace collapsing)
+
+	rollbar.SetCodeVersion(codeversion)
+	rollbar.SetServerHost(runContext.Hostname)
+	rollbar.SetServerRoot(runContext.WorkingDirectory)
 
 	return configMw
 }
