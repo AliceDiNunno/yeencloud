@@ -1,0 +1,156 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: yc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: yc
+  name: yeencloud-pg-deployment
+  labels:
+    app: yc-pg-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: yc-pg-app
+  template:
+    metadata:
+      labels:
+        app: yc-pg-app
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:latest
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: yeencloud
+            - name: POSTGRES_USER
+              value: yeencloud
+            - name: POSTGRES_PASSWORD
+              value: yeencloud
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: yc
+  name: yeencloud-back-deployment
+  labels:
+    app: yc-back
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: yc-back
+  template:
+    metadata:
+      labels:
+        app: yc-back
+    spec:
+      containers:
+        - name: yc-back
+          image: ghcr.io/alicedinunno/yeencloud-back:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ENV
+              value: "dev"
+            - name: LOG_FORMAT
+              value: "console"
+            - name: LISTENING_ADDRESS
+              value: "0.0.0.0"
+            - name: PORT
+              value: "8080"
+            - name: DATABASE_ENGINE
+              value: "postgres"
+            - name: DATABASE_HOST
+              value: "yc-postgres-service"
+            - name: DATABASE_PORT
+              value: "5432"
+            - name: DATABASE_USER
+              value: "yeencloud"
+            - name: DATABASE_PASSWORD
+              value: "yeencloud"
+            - name: DATABASE_NAME
+              value: "yeencloud"
+            - name: FRONTEND_URL
+              value: "http://localhost:30121"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: yc
+  name: yeencloud-front-deployment
+  labels:
+    app: yc-front
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: yc-front
+  template:
+    metadata:
+      labels:
+        app: yc-front
+    spec:
+      containers:
+        - name: yc-front
+          image: ghcr.io/alicedinunno/yeencloud-front:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+            - name: NODE_PORT
+              value: "3000"
+            - name: REACT_APP_API_URL
+              value: "http://localhost:30122"
+            - name: REACT_APP_BACKEND_URL
+              value: "http://localhost:30122"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: yc
+  name: yc-front-service
+spec:
+  type: NodePort
+  selector:
+    app: yc-front
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+      nodePort: 30121
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: yc
+  name: yc-back-service
+spec:
+  type: NodePort
+  selector:
+    app: yc-back
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30122
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: yc
+  name: yc-postgres-service
+spec:
+  selector:
+    app: yc-pg-app
+  ports:
+    - protocol: TCP
+      port: 5432
