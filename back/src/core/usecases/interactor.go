@@ -12,12 +12,6 @@ type Audit interface {
 	EndTrace(id domain.AuditID, result ...interface{})
 }
 
-type SettingsRepository interface {
-	SetSettingsValue(key string, value string)
-
-	GetSettingsValue(key string) string
-}
-
 type UserRepository interface {
 	CreateUser(user domain.User) (domain.User, error)
 
@@ -71,7 +65,6 @@ type Interactor struct {
 	auditer    Audit
 
 	// Main models
-	settingsRepo     SettingsRepository
 	userRepo         UserRepository
 	serviceRepo      ServiceRepository
 	sessionRepo      SessionRepository
@@ -83,7 +76,7 @@ type Interactor struct {
 }
 
 func NewInteractor(c ClusterAdapter, i18n *i18n.Bundle, validator Validator, audit Audit,
-	sR SettingsRepository, uR UserRepository, proR ProfileRepository, servR ServiceRepository, sesR SessionRepository, oR OrganizationRepository,
+	uR UserRepository, proR ProfileRepository, servR ServiceRepository, sesR SessionRepository, oR OrganizationRepository,
 	ouR OrganizationUserRepository) *Interactor {
 	inter := &Interactor{
 		cluster:    c,
@@ -91,7 +84,6 @@ func NewInteractor(c ClusterAdapter, i18n *i18n.Bundle, validator Validator, aud
 		validator:  validator,
 		auditer:    audit,
 
-		settingsRepo:     sR,
 		userRepo:         uR,
 		profileRepo:      proR,
 		serviceRepo:      servR,
