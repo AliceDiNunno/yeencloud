@@ -16,6 +16,6 @@ func (config *Config) GetDatabaseConfig() DatabaseConfig {
 		Port:     config.GetEnvIntOrDefault("DATABASE_PORT", 5432),
 		User:     config.GetEnvStringOrDefault("DATABASE_USER", "postgres"),
 		Password: config.GetEnvStringOrDefault("DATABASE_PASSWORD", "postgres"),
-		DbName:   config.GetEnvStringOrDefault("DATABASE_NAME", "postgres"),
+		DbName:   config.GetEnvStringOrDefault("DATABASE_NAME", ""),
 	}
 }

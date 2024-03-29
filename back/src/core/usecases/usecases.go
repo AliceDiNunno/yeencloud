@@ -10,10 +10,14 @@ type LanguageUsecases interface {
 }
 
 type UserUsecases interface {
-	CreateUser(user requests.NewUser) (domain.User, *domain.ErrorDescription)
+	CreateUser(user requests.NewUser, language string) (domain.User, *domain.ErrorDescription)
+}
+
+type ProfileUsecases interface {
 }
 
 type Usecases interface {
 	UserUsecases
+	ProfileUsecases
 	LanguageUsecases
 }

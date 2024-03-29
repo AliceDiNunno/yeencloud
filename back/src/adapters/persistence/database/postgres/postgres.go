@@ -5,6 +5,7 @@ import (
 	"fmt"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
+	log "github.com/rs/zerolog/log"
 	"github.com/wei840222/gorm-zerolog"
 	pg "gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -21,7 +22,7 @@ func StartGormDatabase(config config.DatabaseConfig, serviceName string) *Databa
 		config.Host, config.Port, config.User, config.Password, config.DbName)
 
 	db, err := gorm.Open(pg.Open(psqlInfo), &gorm.Config{
-		Logger: gorm_zerolog.New(),
+		Logger: gorm_zerolog.NewWithLogger(log.Logger),
 	})
 
 	if err != nil {

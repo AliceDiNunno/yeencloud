@@ -1,14 +1,13 @@
 package domain
 
 type User struct {
-	CloudObject
-
-	Email string
+	ID       string
+	Email    string
+	Password string `json:"-"` // Password (even if it is hashed) should never be exposed
 }
 
 type Profile struct {
-	CloudObject
-
-	UserID string
-	Name   string
+	UserID   string
+	Name     string
+	Language string
 }

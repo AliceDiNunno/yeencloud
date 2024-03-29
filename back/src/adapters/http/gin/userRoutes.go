@@ -3,6 +3,7 @@ package gin
 import (
 	"back/src/core/domain"
 	"back/src/core/domain/requests"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 )
 
@@ -37,7 +38,9 @@ func (server *ServiceHTTPServer) createUserHandler(context *gin.Context) {
 		return
 	}
 
-	user, err := server.ucs.CreateUser(createUserRequest)
+	language := context.GetString("lang")
+	spew.Dump(language)
+	user, err := server.ucs.CreateUser(createUserRequest, language)
 
 	if err != nil {
 		server.abortWithError(context, *err)

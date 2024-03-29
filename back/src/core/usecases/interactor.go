@@ -15,7 +15,14 @@ type SettingsRepository interface {
 type UserRepository interface {
 	CountUsers() int64
 
+	CreateUser(user domain.User) (domain.User, error)
+
 	FindUserByID(id uuid.UUID) (domain.User, error)
+	FindUserByEmail(email string) (domain.User, error)
+}
+
+type ProfileRepository interface {
+	CreateProfile(profile domain.Profile) (domain.Profile, error)
 }
 
 type OrganizationRepository interface {
@@ -46,25 +53,30 @@ type interactor struct {
 	userRepo          UserRepository
 	serviceRepo       ServiceRepository
 	sessionRepository SessionRepository
+	profileRepo       ProfileRepository
 	validator         Validator
 
 	translator *i18n.Bundle
 }
 
-func NewInteractor(c ClusterAdapter, sR SettingsRepository, uR UserRepository, servR ServiceRepository,
+func NewInteractor(c ClusterAdapter, sR SettingsRepository, uR UserRepository, proR ProfileRepository, servR ServiceRepository,
 	i18n *i18n.Bundle, validator Validator) *interactor {
 	inter := &interactor{
 		cluster: c,
 
 		settingsRepo: sR,
 		userRepo:     uR,
+		profileRepo:  proR,
 		serviceRepo:  servR,
 
 		translator: i18n,
 		validator:  validator,
 	}
 
+	// custom validations
+	// TODO: add better validation system that allows for custom error messages
 	inter.validator.AddCustomValidation("password", inter.PasswordValidator())
+	inter.validator.AddCustomValidation("unique_email", inter.UniqueMailValidator())
 
 	return inter
 }
