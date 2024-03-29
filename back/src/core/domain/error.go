@@ -1,5 +1,7 @@
 package domain
 
+import "net/http"
+
 type ErrorDescription struct {
 	HttpCode int
 	Code     string
@@ -15,7 +17,14 @@ type Error struct {
 }
 
 var (
-	ErrorNotFound   = ErrorDescription{HttpCode: 404, Code: "PageNotFound"}
-	ErrorNoMethod   = ErrorDescription{HttpCode: 405, Code: "MethodNotAllowed"}
-	ErrorBadRequest = ErrorDescription{HttpCode: 400, Code: "BadRequest"}
+	ErrorNotFound   = ErrorDescription{HttpCode: http.StatusNotFound, Code: "PageNotFound"}
+	ErrorNoMethod   = ErrorDescription{HttpCode: http.StatusMethodNotAllowed, Code: "MethodNotAllowed"}
+	ErrorBadRequest = ErrorDescription{HttpCode: http.StatusBadRequest, Code: "BadRequest"}
+
+	ErrorUserNotFound    = ErrorDescription{HttpCode: http.StatusNotFound, Code: "UserNotFound"}
+	ErrorProfileNotFound = ErrorDescription{HttpCode: http.StatusNotFound, Code: "ProfileNotFound"}
+
+	//TODO: this should be moved to the adapter/http/gin package directly
+	ErrorAuthenticationTokenMissing = ErrorDescription{HttpCode: http.StatusUnauthorized, Code: "AuthenticationTokenMissing"}
+	ErrorSessionNotFound            = ErrorDescription{HttpCode: http.StatusUnauthorized, Code: "SessionNotFound"}
 )

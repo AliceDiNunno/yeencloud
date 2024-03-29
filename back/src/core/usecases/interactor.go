@@ -13,16 +13,17 @@ type SettingsRepository interface {
 }
 
 type UserRepository interface {
-	CountUsers() int64
-
 	CreateUser(user domain.User) (domain.User, error)
 
+	CountUsers() int64
 	FindUserByID(id uuid.UUID) (domain.User, error)
 	FindUserByEmail(email string) (domain.User, error)
 }
 
 type ProfileRepository interface {
 	CreateProfile(profile domain.Profile) (domain.Profile, error)
+
+	FindProfileByUserID(userID uuid.UUID) (domain.Profile, error)
 }
 
 type OrganizationRepository interface {
@@ -33,6 +34,8 @@ type ServiceRepository interface {
 }
 
 type SessionRepository interface {
+	CreateSession(session domain.Session) (domain.Session, error)
+	FindSessionByToken(token string) (domain.Session, error)
 }
 
 type ClusterAdapter interface {
@@ -59,15 +62,16 @@ type interactor struct {
 	translator *i18n.Bundle
 }
 
-func NewInteractor(c ClusterAdapter, sR SettingsRepository, uR UserRepository, proR ProfileRepository, servR ServiceRepository,
+func NewInteractor(c ClusterAdapter, sR SettingsRepository, uR UserRepository, proR ProfileRepository, servR ServiceRepository, sesR SessionRepository,
 	i18n *i18n.Bundle, validator Validator) *interactor {
 	inter := &interactor{
 		cluster: c,
 
-		settingsRepo: sR,
-		userRepo:     uR,
-		profileRepo:  proR,
-		serviceRepo:  servR,
+		settingsRepo:      sR,
+		userRepo:          uR,
+		profileRepo:       proR,
+		serviceRepo:       servR,
+		sessionRepository: sesR,
 
 		translator: i18n,
 		validator:  validator,

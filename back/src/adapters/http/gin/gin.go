@@ -1,7 +1,7 @@
 package gin
 
 import (
-	"back/src/core/config"
+	"back/src/core/domain/config"
 	"back/src/core/usecases"
 	"fmt"
 	ginzerolog "github.com/dn365/gin-zerolog"

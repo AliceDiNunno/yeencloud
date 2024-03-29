@@ -1,14 +1,9 @@
-package config
+package env
 
-type HTTPConfig struct {
-	ListeningAddress string
-	ListeningPort    int
+import configDomain "back/src/core/domain/config"
 
-	FrontendURL string
-}
-
-func (config *Config) GetHTTPConfig() HTTPConfig {
-	return HTTPConfig{
+func (config *Config) GetHTTPConfig() configDomain.HTTPConfig {
+	return configDomain.HTTPConfig{
 		ListeningAddress: config.GetEnvStringOrDefault("LISTENING_ADDRESS", "0.0.0.0"),
 		ListeningPort:    config.GetEnvIntOrDefault("PORT", 3000),
 

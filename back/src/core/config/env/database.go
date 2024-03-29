@@ -1,16 +1,9 @@
-package config
+package env
 
-type DatabaseConfig struct {
-	Engine   string
-	Host     string
-	Port     int
-	User     string
-	Password string
-	DbName   string
-}
+import configDomain "back/src/core/domain/config"
 
-func (config *Config) GetDatabaseConfig() DatabaseConfig {
-	return DatabaseConfig{
+func (config *Config) GetDatabaseConfig() configDomain.DatabaseConfig {
+	return configDomain.DatabaseConfig{
 		Engine:   config.GetEnvStringOrDefault("DATABASE_ENGINE", "postgres"),
 		Host:     config.GetEnvStringOrDefault("DATABASE_HOST", "localhost"),
 		Port:     config.GetEnvIntOrDefault("DATABASE_PORT", 5432),

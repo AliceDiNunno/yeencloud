@@ -12,14 +12,15 @@ type organizationsRepo struct {
 }
 
 type Organization struct {
-	CloudObject
+	ID   string `gorm:"type:uuid;primary_key"`
+	Name string
 }
 
 func (o Organization) toDomain() domain.Organization {
 	return domain.Organization{
 		CloudObject: domain.CloudObject{
-			ID:   o.CloudObject.ID,
-			Name: o.CloudObject.Name,
+			ID:   o.ID,
+			Name: o.Name,
 		},
 	}
 }
@@ -31,10 +32,8 @@ func (o organizationsRepo) ListOrganizationsByUserID(userID uuid.UUID) (domain.O
 
 func OrganizationFromDomain(org domain.Organization) Organization {
 	return Organization{
-		CloudObject: CloudObject{
-			ID:   org.ID,
-			Name: org.Name,
-		},
+		ID:   org.ID,
+		Name: org.Name,
 	}
 }
 

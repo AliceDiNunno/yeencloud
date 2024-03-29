@@ -1,0 +1,37 @@
+#!/bin/bash
+echo "Pre-commit formating!"
+
+## this will retrieve all of the .go files that have been
+## changed since the last commit
+STAGED_GO_FILES=$(git diff --cached --diff-filter=AM --name-only -- '*.go')
+
+## this will retrieve all of the .ts / .tsx files that have been
+## changed since the last commit
+STAGED_FRONT_FILES=$(git diff --cached --diff-filter=AM --name-only -- '*.ts' '*.tsx' '*.css' '*.js')
+
+## we can check to see if this is empty
+if [[ $STAGED_GO_FILES == "" ]]; then
+  echo "No Go Files to Update"
+## otherwise we can do stuff with these changed go files
+else
+  echo "Formatting Go files"
+  for file in $STAGED_GO_FILES; do
+    ## format our file
+    gofmt -l -w -s "$file"
+    ## add any potential changes from our formatting to the commit
+    git add "$file"
+  done
+fi
+
+## we can check to see if this is empty
+if [[ $STAGED_FRONT_FILES == "" ]]; then
+  echo "No Frontend Files to Update"
+## otherwise we can do stuff with these changed ts files
+else
+  for file in $STAGED_FRONT_FILES; do
+    ## format our file
+    echo "$file" | xargs ./webapp/node_modules/.bin/prettier --write
+    ## add any potential changes from our formatting to the commit
+    echo "$file" | xargs git add
+  done
+fi
