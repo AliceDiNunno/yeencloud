@@ -1,11 +1,10 @@
 package gin
 
 import (
-	"back/src/core/domain"
 	"fmt"
+	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/rs/zerolog/log"
 )
 
 func (server *ServiceHTTPServer) traceHandlerMiddleware() gin.HandlerFunc {
@@ -15,7 +14,8 @@ func (server *ServiceHTTPServer) traceHandlerMiddleware() gin.HandlerFunc {
 		ctx.Set(CtxAuditField, trace)
 		ctx.Next()
 		defer func() {
-			server.auditer.EndTrace(trace)
+			dump := server.auditer.EndTrace(trace)
+			ctx.Set("trace_dump", dump)
 		}()
 	}
 }
@@ -29,7 +29,7 @@ func (server *ServiceHTTPServer) getTrace(ctx *gin.Context) domain.AuditID {
 	trace, err := contextTrace.(domain.AuditID)
 
 	if !err {
-		log.Warn().Msg("Trace not found in context, returning empty ID")
+		server.log.Log(domain.LogLevelWarn).Msg("Trace not found in context, returning empty ID")
 		return domain.AuditID(uuid.Nil.String())
 	}
 

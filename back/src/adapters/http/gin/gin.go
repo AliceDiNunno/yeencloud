@@ -1,34 +1,37 @@
 package gin
 
 import (
-	"back/src/core/domain/config"
-	"back/src/core/usecases"
 	"fmt"
-	ginzerolog "github.com/dn365/gin-zerolog"
+	"github.com/AliceDiNunno/yeencloud/src/core/domain"
+	"github.com/AliceDiNunno/yeencloud/src/core/domain/config"
+	"github.com/AliceDiNunno/yeencloud/src/core/interactor"
+	"github.com/AliceDiNunno/yeencloud/src/core/usecases"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"github.com/rs/zerolog/log"
 	"net/http"
 	"os"
 	"time"
 )
 
 type ServiceHTTPServer struct {
-	engine        *gin.Engine
+	engine *gin.Engine
+
 	config        config.HTTPConfig
 	versionConfig config.VersionConfig
+	log           interactor.Logger
 
 	ucs        usecases.Usecases
 	translator *i18n.Bundle
-	validator  usecases.Validator
-	auditer    usecases.Audit
+	validator  interactor.Validator
+	auditer    interactor.Audit
 }
 
-func NewServiceHttpServer(ucs usecases.Usecases, config config.HTTPConfig, version config.VersionConfig, translator *i18n.Bundle, validator usecases.Validator, auditer usecases.Audit) *ServiceHTTPServer {
+func NewServiceHttpServer(ucs usecases.Usecases, config config.HTTPConfig, log interactor.Logger, version config.VersionConfig, translator *i18n.Bundle, validator interactor.Validator, auditer interactor.Audit) *ServiceHTTPServer {
 	server := ServiceHTTPServer{
 		config:        config,
 		versionConfig: version,
+		log:           log,
 
 		ucs:        ucs,
 		translator: translator,
@@ -36,9 +39,7 @@ func NewServiceHttpServer(ucs usecases.Usecases, config config.HTTPConfig, versi
 		auditer:    auditer,
 	}
 
-	gin.DebugPrintRouteFunc = func(httpMethod, absolutePath, handlerName string, nuHandlers int) {
-		log.Debug().Str("Method", httpMethod).Str("Handler", handlerName).Int("Handlers", nuHandlers).Msg(absolutePath)
-	}
+	gin.DebugPrintRouteFunc = server.printRoutes
 
 	if os.Getenv("ENV") == "production" || os.Getenv("ENV") == "prod" {
 		gin.SetMode(gin.ReleaseMode)
@@ -55,7 +56,7 @@ func NewServiceHttpServer(ucs usecases.Usecases, config config.HTTPConfig, versi
 		MaxAge:           12 * time.Hour,
 	}))
 
-	r.Use(ginzerolog.Logger("backend"))
+	r.Use(server.ginLogger())
 	r.Use(gin.Recovery())
 
 	server.engine = r
@@ -76,7 +77,7 @@ func (server *ServiceHTTPServer) Listen() error {
 		return err
 	}
 
-	log.Info().Str("Address", httpserver.Addr).Msg("Now Listening !")
+	server.log.Log(domain.LogLevelInfo).Msg("HTTP Server started")
 	err = server.engine.Run()
 
 	if err != nil {

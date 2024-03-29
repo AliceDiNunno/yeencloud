@@ -1,16 +1,14 @@
 package audit
 
-import "back/src/core/domain"
+import (
+	"github.com/AliceDiNunno/yeencloud/src/core/domain"
+)
 
-type Request struct {
-	ID        domain.AuditID `json:"id"`
-	StartedAt int64          `json:"startedAt"`
-	EndedAt   int64          `json:"endedAt"`
+func (a *Audit) DumpTrace(id domain.AuditID) *domain.Request {
+	trace, exists := a.currentTraces[id]
+	if !exists {
+		return nil
+	}
 
-	Trigger     string        `json:"trigger"`
-	TriggerData []interface{} `json:"triggerData"`
-
-	Result []interface{} `json:"result"`
-
-	Content *Step `json:"content"`
+	return trace
 }

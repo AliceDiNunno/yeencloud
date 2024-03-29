@@ -1,12 +1,12 @@
 package gin
 
 import (
-	"back/src/core/domain"
+	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/gin-gonic/gin"
 )
 
 func (server *ServiceHTTPServer) getOrganizationsHandler(ctx *gin.Context) {
-	id, found := ctx.Get(CtxUserField)
+	id, found := ctx.Get(CtxProfileField)
 
 	if !found {
 		return

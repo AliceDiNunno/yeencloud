@@ -1,0 +1,36 @@
+silent: false
+unleash:
+  integration: false
+  dry-run: false
+  tags: ""
+  output: ""
+  workers: 0 #
+  test-cpu: 0 #
+  timeout-coefficient: 0 #
+  threshold: #
+    efficacy: 0
+    mutant-coverage: 0
+
+mutants:
+  arithmetic-base:
+    enabled: true
+  conditionals-boundary:
+    enabled: true
+  conditionals-negation:
+    enabled: true
+  increment-decrement:
+    enabled: true
+  invert-assignments:
+    enabled: false
+  invert-bitwise:
+    enabled: false
+  invert-bwassign:
+    enabled: false
+  invert-negatives:
+    enabled: true
+  invert-logical:
+    enabled: false
+  invert-loopctrl:
+    enabled: false
+  remove-self-assignments:
+    enabled: false

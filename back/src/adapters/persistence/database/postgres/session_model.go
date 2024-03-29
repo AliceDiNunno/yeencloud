@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"back/src/core/domain"
+	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"gorm.io/gorm"
 	"time"
 )
@@ -31,8 +31,9 @@ func (db *Database) CreateSession(session domain.Session) (domain.Session, error
 
 func (db *Database) FindSessionByToken(token string) (domain.Session, error) {
 	var session Session
+	var currentTime = time.Now()
 
-	result := db.engine.Where("token = ?", token).First(&session)
+	result := db.engine.Where("token = ? AND expire_at > ?", token, currentTime).First(&session)
 
 	if result.Error != nil {
 		return domain.Session{}, result.Error

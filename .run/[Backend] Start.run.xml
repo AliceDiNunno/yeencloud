@@ -13,7 +13,7 @@
       </ENTRIES>
     </EXTENSION>
     <kind value="PACKAGE" />
-    <package value="back/cmd" />
+    <package value="github.com/AliceDiNunno/yeencloud/cmd" />
     <directory value="$PROJECT_DIR$" />
     <filePath value="$PROJECT_DIR$/back/cmd/main.go" />
     <method v="2">

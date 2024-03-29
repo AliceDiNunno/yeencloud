@@ -30,3 +30,13 @@ type OrganizationMember struct {
 	Organization Organization     `json:"organization"`
 	Role         OrganizationRole `json:"role"`
 }
+
+type NewOrganization struct {
+	Name        string `json:"name" binding:"required"`
+	Description string `json:"description"`
+}
+
+type UpdateOrganization struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}

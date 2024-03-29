@@ -18,6 +18,7 @@ var (
 
 	ErrorUnableToHashPassword         = ErrorDescription{HttpCode: http.StatusInternalServerError, Code: "UnableToHashPassword"}
 	ErrorUnableToGetUserOrganizations = ErrorDescription{HttpCode: http.StatusInternalServerError, Code: "UnableToGetUserOrganizations"}
+	ErrorUserAlreadyExists            = ErrorDescription{HttpCode: http.StatusConflict, Code: "UserAlreadyExists"}
 
 	// #YC-14 TODO: this should be moved to the adapter/http/gin package directly
 	ErrorAuthenticationTokenMissing = ErrorDescription{HttpCode: http.StatusUnauthorized, Code: "AuthenticationTokenMissing"}

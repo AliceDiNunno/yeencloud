@@ -1,110 +1,40 @@
 package usecases
 
 import (
-	"back/src/core/domain"
-	"github.com/go-playground/validator/v10"
+	"github.com/AliceDiNunno/yeencloud/src/core/interactor"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
-type Audit interface {
-	NewTrace(trigger string, data ...interface{}) domain.AuditID
-	AddStep(id domain.AuditID, details ...interface{})
-	EndTrace(id domain.AuditID, result ...interface{})
+type UCs struct {
+	i *interactor.Interactor
 }
 
-type UserRepository interface {
-	CreateUser(user domain.User) (domain.User, error)
+func NewUsecases(c interactor.ClusterAdapter, i18n *i18n.Bundle, validator interactor.Validator, audit interactor.Audit, per interactor.Persistence) *UCs {
+	ucs := &UCs{
+		i: &interactor.Interactor{Cluster: c,
+			Translator: i18n,
+			Validator:  validator,
+			Auditer:    audit,
 
-	CountUsers() int64
-	FindUserByID(userID domain.UserID) (domain.User, error)
-	FindUserByEmail(email string) (domain.User, error)
-}
-
-type ProfileRepository interface {
-	CreateProfile(profile domain.Profile) (domain.Profile, error)
-
-	FindProfileByUserID(userID domain.UserID) (domain.Profile, error)
-}
-
-type OrganizationRepository interface {
-	CreateOrganization(organization domain.Organization) (domain.Organization, error)
-	DeleteOrganizationByID(id domain.OrganizationID) error
-}
-
-type OrganizationProfileRepository interface {
-	LinkProfileToOrganization(profileID domain.ProfileID, organizationID domain.OrganizationID, role domain.OrganizationRole) error
-
-	GetProfileOrganizationsByProfileID(profileID domain.ProfileID) ([]domain.OrganizationMember, error)
-	GetOrganizationMembers(organizationID domain.OrganizationID) ([]domain.OrganizationMember, error)
-}
-
-type ServiceRepository interface {
-}
-
-type SessionRepository interface {
-	CreateSession(session domain.Session) (domain.Session, error)
-
-	FindSessionByToken(token string) (domain.Session, error)
-}
-
-type ClusterAdapter interface {
-	IsRunningInsideCluster() bool
-	IsConfigurationValid(ClusterConfiguration []byte) bool
-}
-
-type Validator interface {
-	ValidateStruct(s interface{}) (bool, domain.ValidationErrors)
-	ValidateStructWithLang(s interface{}, lang string) (bool, domain.ValidationErrors)
-	AddCustomValidation(tag string, fn validator.Func)
-}
-
-type Persistence struct {
-	// Main models
-	user         UserRepository
-	service      ServiceRepository
-	session      SessionRepository
-	profile      ProfileRepository
-	organization OrganizationRepository
-
-	// Linking models
-	organizationProfile OrganizationProfileRepository
-}
-
-type Interactor struct {
-	cluster    ClusterAdapter
-	validator  Validator
-	translator *i18n.Bundle
-	auditer    Audit
-
-	persistence Persistence
-}
-
-func NewInteractor(c ClusterAdapter, i18n *i18n.Bundle, validator Validator, audit Audit, per Persistence) *Interactor {
-	inter := &Interactor{
-		cluster:    c,
-		translator: i18n,
-		validator:  validator,
-		auditer:    audit,
-
-		persistence: per,
+			Persistence: per,
+		},
 	}
 
 	// Custom validations.
 	// #YC-16 TODO: add better validation system that allows for custom error messages
-	inter.validator.AddCustomValidation("password", inter.PasswordValidator())
-	inter.validator.AddCustomValidation("unique_email", inter.UniqueMailValidator())
+	ucs.i.Validator.RegisterValidation("unique_email", ucs.UniqueMailValidator)
 
-	return inter
+	return ucs
 }
 
-func NewPersistence(user UserRepository, service ServiceRepository, session SessionRepository, profile ProfileRepository, organization OrganizationRepository, organizationProfile OrganizationProfileRepository) Persistence {
-	return Persistence{
-		user:         user,
-		service:      service,
-		session:      session,
-		profile:      profile,
-		organization: organization,
+func NewPersistence(user interactor.UserRepository, service interactor.ServiceRepository, session interactor.SessionRepository, profile interactor.ProfileRepository, organization interactor.OrganizationRepository, organizationProfile interactor.OrganizationProfileRepository) interactor.Persistence {
+	return interactor.Persistence{
+		User:         user,
+		Service:      service,
+		Session:      session,
+		Profile:      profile,
+		Organization: organization,
 
-		organizationProfile: organizationProfile,
+		OrganizationProfile: organizationProfile,
 	}
 }

@@ -216,4 +216,3 @@ linters:
     - usestdlibvars
     - wastedassign
     - whitespace
-    - zerologlint

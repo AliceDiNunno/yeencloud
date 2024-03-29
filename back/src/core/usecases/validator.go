@@ -1,79 +1,20 @@
 package usecases
 
 import (
-	"github.com/go-playground/validator/v10"
+	"github.com/AliceDiNunno/yeencloud/src/adapters/validator"
+	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 )
 
-// TODO: move string checks to a separate file probably outside of the usecases package
-func stringHasNumber(value string) bool {
-	for _, char := range value {
-		if char >= '0' && char <= '9' {
-			return true
+func (self UCs) UniqueMailValidator(field validator.FieldToValidate) []domain.ValidationFieldError {
+	email := field.FieldValue.String()
+	_, err := self.i.Persistence.User.FindUserByEmail(email)
+	// If there is no error, it means the user exists so it is not unique therefore we return that there is an error.
+
+	if err == nil {
+		return []domain.ValidationFieldError{
+			"A user with this email already exists",
 		}
 	}
-	return false
-}
 
-func stringHasUppercaseLetter(value string) bool {
-	for _, char := range value {
-		if char >= 'A' && char <= 'Z' {
-			return true
-		}
-	}
-	return false
-}
-
-func stringHasLowercaseLetter(value string) bool {
-	for _, char := range value {
-		if char >= 'a' && char <= 'z' {
-			return true
-		}
-	}
-	return false
-}
-
-func stringHasSpecialCharacter(value string) bool {
-	allowedSpecialChars := []rune{'!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '+', '=', '{', '}', '[', ']', '|', '\\', ':', ';', '"', '\'', '<', '>', ',', '.', '?', '/', '`', '~'}
-	for _, char := range value {
-		for _, specialChar := range allowedSpecialChars {
-			if char == specialChar {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-func (i Interactor) PasswordValidator() validator.Func {
-	return func(fl validator.FieldLevel) bool {
-		password := fl.Field().String()
-
-		if len(password) < 8 || len(password) > 64 {
-			return false
-		}
-
-		if !stringHasNumber(password) {
-			return false
-		}
-
-		if !stringHasUppercaseLetter(password) {
-			return false
-		}
-
-		if !stringHasLowercaseLetter(password) {
-			return false
-		}
-
-		return stringHasSpecialCharacter(password)
-	}
-}
-
-func (i Interactor) UniqueMailValidator() validator.Func {
-	return func(fl validator.FieldLevel) bool {
-		email := fl.Field().String()
-		_, err := i.persistence.user.FindUserByEmail(email)
-		// If there is no error, it means the user exists so it is not unique therefore we return that there is an error.
-
-		return err != nil
-	}
+	return []domain.ValidationFieldError{}
 }

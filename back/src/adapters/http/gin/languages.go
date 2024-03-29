@@ -1,7 +1,7 @@
 package gin
 
 import (
-	"back/src/core/domain"
+	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/gin-gonic/gin"
 )
 

@@ -1,7 +1,7 @@
 package apps
 
 import (
-	"back/src/core/config/env"
+	"github.com/AliceDiNunno/yeencloud/src/core/config/env"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 

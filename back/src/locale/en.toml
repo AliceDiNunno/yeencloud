@@ -7,5 +7,6 @@ MethodNotAllowed = "Method not allowed"
 PageNotFound = "Page not found"
 BadRequest = "Bad request"
 UnableToGetUserOrganizations = "Unable to get user organizations"
+AuthenticationTokenMissing = "Authentication token missing"
 
 DefaultOrganizationDescription = "{{.UserFullName}}'s organization"

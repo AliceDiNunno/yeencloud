@@ -123,11 +123,3 @@ func (suite *ProfileModelIntegrationTestSuite) TestCreateProfileWithUnknownUserI
 func (suite *ProfileModelIntegrationTestSuite) TestUpdateProfileIntegration() {
 	suite.T().Skip("Not implemented")
 }
-
-func (suite *ProfileModelIntegrationTestSuite) TestTryUpdateProfileID() {
-	suite.T().Skip("Not implemented")
-}
-
-func (suite *ProfileModelIntegrationTestSuite) TestTryUpdateProfileUserID() {
-	suite.T().Skip("Not implemented")
-}
