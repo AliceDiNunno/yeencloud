@@ -18,12 +18,12 @@ func MainBackend(bundle *domain.ApplicationBundle) error {
 
 	validator := govalidator.NewValidator()
 
-	//TODO: make database dependent on config in order to have a local database for tests
+	// #YC-12 TODO: make database dependent on config in order to have a local database for tests
 	log.Info().Msg("Connecting to database")
 	database := postgres.StartGormDatabase(databaseConfig, "default")
 	database.Migrate()
 
-	//TODO: pass the kubernetes config to the k8s adapter
+	// #YC-13 TODO: pass the kubernetes config to the k8s adapter
 	cluster := k8s.NewCluster()
 
 	ucs := usecases.NewInteractor(cluster, bundle.Translator, validator,

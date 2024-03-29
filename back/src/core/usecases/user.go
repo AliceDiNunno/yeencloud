@@ -49,7 +49,6 @@ func (i interactor) CreateUser(newUser requests.NewUser, profileLanguage string)
 		},
 	})
 
-	//TODO: move this to a createOrganization usecase
 	organizationToCreate := requests.NewOrganization{
 		Name:        newUser.Name,
 		Description: localizedDescription,
@@ -79,7 +78,7 @@ func (i interactor) GetUserByID(id domain.UserID) (domain.User, *domain.ErrorDes
 func (i interactor) GetProfileByUserID(id domain.UserID) (domain.Profile, *domain.ErrorDescription) {
 	profile, err := i.profileRepo.FindProfileByUserID(id)
 
-	//TODO: this should never happen, a profile should be created if it ever is missing (while also reporting the error so it can be investigated)
+	// #YC-22 TODO: this should never happen, a profile should be created if it ever is missing (while also reporting the error so it can be investigated)
 	if err != nil {
 		log.Err(err).Str("id", id.String()).Msg("Error finding profile")
 		return domain.Profile{}, &domain.ErrorProfileNotFound

@@ -43,7 +43,6 @@ func NewServiceHttpServer(ucs usecases.Usecases, config config.HTTPConfig, trans
 	r := gin.New()
 
 	r.Use(cors.New(cors.Config{
-		//TODO: Change this to the real origin in production while keeping * for development
 		AllowOrigins:     []string{config.FrontendURL},
 		AllowMethods:     []string{"PUT", "PATCH", "GET", "POST", "OPTION", "DELETE"},
 		AllowHeaders:     []string{"Origin, Authorization, Content-Type, Accept-Language"},
@@ -83,8 +82,8 @@ func (server *ServiceHTTPServer) Listen() error {
 	return nil
 }
 
-// TODO: Add language list
-// TODO: Add git commit hash
+// #YC-8 TODO : Add language list
+// #YC-7 TODO : Add git commit hash
 func (server *ServiceHTTPServer) getStatusHandler(context *gin.Context) {
 	context.JSON(200, gin.H{
 		"message": "OK",

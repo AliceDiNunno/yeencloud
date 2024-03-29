@@ -26,7 +26,7 @@ var (
 
 	ErrorUnableToGetUserOrganizations = ErrorDescription{HttpCode: http.StatusInternalServerError, Code: "UnableToGetUserOrganizations"}
 
-	//TODO: this should be moved to the adapter/http/gin package directly
+	// #YC-14 TODO: this should be moved to the adapter/http/gin package directly
 	ErrorAuthenticationTokenMissing = ErrorDescription{HttpCode: http.StatusUnauthorized, Code: "AuthenticationTokenMissing"}
 	ErrorSessionNotFound            = ErrorDescription{HttpCode: http.StatusUnauthorized, Code: "SessionNotFound"}
 )
