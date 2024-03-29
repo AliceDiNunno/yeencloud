@@ -6,7 +6,6 @@ import (
 )
 
 func (server *ServiceHTTPServer) setPublicRoutes(r *gin.RouterGroup) {
-	r.GET("/languages", server.getLanguagesHandler)
 	r.GET("/status", server.getStatusHandler)
 
 	users := r.Group("/users")

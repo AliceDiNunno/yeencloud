@@ -16,8 +16,9 @@ import (
 )
 
 type ServiceHTTPServer struct {
-	engine *gin.Engine
-	config config.HTTPConfig
+	engine        *gin.Engine
+	config        config.HTTPConfig
+	versionConfig config.VersionConfig
 
 	ucs        usecases.Usecases
 	translator *i18n.Bundle
@@ -25,9 +26,11 @@ type ServiceHTTPServer struct {
 	auditer    usecases.Audit
 }
 
-func NewServiceHttpServer(ucs usecases.Usecases, config config.HTTPConfig, translator *i18n.Bundle, validator usecases.Validator, auditer usecases.Audit) *ServiceHTTPServer {
+func NewServiceHttpServer(ucs usecases.Usecases, config config.HTTPConfig, version config.VersionConfig, translator *i18n.Bundle, validator usecases.Validator, auditer usecases.Audit) *ServiceHTTPServer {
 	server := ServiceHTTPServer{
-		config:     config,
+		config:        config,
+		versionConfig: version,
+
 		ucs:        ucs,
 		translator: translator,
 		validator:  validator,
@@ -82,12 +85,4 @@ func (server *ServiceHTTPServer) Listen() error {
 	}
 
 	return nil
-}
-
-// #YC-8 TODO : Add language list
-// #YC-7 TODO : Add git commit hash
-func (server *ServiceHTTPServer) getStatusHandler(context *gin.Context) {
-	server.success(context, gin.H{
-		"message": "OK",
-	})
 }

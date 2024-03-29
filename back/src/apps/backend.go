@@ -14,8 +14,8 @@ import (
 func MainBackend(bundle *domain.ApplicationBundle) error {
 	httpConfig := bundle.Config.GetHTTPConfig()
 	databaseConfig := bundle.Config.GetDatabaseConfig()
+	version := bundle.Config.GetVersionConfig()
 	_ = bundle.Config.GetKubernetesConfig()
-	_ = bundle.Config.GetVersionConfig()
 
 	validator := govalidator.NewValidator()
 
@@ -33,7 +33,7 @@ func MainBackend(bundle *domain.ApplicationBundle) error {
 		database, database, database, database, database, database,
 		database)
 
-	http := gin.NewServiceHttpServer(ucs, httpConfig, bundle.Translator, validator, auditer)
+	http := gin.NewServiceHttpServer(ucs, httpConfig, version, bundle.Translator, validator, auditer)
 
 	return http.Listen()
 }
