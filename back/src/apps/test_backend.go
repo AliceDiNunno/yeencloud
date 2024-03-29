@@ -5,7 +5,7 @@ import (
 	testConf "back/src/core/config/testConfig"
 )
 
-func TestInteractor() {
+func TestInteractor() /*usecases.Interactor*/ {
 	testConfig := testConf.NewConfig()
 
 	httpConfig := testConfig.GetHTTPConfig()
@@ -15,4 +15,8 @@ func TestInteractor() {
 	_ = validator
 
 	_, _ = httpConfig, databaseConfig
+
+	/*ucs := usecases.NewInteractor(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
+
+	return ucs*/
 }

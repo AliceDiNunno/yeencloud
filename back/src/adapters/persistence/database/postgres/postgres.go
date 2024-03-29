@@ -13,11 +13,10 @@ import (
 )
 
 type Database struct {
-	engine      *gorm.DB
-	serviceName string
+	engine *gorm.DB
 }
 
-func StartGormDatabase(config config.DatabaseConfig, serviceName string) *Database {
+func StartGormDatabase(config config.DatabaseConfig) (*Database, error) {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		config.Host, config.Port, config.User, config.Password, config.DbName)
 
@@ -26,12 +25,12 @@ func StartGormDatabase(config config.DatabaseConfig, serviceName string) *Databa
 	})
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
+
 	db.Logger.LogMode(logger.Info)
 
 	return &Database{
-		engine:      db,
-		serviceName: serviceName,
-	}
+		engine: db,
+	}, nil
 }
