@@ -19,7 +19,6 @@ func (a *Audit) AddStep(id domain.AuditID, details ...interface{}) domain.StepID
 
 	currentStep := domain.Step{
 		ID:      domain.StepID(uuid.New().String()),
-		Next:    nil,
 		Caller:  map[string]interface{}{},
 		Details: []interface{}{},
 	}
@@ -47,22 +46,13 @@ func (a *Audit) AddStep(id domain.AuditID, details ...interface{}) domain.StepID
 		currentStep.Details = append(currentStep.Details, details...)
 	}
 
-	if trace.Content == nil {
-		trace.Content = &currentStep
-	} else {
-		if trace.Content.Next == nil {
-			trace.Content.Next = &currentStep
-		} else {
-			last := trace.Content
-			for last.Next != nil {
-				last = last.Next
-			}
-			last.Next = &currentStep
-		}
+	if len(trace.Content) > 0 && trace.Content[len(trace.Content)-1].End.IsZero() {
+		trace.Content[len(trace.Content)-1].End = time.Now()
 	}
 
 	a.Logger.Log(domain.LogLevelInfo).WithField("audit", id.String()).WithField("step", currentStep.ID.String()).Msg("Step added")
 	currentStep.Start = time.Now()
+	trace.Content = append(trace.Content, currentStep)
 	return currentStep.ID
 }
 
@@ -76,16 +66,10 @@ func (audit *Audit) findStep(auditID domain.AuditID, stepID domain.StepID) *doma
 		return nil
 	}
 
-	if trace.Content.ID == stepID {
-		return trace.Content
-	}
-
-	current := trace.Content
-	for current.Next != nil {
-		if current.Next.ID == stepID {
-			return current.Next
+	for _, step := range trace.Content {
+		if step.ID == stepID {
+			return &step
 		}
-		current = current.Next
 	}
 
 	return nil
@@ -96,11 +80,11 @@ func (audit *Audit) Log(auditID domain.AuditID, stepID domain.StepID) interactor
 }
 
 func (audit *Audit) EndStep(auditID domain.AuditID, stepID domain.StepID) {
+	endTime := time.Now()
 	step := audit.findStep(auditID, stepID)
 
 	if step != nil {
-		step.End = time.Now()
+		step.End = endTime
 	}
 	audit.Logger.Log(domain.LogLevelInfo).WithField("audit", auditID).WithField("step", stepID).Msg("Step ended")
-
 }

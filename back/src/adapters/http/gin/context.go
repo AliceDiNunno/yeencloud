@@ -11,5 +11,5 @@ const (
 const (
 	HeaderAcceptLanguage = "Accept-Language"
 	HeaderAuthorization  = "Authorization"
-	HeaderUserAgent      = "Profile-Agent"
+	HeaderUserAgent      = "User-Agent"
 )

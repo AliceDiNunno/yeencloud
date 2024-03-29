@@ -14,7 +14,7 @@ func (server *ServiceHTTPServer) ginLogger() gin.HandlerFunc {
 
 		message := fmt.Sprintf("%s %s %d", ctx.Request.Method, ctx.Request.URL.Path, status)
 
-		errorCode := ctx.GetString("error_code")
+		errorCode := ctx.GetString("http_code")
 		trace, _ := ctx.Get("trace_dump")
 
 		if errorCode != "" {
@@ -29,19 +29,25 @@ func (server *ServiceHTTPServer) ginLogger() gin.HandlerFunc {
 			level = domain.LogLevelError
 		}
 
-		server.log.Log(level).WithFields(map[string]interface{}{
-			"status":  status,
-			"method":  ctx.Request.Method,
-			"path":    ctx.Request.URL.Path,
-			"traceID": server.getTrace(ctx).String(),
-			"trace":   trace,
-		}).Msg(message)
-	}
-}
+		fields := domain.LogFields{
+			"http.status": status,
+			"http.method": ctx.Request.Method,
+			"http.path":   ctx.Request.URL.Path,
+			"trace.id":    server.getTrace(ctx).String(),
+			"trace.dump":  trace,
+		}
 
-func (server *ServiceHTTPServer) printRoutes(httpMethod, absolutePath, handlerName string, nuHandlers int) {
-	server.log.Log(domain.LogLevelInfo).WithFields(map[string]interface{}{
-		"handler":  handlerName,
-		"handlers": nuHandlers,
-	}).Msg(httpMethod + " " + absolutePath)
+		profile, profileExists := ctx.Get(CtxProfileField)
+		if profileExists {
+			pprofile, ok := profile.(domain.Profile)
+
+			if ok {
+				fields["profile.id"] = pprofile.ID
+				fields["profile.name"] = pprofile.Name
+				fields["profile.email"] = ctx.GetString("mail")
+			}
+		}
+
+		server.log.Log(level).WithFields(fields).Msg(message)
+	}
 }

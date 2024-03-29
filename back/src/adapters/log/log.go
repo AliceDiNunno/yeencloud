@@ -3,8 +3,6 @@ package log
 import (
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/AliceDiNunno/yeencloud/src/core/interactor"
-	"github.com/rogpeppe/go-internal/modfile"
-	"io/ioutil"
 )
 
 type LoggerMiddleware interface {
@@ -13,17 +11,6 @@ type LoggerMiddleware interface {
 
 type Log struct {
 	middleware []LoggerMiddleware
-}
-
-func GetModuleName() string {
-	goModBytes, err := ioutil.ReadFile("go.mod")
-	if err != nil {
-		return "unknown"
-	}
-
-	modName := modfile.ModulePath(goModBytes)
-
-	return modName
 }
 
 func (l *Log) Log(level domain.LogLevel) interactor.LogMessage {

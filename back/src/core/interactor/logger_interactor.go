@@ -12,8 +12,8 @@ type LogMessage interface {
 
 	WithContext(ctx context.Context) LogMessage
 
-	WithField(key string, value interface{}) LogMessage
-	WithFields(fields map[string]interface{}) LogMessage
+	WithField(key domain.LogField, value interface{}) LogMessage
+	WithFields(fields domain.LogFields) LogMessage
 
 	Msg(message string) // Commits the log
 }

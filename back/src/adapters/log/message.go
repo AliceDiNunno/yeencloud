@@ -6,8 +6,6 @@ import (
 	"github.com/AliceDiNunno/yeencloud/src/core/interactor"
 )
 
-type LogFields map[string]interface{}
-
 type Message struct {
 	Level domain.LogLevel
 
@@ -18,11 +16,11 @@ type Message struct {
 	Module   string
 	Time     int64
 
-	Fields LogFields
+	Fields domain.LogFields
 }
 
-func (m *Message) WithLevel(Level domain.LogLevel) interactor.LogMessage {
-	m.Level = Level
+func (m *Message) WithLevel(level domain.LogLevel) interactor.LogMessage {
+	m.Level = level
 
 	return m
 }
@@ -36,9 +34,9 @@ func (m *Message) WithContext(ctx context.Context) interactor.LogMessage {
 	return m
 }
 
-func (m *Message) WithField(key string, value interface{}) interactor.LogMessage {
+func (m *Message) WithField(key domain.LogField, value interface{}) interactor.LogMessage {
 	if m.Fields == nil {
-		m.Fields = make(LogFields)
+		m.Fields = make(domain.LogFields)
 	}
 
 	m.Fields[key] = value
@@ -46,9 +44,9 @@ func (m *Message) WithField(key string, value interface{}) interactor.LogMessage
 	return m
 }
 
-func (m *Message) WithFields(fields map[string]interface{}) interactor.LogMessage {
+func (m *Message) WithFields(fields domain.LogFields) interactor.LogMessage {
 	if m.Fields == nil {
-		m.Fields = make(LogFields)
+		m.Fields = make(domain.LogFields)
 	}
 
 	for key, value := range fields {

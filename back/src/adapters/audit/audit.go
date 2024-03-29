@@ -20,15 +20,12 @@ type Audit struct {
 	currentTraces map[domain.AuditID]*domain.Request
 }
 
-func (a *Audit) NewTrace(trigger string, triggerdata ...interface{}) domain.AuditID {
+func (a *Audit) NewTrace(trigger string, triggerdata map[string]string) domain.AuditID {
 	trace := domain.Request{
-		ID:      domain.AuditID(uuid.New().String()),
-		Trigger: trigger,
-		Content: nil,
-	}
-
-	if len(triggerdata) > 0 {
-		trace.TriggerData = append(trace.TriggerData, triggerdata...)
+		ID:          domain.AuditID(uuid.New().String()),
+		Trigger:     trigger,
+		Content:     nil,
+		TriggerData: triggerdata,
 	}
 
 	a.Log(trace.ID, "").WithField("trigger", trigger).WithField("start", time.Now()).Msg("New trace started")
@@ -39,7 +36,7 @@ func (a *Audit) NewTrace(trigger string, triggerdata ...interface{}) domain.Audi
 	return trace.ID
 }
 
-func (a *Audit) EndTrace(id domain.AuditID, result ...interface{}) domain.Request {
+func (a *Audit) EndTrace(id domain.AuditID) domain.Request {
 	trace, exists := a.currentTraces[id]
 	trace.EndedAt = time.Now().UnixMilli()
 
@@ -49,22 +46,14 @@ func (a *Audit) EndTrace(id domain.AuditID, result ...interface{}) domain.Reques
 		return domain.Request{}
 	}
 
-	if len(result) > 0 {
-		trace.TriggerData = append(trace.TriggerData, result...)
+	lastStep := &trace.Content[len(trace.Content)-1]
+	if lastStep.End.IsZero() {
+		lastStep.End = time.Now()
 	}
 
-	steps := 0
-
-	if trace.Content != nil {
-		steps++
-		for step := trace.Content; step.Next != nil; step = step.Next {
-			steps++
-		}
-	}
-
-	a.Log(trace.ID, "").WithFields(map[string]interface{}{
+	a.Log(trace.ID, "").WithFields(domain.LogFields{
 		"duration": duration,
-		"steps":    steps,
+		"steps":    len(trace.Content),
 	}).Msg("Trace ended")
 
 	a.saveTrace(*trace)
@@ -78,7 +67,7 @@ func (a *Audit) saveTrace(trace domain.Request) {
 	json, err := json.Marshal(trace)
 
 	if err != nil {
-		a.Log(trace.ID, "").WithLevel(domain.LogLevelWarn).WithFields(map[string]interface{}{
+		a.Log(trace.ID, "").WithLevel(domain.LogLevelWarn).WithFields(domain.LogFields{
 			"error": err,
 		}).Msg("Error marshalling trace")
 
@@ -88,7 +77,7 @@ func (a *Audit) saveTrace(trace domain.Request) {
 	if a.SaveTrace != nil {
 		a.SaveTrace(json)
 	} else {
-		a.Log(trace.ID, "").WithLevel(domain.LogLevelWarn).WithFields(map[string]interface{}{
+		a.Log(trace.ID, "").WithLevel(domain.LogLevelWarn).WithFields(domain.LogFields{
 			"error": err,
 		}).Msg("No save trace function defined, trace will be discarded.")
 	}

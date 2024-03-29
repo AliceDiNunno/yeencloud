@@ -14,12 +14,12 @@ type Request struct {
 	StartedAt int64   `json:"startedAt"`
 	EndedAt   int64   `json:"endedAt"`
 
-	Trigger     string        `json:"trigger"`
-	TriggerData []interface{} `json:"triggerData"`
+	Trigger     string            `json:"trigger"`
+	TriggerData map[string]string `json:"triggerData"`
 
 	Result []interface{} `json:"result"`
 
-	Content *Step `json:"content"`
+	Content []Step `json:"content"`
 }
 
 type StepID string
@@ -30,7 +30,6 @@ func (t StepID) String() string {
 
 type Step struct {
 	ID      StepID                 `json:"id"`
-	Next    *Step                  `json:"next"`
 	Caller  map[string]interface{} `json:"caller"`
 	Details []interface{}          `json:"details"`
 

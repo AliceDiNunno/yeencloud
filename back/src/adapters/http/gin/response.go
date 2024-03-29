@@ -30,7 +30,7 @@ func (server *ServiceHTTPServer) abortWithError(ctx *gin.Context, errorDescripti
 		MessageID: errorDescription.Code,
 	})
 
-	ctx.Set("error_code", errorDescription.Code)
+	ctx.Set("http_code", errorDescription.Code)
 
 	ctx.AbortWithStatusJSON(errorDescription.HttpCode, Response{
 		StatusCode: errorDescription.HttpCode,
@@ -44,6 +44,7 @@ func (server *ServiceHTTPServer) abortWithError(ctx *gin.Context, errorDescripti
 }
 
 func (server *ServiceHTTPServer) success(ctx *gin.Context, body interface{}) {
+	ctx.Set("http_code", http.StatusOK)
 	ctx.JSON(http.StatusOK, Response{
 		StatusCode: http.StatusOK,
 		Body:       body,
@@ -52,6 +53,7 @@ func (server *ServiceHTTPServer) success(ctx *gin.Context, body interface{}) {
 }
 
 func (server *ServiceHTTPServer) created(ctx *gin.Context, body interface{}) {
+	ctx.Set("http_code", http.StatusCreated)
 	ctx.JSON(http.StatusCreated, Response{
 		StatusCode: http.StatusCreated,
 		Body:       body,

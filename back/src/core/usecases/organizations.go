@@ -18,7 +18,7 @@ func (self UCs) CreateOrganization(auditID domain.AuditID, profileID domain.Prof
 	organization, err := self.i.Persistence.Organization.CreateOrganization(organizationToCreate)
 
 	if err != nil {
-		self.i.Auditer.Log(auditID, auditStepID).WithFields(map[string]interface{}{
+		self.i.Auditer.Log(auditID, auditStepID).WithFields(domain.LogFields{
 			"error": err,
 			"id":    profileID.String()}).
 			Msg("Error creating organization for user")
@@ -27,7 +27,7 @@ func (self UCs) CreateOrganization(auditID domain.AuditID, profileID domain.Prof
 	err = self.i.Persistence.OrganizationProfile.LinkProfileToOrganization(profileID, organization.ID, "admin")
 
 	if err != nil {
-		self.i.Auditer.Log(auditID, auditStepID).WithFields(map[string]interface{}{
+		self.i.Auditer.Log(auditID, auditStepID).WithFields(domain.LogFields{
 			"error": err,
 			"id":    profileID.String()}).
 			Msg("Error linking user to organization")
@@ -44,7 +44,7 @@ func (self UCs) GetOrganizationsByProfileID(auditID domain.AuditID, profileID do
 	organizations, err := self.i.Persistence.OrganizationProfile.GetProfileOrganizationsByProfileID(profileID)
 
 	if err != nil {
-		self.i.Auditer.Log(auditID, auditStepID).WithLevel(domain.LogLevelError).WithFields(map[string]interface{}{
+		self.i.Auditer.Log(auditID, auditStepID).WithLevel(domain.LogLevelError).WithFields(domain.LogFields{
 			"error": err,
 			"id":    profileID.String()}).
 			Msg("Error getting organizations for user")

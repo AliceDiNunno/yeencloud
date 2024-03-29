@@ -2,10 +2,15 @@ package domain
 
 type LogLevel string
 
+type LogField string
+type LogFields map[LogField]interface{}
+
 const (
-	LogFieldMail                = "mail"
-	LogFieldEnvironmentVariable = "envVar"
-	LogFieldAudit               = "audit"
+	LogFieldMail                = LogField("mail")
+	LogFieldEnvironmentVariable = LogField("envVar")
+	LogFieldAudit               = LogField("audit")
+
+	LogFieldTraceTrigger = LogField("trace.trigger")
 )
 
 const (
@@ -19,5 +24,9 @@ const (
 )
 
 func (l LogLevel) String() string {
+	return string(l)
+}
+
+func (l LogField) String() string {
 	return string(l)
 }

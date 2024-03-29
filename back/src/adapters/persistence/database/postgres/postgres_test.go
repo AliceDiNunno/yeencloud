@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	testConf "back/src/core/config/testConfig"
+	testConf "github.com/AliceDiNunno/yeencloud/src/core/config/testConfig"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"
@@ -43,7 +43,7 @@ func (suite *DatabaseIntegrationTestSuite) migrateTestDB() error {
 	config := testConf.NewConfig()
 	config.GetDatabaseConfig()
 
-	database, err := StartGormDatabase(config.GetDatabaseConfig())
+	database, err := StartGormDatabase(nil, config.GetDatabaseConfig())
 	if err != nil {
 		return err
 	}

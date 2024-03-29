@@ -47,11 +47,6 @@ func loadTranslator() *i18n.Bundle {
 		}
 	}
 
-	langs := []string{}
-	for _, availableLang := range bundle.LanguageTags() {
-		langs = append(langs, availableLang.String())
-	}
-
 	return bundle
 }
 
