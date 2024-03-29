@@ -34,7 +34,11 @@ func (server *ServiceHTTPServer) ginLogger() gin.HandlerFunc {
 			"http.method": ctx.Request.Method,
 			"http.path":   ctx.Request.URL.Path,
 			"trace.id":    server.getTrace(ctx).String(),
-			"trace.dump":  trace,
+		}
+
+		tracedump, valid := trace.(domain.Request)
+		if valid {
+			fields["trace.dump"] = tracedump
 		}
 
 		profile, profileExists := ctx.Get(CtxProfileField)

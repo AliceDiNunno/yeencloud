@@ -9,7 +9,7 @@ import (
 
 // #YC-21 TODO: should a session be in the usecases or the http layer?
 func (self UCs) CreateSession(auditID domain.AuditID, newSessionRequest domain.NewSession) (domain.Session, *domain.ErrorDescription) {
-	self.i.Auditer.AddStep(auditID, newSessionRequest.Secure())
+	step := self.i.Auditer.AddStep(auditID, newSessionRequest.Secure())
 
 	// #YC-3 TODO: implement OTP
 	us, err := self.i.Persistence.User.FindUserByEmail(newSessionRequest.Email)
@@ -19,6 +19,7 @@ func (self UCs) CreateSession(auditID domain.AuditID, newSessionRequest domain.N
 	}
 
 	if bcrypt.CompareHashAndPassword([]byte(us.Password), []byte(newSessionRequest.Password)) != nil {
+		self.i.Auditer.Log(auditID, step).WithLevel(domain.LogLevelWarn).WithField("new_session_request", newSessionRequest).Msg("User tried to login with wrong password")
 		return domain.Session{}, &domain.ErrorUserNotFound
 	}
 

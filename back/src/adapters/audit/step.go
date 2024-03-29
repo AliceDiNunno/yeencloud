@@ -9,6 +9,28 @@ import (
 	"time"
 )
 
+func (a *Audit) getFrame() runtime.Frame {
+	pc, file, line, ok := runtime.Caller(2)
+
+	functionName := "<unknown>"
+	fn := runtime.FuncForPC(pc)
+	if fn != nil {
+		fname := strings.Split(fn.Name(), "/")
+		functionName = fname[len(fname)-1]
+	}
+
+	if ok {
+		return runtime.Frame{
+			PC:       pc,
+			Function: functionName,
+			File:     file,
+			Line:     line,
+		}
+	}
+
+	return runtime.Frame{}
+}
+
 func (a *Audit) AddStep(id domain.AuditID, details ...interface{}) domain.StepID {
 	trace, exists := a.currentTraces[id]
 
@@ -19,27 +41,8 @@ func (a *Audit) AddStep(id domain.AuditID, details ...interface{}) domain.StepID
 
 	currentStep := domain.Step{
 		ID:      domain.StepID(uuid.New().String()),
-		Caller:  map[string]interface{}{},
+		Caller:  a.getFrame(),
 		Details: []interface{}{},
-	}
-
-	pc, file, line, ok := runtime.Caller(1)
-
-	functionName := "<unknown>"
-	fn := runtime.FuncForPC(pc)
-	if fn != nil {
-		fname := strings.Split(fn.Name(), "/")
-		functionName = fname[len(fname)-1]
-	}
-
-	if ok {
-		// TODO: create a struct instead of a map
-		caller := map[string]interface{}{
-			"file":     file,
-			"line":     line,
-			"function": functionName,
-		}
-		currentStep.Caller = caller
 	}
 
 	if len(details) > 0 {

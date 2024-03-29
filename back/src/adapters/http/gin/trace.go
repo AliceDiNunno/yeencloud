@@ -5,6 +5,7 @@ import (
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"strconv"
 )
 
 func (server *ServiceHTTPServer) traceHandlerMiddleware() gin.HandlerFunc {
@@ -13,6 +14,9 @@ func (server *ServiceHTTPServer) traceHandlerMiddleware() gin.HandlerFunc {
 			HeaderUserAgent:      ctx.GetHeader(HeaderUserAgent),
 			HeaderAcceptLanguage: ctx.GetHeader(HeaderAcceptLanguage),
 			"IP":                 ctx.ClientIP(),
+			"Method":             ctx.Request.Method,
+			"Path":               ctx.Request.URL.Path,
+			"Status":             strconv.Itoa(ctx.Writer.Status()),
 		}
 
 		trace := server.auditer.NewTrace(fmt.Sprintf("REST %s %s", ctx.Request.Method, ctx.Request.URL.Path),

@@ -26,6 +26,7 @@ func (a *Audit) NewTrace(trigger string, triggerdata map[string]string) domain.A
 		Trigger:     trigger,
 		Content:     nil,
 		TriggerData: triggerdata,
+		Frame:       a.getFrame(),
 	}
 
 	a.Log(trace.ID, "").WithField("trigger", trigger).WithField("start", time.Now()).Msg("New trace started")

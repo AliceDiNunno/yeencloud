@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"runtime"
+	"time"
+)
 
 type AuditID string
 type AuditSaveFunc func([]byte)
@@ -16,6 +19,7 @@ type Request struct {
 
 	Trigger     string            `json:"trigger"`
 	TriggerData map[string]string `json:"triggerData"`
+	Frame       runtime.Frame     `json:"frame"`
 
 	Result []interface{} `json:"result"`
 
@@ -29,9 +33,9 @@ func (t StepID) String() string {
 }
 
 type Step struct {
-	ID      StepID                 `json:"id"`
-	Caller  map[string]interface{} `json:"caller"`
-	Details []interface{}          `json:"details"`
+	ID      StepID        `json:"id"`
+	Caller  runtime.Frame `json:"caller"`
+	Details []interface{} `json:"details"`
 
 	Start time.Time `json:"start"`
 	End   time.Time `json:"end"`

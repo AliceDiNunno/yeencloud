@@ -6,7 +6,9 @@ import (
 	"github.com/AliceDiNunno/yeencloud/src/adapters/log"
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/AliceDiNunno/yeencloud/src/core/domain/config"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/rollbar/rollbar-go"
+	"runtime"
 )
 
 type Config struct {
@@ -48,20 +50,54 @@ func (r *Middleware) isLoggable(level LogLevel) bool {
 		level == LogLevelCritical
 }
 
-func (r *Middleware) fieldToRollbarField(fields domain.LogFields) map[string]interface{} {
-	rollbarFields := make(map[string]interface{})
+func (r *Middleware) Traceback(message log.Message) []runtime.Frame {
+	var frames []runtime.Frame
 
-	for key, value := range fields {
-		rollbarFields[key.String()] = value
+	for skip := 0; ; skip++ {
+		pc, file, line, ok := runtime.Caller(skip)
+		if !ok {
+			break
+		}
+
+		callerfunc := runtime.FuncForPC(pc)
+
+		frames = append(frames, runtime.Frame{
+			PC:       pc,
+			File:     file,
+			Line:     line,
+			Function: callerfunc.Name(),
+		})
 	}
 
-	return rollbarFields
+	dump, present := message.Fields["trace.dump"]
+
+	if present {
+		trace, ok := dump.(domain.Request)
+
+		if ok {
+			for _, step := range trace.Content {
+				frames = append(frames, step.Caller)
+			}
+		}
+	}
+
+	return frames
 }
 
 func (r *Middleware) Log(message log.Message) {
 	if r.config.Token == "" {
 		return
 	}
+
+	if !r.isLoggable(r.translateLogLevel(message.Level)) {
+		return
+	}
+
+	rollbar.SetStackTracer(func(error) ([]runtime.Frame, bool) {
+		return r.Traceback(message), true
+	})
+
+	spew.Dump(r.Traceback(message))
 
 	profileID, profilePresent := message.Fields["profile.id"]
 	profileStr, ok := profileID.(domain.ProfileID)
@@ -79,38 +115,39 @@ func (r *Middleware) Log(message log.Message) {
 		}
 	}
 
-	if r.isLoggable(r.translateLogLevel(message.Level)) {
-		additionnalFields := make(map[string]interface{})
+	additionnalFields := make(map[string]interface{})
 
-		for key, v := range message.Fields {
-			if key == "trace.dump" {
-				trace, traceOk := v.(domain.Request)
+	for key, v := range message.Fields {
+		if key == "trace.dump" {
+			trace, traceOk := v.(domain.Request)
 
-				if traceOk {
-					for triggerKey, triggerValue := range trace.TriggerData {
-						additionnalFields[triggerKey] = triggerValue
-					}
+			if traceOk {
+				for triggerKey, triggerValue := range trace.TriggerData {
+					additionnalFields[triggerKey] = triggerValue
+				}
 
-					additionnalFields["trace.trigger"] = trace.Trigger
-					additionnalFields["trace.id"] = trace.ID.String()
-					additionnalFields["trace.start"] = trace.StartedAt
-					additionnalFields["trace.end"] = trace.EndedAt
-					additionnalFields["trace.steps"] = len(trace.Content)
-					additionnalFields["trace.result"] = trace.Result
+				//TODO: Add trace data to callstack (it is not traced otherwise and is relevant)
+				additionnalFields["trace.trigger"] = trace.Trigger
+				additionnalFields["trace.id"] = trace.ID.String()
+				additionnalFields["trace.start"] = trace.StartedAt
+				additionnalFields["trace.end"] = trace.EndedAt
+				additionnalFields["trace.steps"] = len(trace.Content)
+				additionnalFields["trace.result"] = trace.Result
 
-					for i, step := range trace.Content {
-						istr := fmt.Sprintf("trace.%d", i)
-						additionnalFields[istr+".caller"] = step.Caller
-						additionnalFields[istr+".details"] = step.Details
-						additionnalFields[istr+".start"] = step.Start
-						additionnalFields[istr+".end"] = step.End
-					}
+				for i, step := range trace.Content {
+					istr := fmt.Sprintf("trace.%d", i)
+					additionnalFields[istr+".caller"] = step.Caller
+					additionnalFields[istr+".details"] = step.Details
+					additionnalFields[istr+".start"] = step.Start
+					additionnalFields[istr+".end"] = step.End
 				}
 			}
+		} else {
+			additionnalFields[key.String()] = v
 		}
-
-		rollbar.Log(message.Level.String(), errors.New(message.Message), r.fieldToRollbarField(message.Fields), additionnalFields)
 	}
+
+	rollbar.Log(message.Level.String(), errors.New(message.Message), additionnalFields)
 }
 
 func NewRollbarMiddleware(config Config, runContext config.RunContextConfig, version config.VersionConfig) *Middleware {
