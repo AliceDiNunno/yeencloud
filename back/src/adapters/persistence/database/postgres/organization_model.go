@@ -5,8 +5,8 @@ import (
 )
 
 type Organization struct {
-	ID          string `gorm:"primary_key"`
-	Slug        string
+	ID          string `gorm:"primary_key;unique;not null;default:null;<-:create"`
+	Slug        string `gorm:"unique;not null;default:null;<-:create"`
 	Name        string
 	Description string
 
@@ -23,6 +23,14 @@ func (db *Database) CreateOrganization(organization domain.Organization) (domain
 	}
 
 	return organizationToDomain(organizationToCreate), nil
+}
+
+func (db *Database) FindOrganizationByID(id domain.OrganizationID) (domain.Organization, error) {
+	panic("implement me")
+}
+
+func (db *Database) FindOrganizationBySlug(slug string) (domain.Organization, error) {
+	panic("implement me")
 }
 
 func (db *Database) DeleteOrganizationByID(id domain.OrganizationID) error {

@@ -3,6 +3,10 @@ package domain
 type UserID string
 type ProfileID string
 
+func InvalidUserID() UserID {
+	return "00000000-0000-0000-0000-000000000000"
+}
+
 func (id UserID) String() string {
 	return string(id)
 }

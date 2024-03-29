@@ -71,7 +71,7 @@ func (i Interactor) PasswordValidator() validator.Func {
 func (i Interactor) UniqueMailValidator() validator.Func {
 	return func(fl validator.FieldLevel) bool {
 		email := fl.Field().String()
-		_, err := i.userRepo.FindUserByEmail(email)
+		_, err := i.persistence.user.FindUserByEmail(email)
 		// If there is no error, it means the user exists so it is not unique therefore we return that there is an error.
 
 		return err != nil

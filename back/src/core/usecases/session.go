@@ -13,7 +13,7 @@ func (i Interactor) CreateSession(auditID domain.AuditID, newSessionRequest requ
 	i.auditer.AddStep(auditID, newSessionRequest.Secure())
 
 	// #YC-3 TODO: implement OTP
-	us, err := i.userRepo.FindUserByEmail(newSessionRequest.Email)
+	us, err := i.persistence.user.FindUserByEmail(newSessionRequest.Email)
 
 	if err != nil {
 		return domain.Session{}, &domain.ErrorUserNotFound
@@ -33,7 +33,7 @@ func (i Interactor) CreateSession(auditID domain.AuditID, newSessionRequest requ
 		UserID:   us.ID,
 	}
 
-	session, err := i.sessionRepo.CreateSession(newSession)
+	session, err := i.persistence.session.CreateSession(newSession)
 	if err != nil {
 		return domain.Session{}, nil
 	}
@@ -45,7 +45,7 @@ func (i Interactor) GetSessionByToken(auditID domain.AuditID, token string) (dom
 	i.auditer.AddStep(auditID)
 
 	// #YC-20 TODO: this should check if the user still exists and if the session is still valid
-	session, err := i.sessionRepo.FindSessionByToken(token)
+	session, err := i.persistence.session.FindSessionByToken(token)
 	if err != nil {
 		return domain.Session{}, &domain.ErrorSessionNotFound
 	}

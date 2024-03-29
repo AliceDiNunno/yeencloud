@@ -9,11 +9,11 @@ import (
 type Session struct {
 	gorm.Model
 
-	Token    string `gorm:"primary_key"`
+	Token    string `gorm:"primary_key;unique;not null;default:null;<-:create"`
 	IP       string
-	ExpireAt time.Time
+	ExpireAt time.Time `gorm:"index;not null;default:null;<-:create"`
 
-	UserID string
+	UserID string `gorm:"index;not null;default:null;<-:create"`
 	User   User
 }
 

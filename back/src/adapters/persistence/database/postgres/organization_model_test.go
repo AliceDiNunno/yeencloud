@@ -1,14 +1,29 @@
 package postgres
 
-import "back/src/core/domain"
+import (
+	"back/src/core/domain"
+	"github.com/stretchr/testify/suite"
+)
+
+type OrganizationModelIntegrationTestSuite struct {
+	suite.Suite
+	database *Database
+}
+
+var testOrganization = domain.Organization{
+	ID:          domain.OrganizationID("d0348c8c-1cff-414d-b8f3-3f3d6a826918"),
+	Slug:        "test-organization",
+	Name:        "Test Organization",
+	Description: "This is an organization for testing purposes.",
+}
 
 func (suite *DatabaseDomainBridgeTestSuite) TestOrganizationToDomain() {
 	//Given
 	modelOrganization := Organization{
-		ID:          "OrganizationID",
-		Slug:        "Slug",
-		Name:        "Name",
-		Description: "Description",
+		ID:          testOrganization.ID.String(),
+		Slug:        testOrganization.Slug,
+		Name:        testOrganization.Name,
+		Description: testOrganization.Description,
 	}
 
 	//When
@@ -23,36 +38,151 @@ func (suite *DatabaseDomainBridgeTestSuite) TestOrganizationToDomain() {
 
 func (suite *DatabaseDomainBridgeTestSuite) TestDomainToOrganization() {
 	//Given
-	domainOrganization := domain.Organization{
-		ID:          "OrganizationID",
-		Slug:        "Slug",
-		Name:        "Name",
-		Description: "Description",
-	}
+	domainOrganization := testOrganization
 
 	//When
 	modelOrganization := domainToOrganization(domainOrganization)
 
 	//Then
-	suite.Assert().Equal(domainOrganization.ID.String(), modelOrganization.ID)
-	suite.Assert().Equal(domainOrganization.Slug, modelOrganization.Slug)
-	suite.Assert().Equal(domainOrganization.Name, modelOrganization.Name)
-	suite.Assert().Equal(domainOrganization.Description, modelOrganization.Description)
+	suite.Assert().Equal(testOrganization.ID.String(), modelOrganization.ID)
+	suite.Assert().Equal(testOrganization.Slug, modelOrganization.Slug)
+	suite.Assert().Equal(testOrganization.Name, modelOrganization.Name)
+	suite.Assert().Equal(testOrganization.Description, modelOrganization.Description)
 }
 
 func (suite *DatabaseDomainBridgeTestSuite) TestOrganizationDomainToModelToDomain() {
 	//Given
-	domainUser := domain.Organization{
-		ID:          "OrganizationID",
-		Slug:        "Slug",
-		Name:        "Name",
-		Description: "Description",
-	}
+	domainOrganization := testOrganization
 
 	//When
-	user := domainToOrganization(domainUser)
-	userDomain := organizationToDomain(user)
+	organization := domainToOrganization(domainOrganization)
+	organizationDomain := organizationToDomain(organization)
 
 	//Then
-	suite.Assert().Equal(domainUser, userDomain)
+	suite.Assert().Equal(domainOrganization, organizationDomain)
+}
+
+func (suite *OrganizationModelIntegrationTestSuite) SetupTest() {
+
+}
+
+func (suite *OrganizationModelIntegrationTestSuite) TearDownTest() {
+	globalTearDown(suite.database, suite.T())
+}
+
+func (suite *OrganizationModelIntegrationTestSuite) TestCreateOrganizationIntegration() {
+	// Given
+	organization := testOrganization
+
+	// When
+	createdOrganization, err := suite.database.CreateOrganization(organization)
+	suite.Assert().NoError(err)
+	foundOrganization, err := suite.database.FindOrganizationByID(organization.ID)
+
+	// Then
+	suite.Assert().NoError(err)
+	suite.Assert().Equal(testOrganization, createdOrganization)
+	suite.Assert().Equal(testOrganization, foundOrganization)
+}
+
+func (suite *OrganizationModelIntegrationTestSuite) TestCreateOrganizationWithoutIdIntegration() {
+	// Given
+	organization := testOrganization
+	organization.ID = ""
+
+	// When
+	createdOrganization, err := suite.database.CreateOrganization(organization)
+	suite.Assert().Error(err)
+	foundOrganization, err := suite.database.FindOrganizationByID(organization.ID)
+
+	// Then
+	suite.Assert().Error(err)
+	suite.Assert().Equal(domain.Organization{}, createdOrganization)
+	suite.Assert().Equal(domain.Organization{}, foundOrganization)
+}
+
+func (suite *OrganizationModelIntegrationTestSuite) TestCreateOrganizationWithDuplicateIdsIntegration() {
+	// Given
+	organization := testOrganization
+
+	// When
+	_, err := suite.database.CreateOrganization(organization)
+	suite.Assert().NoError(err)
+	_, err = suite.database.CreateOrganization(organization)
+
+	// Then
+	suite.Assert().Error(err)
+}
+
+func (suite *OrganizationModelIntegrationTestSuite) TestCreateOrganizationWithDuplicateSlugsIntegration() {
+	// Given
+	organization := testOrganization
+
+	// When
+	_, err := suite.database.CreateOrganization(organization)
+	organization.ID = "930f9b50-cfe1-4514-8c92-6ad7e89665ab"
+	suite.Assert().NoError(err)
+	_, err = suite.database.CreateOrganization(organization)
+
+	// Then
+	suite.Assert().Error(err)
+}
+
+func (suite *OrganizationModelIntegrationTestSuite) TestFindOrganizationByIdIntegration() {
+	// Given
+	organization := testOrganization
+
+	// When
+	createdOrganization, err := suite.database.CreateOrganization(organization)
+	suite.Assert().NoError(err)
+	foundOrganization, err := suite.database.FindOrganizationByID(organization.ID)
+
+	// Then
+	suite.Assert().NoError(err)
+	suite.Assert().Equal(testOrganization, createdOrganization)
+	suite.Assert().Equal(testOrganization, foundOrganization)
+}
+
+func (suite *OrganizationModelIntegrationTestSuite) TestFindOrganizationBySlugIntegration() {
+	// Given
+	organization := testOrganization
+
+	// When
+	createdOrganization, err := suite.database.CreateOrganization(organization)
+	suite.Assert().NoError(err)
+	foundOrganization, err := suite.database.FindOrganizationBySlug(organization.Slug)
+
+	// Then
+	suite.Assert().NoError(err)
+	suite.Assert().Equal(testOrganization, createdOrganization)
+	suite.Assert().Equal(testOrganization, foundOrganization)
+}
+
+func (suite *OrganizationModelIntegrationTestSuite) TestTryUpdatingOrganizationIdIntegration() {
+	suite.T().Skip("Not implemented")
+}
+
+func (suite *OrganizationModelIntegrationTestSuite) TestTryUpdatingOrganizationSlugIntegration() {
+	suite.T().Skip("Not implemented")
+}
+
+func (suite *OrganizationModelIntegrationTestSuite) TestUpdateOrganizationFieldsIntegration() {
+	suite.T().Skip("Not implemented")
+}
+
+func (suite *OrganizationModelIntegrationTestSuite) TestUpdateNotExistingOrganizationShouldThrowErrorIntegration() {
+	suite.T().Skip("Not implemented")
+}
+
+func (suite *OrganizationModelIntegrationTestSuite) TestDeleteOrganizationIntegration() {
+	suite.T().Skip("Not implemented")
+}
+
+func (suite *OrganizationModelIntegrationTestSuite) TestDeleteNotExistingOrganizationShouldThrowErrorIntegration() {
+	suite.T().Skip("Not implemented")
+}
+
+func (suite *OrganizationModelIntegrationTestSuite) TestRecreatingDeletedOrganizationIntegration() {
+	//keeping slug
+	suite.T().Skip("Not implemented")
 }

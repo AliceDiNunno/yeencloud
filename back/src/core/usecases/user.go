@@ -32,7 +32,7 @@ func (i Interactor) CreateUser(auditID domain.AuditID, newUser requests.NewUser,
 		Password: string(hashedPassword),
 	}
 
-	user, err := i.userRepo.CreateUser(userToCreate)
+	user, err := i.persistence.user.CreateUser(userToCreate)
 
 	if err != nil {
 		log.Err(err).Str(domain.LogFieldMail, newUser.Email).Msg("Error creating user")
@@ -45,7 +45,7 @@ func (i Interactor) CreateUser(auditID domain.AuditID, newUser requests.NewUser,
 		Language: profileLanguage,
 	}
 
-	profile, err := i.profileRepo.CreateProfile(profileToCreate)
+	profile, err := i.persistence.profile.CreateProfile(profileToCreate)
 
 	if err != nil {
 		log.Err(err).Str(domain.LogFieldMail, newUser.Email).Msg("Error creating profile for user")
@@ -77,7 +77,7 @@ func (i Interactor) CreateUser(auditID domain.AuditID, newUser requests.NewUser,
 
 func (i Interactor) GetUserByID(auditID domain.AuditID, id domain.UserID) (domain.User, *domain.ErrorDescription) {
 	i.auditer.AddStep(auditID)
-	user, err := i.userRepo.FindUserByID(id)
+	user, err := i.persistence.user.FindUserByID(id)
 
 	if err != nil {
 		log.Err(err).Str("id", id.String()).Msg("Error finding user")
@@ -89,7 +89,7 @@ func (i Interactor) GetUserByID(auditID domain.AuditID, id domain.UserID) (domai
 
 func (i Interactor) GetProfileByUserID(auditID domain.AuditID, userID domain.UserID) (domain.Profile, *domain.ErrorDescription) {
 	log.Debug().Str("audit", auditID.String()).Msg("Getting profile by user id")
-	profile, err := i.profileRepo.FindProfileByUserID(userID)
+	profile, err := i.persistence.profile.FindProfileByUserID(userID)
 
 	// #YC-22 TODO: this should never happen, a profile should be created if it ever is missing (while also reporting the error so it can be investigated)
 	if err != nil {
