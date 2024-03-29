@@ -70,7 +70,7 @@ func (server *ServiceHTTPServer) noResponseHandlerMiddleware() gin.HandlerFunc {
 
 func (server *ServiceHTTPServer) printRoutes(httpMethod, absolutePath, handlerName string, nuHandlers int) {
 	server.log.Log(domain.LogLevelInfo).WithFields(domain.LogFields{
-		"handler":  handlerName,
-		"handlers": nuHandlers,
+		HttpHandlerField:      handlerName,
+		HttpHandlerCountField: nuHandlers,
 	}).Msg(httpMethod + " " + absolutePath)
 }

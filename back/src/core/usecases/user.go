@@ -20,7 +20,7 @@ func (self UCs) CreateUser(auditID domain.AuditID, newUser domain.NewUser, profi
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
 
 	if err != nil {
-		self.i.Auditer.Log(auditID, auditStepID).WithField(domain.LogFieldMail, newUser.Email).Msg("Error hashing password")
+		self.i.Auditer.Log(auditID, auditStepID).WithField(domain.LogFieldProfileMail, newUser.Email).Msg("Error hashing password")
 		self.i.Auditer.EndStep(auditID, auditStepID)
 		return domain.Profile{}, &domain.ErrorUnableToHashPassword
 	}
@@ -34,9 +34,9 @@ func (self UCs) CreateUser(auditID domain.AuditID, newUser domain.NewUser, profi
 	user, err := self.i.Persistence.User.CreateUser(userToCreate)
 
 	if err != nil {
-		self.i.Auditer.Log(auditID, auditStepID).WithField(domain.LogFieldMail, newUser.Email).Msg("Error creating user")
+		self.i.Auditer.Log(auditID, auditStepID).WithField(domain.LogFieldProfileMail, newUser.Email).Msg("Error creating user")
 		self.i.Auditer.EndStep(auditID, auditStepID)
-		return domain.Profile{}, &domain.ErrorUserAlreadyExists //TODO: wrong error ?
+		return domain.Profile{}, &domain.ErrorUserAlreadyExists // TODO: wrong error ?
 	}
 
 	profileToCreate := domain.Profile{
@@ -49,9 +49,9 @@ func (self UCs) CreateUser(auditID domain.AuditID, newUser domain.NewUser, profi
 	profile, err := self.i.Persistence.Profile.CreateProfile(profileToCreate)
 
 	if err != nil {
-		self.i.Auditer.Log(auditID, auditStepID).WithField(domain.LogFieldMail, newUser.Email).Msg("Error creating profile for user")
+		self.i.Auditer.Log(auditID, auditStepID).WithField(domain.LogFieldProfileMail, newUser.Email).Msg("Error creating profile for user")
 		self.i.Auditer.EndStep(auditID, auditStepID)
-		return domain.Profile{}, &domain.ErrorUserAlreadyExists //TODO: wrong error ?
+		return domain.Profile{}, &domain.ErrorUserAlreadyExists // TODO: wrong error ?
 	}
 
 	msg := i18n.NewLocalizer(self.i.Translator, profileLanguage)
@@ -75,7 +75,7 @@ func (self UCs) CreateUser(auditID domain.AuditID, newUser domain.NewUser, profi
 		return domain.Profile{}, derr
 	}
 
-	self.i.Auditer.Log(auditID, auditStepID).WithField(domain.LogFieldMail, newUser.Email).Msg("Profile created")
+	self.i.Auditer.Log(auditID, auditStepID).WithField(domain.LogFieldProfileMail, newUser.Email).Msg("Profile created")
 	self.i.Auditer.EndStep(auditID, auditStepID)
 	return profileToCreate, nil
 }

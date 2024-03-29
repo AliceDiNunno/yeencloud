@@ -32,7 +32,7 @@ func (server *ServiceHTTPServer) getUserProfileMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		ctx.Set("mail", user.Email)
+		ctx.Set(CtxProfileMailField, user.Email)
 		ctx.Set(CtxProfileField, profile)
 	}
 }

@@ -2,11 +2,15 @@ package postgres
 
 import (
 	"context"
+	"time"
+
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/AliceDiNunno/yeencloud/src/core/interactor"
 	"gorm.io/gorm/logger"
-	"time"
 )
+
+const LogFieldSQL = "sql"
+const LogFieldSQLRowsAffected = LogFieldSQL + ".rows_affected"
 
 type gormLogger struct {
 	logger interactor.Logger
@@ -23,8 +27,11 @@ func (g gormLogger) log(level domain.LogLevel, s string, i ...interface{}) {
 
 	fields := domain.LogFields{}
 	for _, v := range i {
-		for key, value := range v.(domain.LogFields) {
-			fields[key] = value
+		logfields, valid := v.(domain.LogFields)
+		if valid {
+			for key, value := range logfields {
+				fields[key] = value
+			}
 		}
 	}
 	g.logger.Log(level).WithFields(fields).Msg(s)
@@ -66,11 +73,12 @@ func (g gormLogger) Trace(ctx context.Context, begin time.Time, fc func() (sql s
 	}
 
 	g.log(domain.LogLevelSQL, sql, domain.LogFields{
-		"begin":        begin,
-		"end":          end,
-		"rowsAffected": rows,
-		"error":        err,
-		"duration":     duration,
+		domain.LogFieldTimeStarted: begin,
+		domain.LogFieldTimeEnded:   end,
+		// TODO: move duration to logger when timestarted and timeended are present
+		domain.LogFieldDuration: duration,
+		domain.LogFieldError:    err,
+		LogFieldSQLRowsAffected: rows,
 	})
 }
 

@@ -3,12 +3,12 @@ package rollbar
 import (
 	"errors"
 	"fmt"
+	"runtime"
+
 	"github.com/AliceDiNunno/yeencloud/src/adapters/log"
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/AliceDiNunno/yeencloud/src/core/domain/config"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/rollbar/rollbar-go"
-	"runtime"
 )
 
 type Config struct {
@@ -17,37 +17,6 @@ type Config struct {
 
 type Middleware struct {
 	config Config
-}
-
-type LogLevel string
-
-const (
-	LogLevelDebug    LogLevel = "debug"
-	LogLevelInfo     LogLevel = "info"
-	LogLevelWarning  LogLevel = "warning"
-	LogLevelError    LogLevel = "error"
-	LogLevelCritical LogLevel = "critical"
-)
-
-func (r *Middleware) translateLogLevel(level domain.LogLevel) LogLevel {
-	switch level {
-	case domain.LogLevelInfo:
-		return LogLevelInfo
-	case domain.LogLevelWarn:
-		return LogLevelWarning
-	case domain.LogLevelError:
-		return LogLevelError
-	case domain.LogLevelFatal, domain.LogLevelPanic:
-		return LogLevelCritical
-	default:
-		return LogLevelDebug
-	}
-}
-
-func (r *Middleware) isLoggable(level LogLevel) bool {
-	return level == LogLevelWarning ||
-		level == LogLevelError ||
-		level == LogLevelCritical
 }
 
 func (r *Middleware) Traceback(message log.Message) []runtime.Frame {
@@ -69,7 +38,7 @@ func (r *Middleware) Traceback(message log.Message) []runtime.Frame {
 		})
 	}
 
-	dump, present := message.Fields["trace.dump"]
+	dump, present := message.Fields[domain.LogFieldTraceDump]
 
 	if present {
 		trace, ok := dump.(domain.Request)
@@ -97,13 +66,11 @@ func (r *Middleware) Log(message log.Message) {
 		return r.Traceback(message), true
 	})
 
-	spew.Dump(r.Traceback(message))
-
-	profileID, profilePresent := message.Fields["profile.id"]
+	profileID, profilePresent := message.Fields[domain.LogFieldProfileID]
 	profileStr, ok := profileID.(domain.ProfileID)
 	if profilePresent && ok {
-		email, mailFound := message.Fields["profile.email"]
-		name, nameFound := message.Fields["profile.name"]
+		email, mailFound := message.Fields[domain.LogFieldProfileMail]
+		name, nameFound := message.Fields[domain.LogFieldProfileName]
 
 		if mailFound && nameFound {
 			emailStr, emailOk := email.(string)
@@ -118,7 +85,7 @@ func (r *Middleware) Log(message log.Message) {
 	additionnalFields := make(map[string]interface{})
 
 	for key, v := range message.Fields {
-		if key == "trace.dump" {
+		if key == domain.LogFieldTraceDump {
 			trace, traceOk := v.(domain.Request)
 
 			if traceOk {
@@ -126,20 +93,18 @@ func (r *Middleware) Log(message log.Message) {
 					additionnalFields[triggerKey] = triggerValue
 				}
 
-				//TODO: Add trace data to callstack (it is not traced otherwise and is relevant)
-				additionnalFields["trace.trigger"] = trace.Trigger
-				additionnalFields["trace.id"] = trace.ID.String()
-				additionnalFields["trace.start"] = trace.StartedAt
-				additionnalFields["trace.end"] = trace.EndedAt
-				additionnalFields["trace.steps"] = len(trace.Content)
-				additionnalFields["trace.result"] = trace.Result
+				additionnalFields[domain.LogFieldTraceTrigger.String()] = trace.Trigger
+				additionnalFields[domain.LogFieldTraceID.String()] = trace.ID.String()
+				additionnalFields[domain.LogFieldTimeStarted.String()] = trace.StartedAt
+				additionnalFields[domain.LogFieldTimeEnded.String()] = trace.EndedAt
+				additionnalFields[domain.LogFieldTraceStepCount.String()] = len(trace.Content)
+				additionnalFields[domain.LogFieldTraceResult.String()] = trace.Result
 
 				for i, step := range trace.Content {
-					istr := fmt.Sprintf("trace.%d", i)
-					additionnalFields[istr+".caller"] = step.Caller
-					additionnalFields[istr+".details"] = step.Details
-					additionnalFields[istr+".start"] = step.Start
-					additionnalFields[istr+".end"] = step.End
+					additionnalFields[fmt.Sprintf(domain.LogFieldTraceStepCaller.String(), i)] = step.Caller
+					additionnalFields[fmt.Sprintf(domain.LogFieldTraceStepDetails.String(), i)] = step.Details
+					additionnalFields[fmt.Sprintf(domain.LogFieldTraceStepStart.String(), i)] = step.Start
+					additionnalFields[fmt.Sprintf(domain.LogFieldTraceStepEnd.String(), i)] = step.End
 				}
 			}
 		} else {

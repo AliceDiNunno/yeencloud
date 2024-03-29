@@ -1,10 +1,11 @@
 package gin
 
 import (
+	"net/http"
+
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/gin-gonic/gin"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"net/http"
 )
 
 type Response struct {
@@ -21,42 +22,41 @@ type ResponseError struct {
 	Message string `json:"message"`
 }
 
-func (server *ServiceHTTPServer) abortWithError(ctx *gin.Context, errorDescription domain.ErrorDescription, body ...interface{}) {
-	lang := ctx.GetString("lang")
+func (server *ServiceHTTPServer) reply(ctx *gin.Context, replyCall func(code int, obj any), code int, errDesc *domain.ErrorDescription, body interface{}) {
+	ctx.Set(CtxHTTPCodeField, code)
 
-	msg := i18n.NewLocalizer(server.translator, lang)
+	response := Response{
+		StatusCode: code,
+		Body:       body,
+		RequestID:  server.getTrace(ctx).String(),
+	}
 
-	localized, _, _ := msg.LocalizeWithTag(&i18n.LocalizeConfig{
-		MessageID: errorDescription.Code,
-	})
+	if errDesc != nil {
+		lang := ctx.GetString(CtxLanguageField)
 
-	ctx.Set("http_code", errorDescription.Code)
+		msg := i18n.NewLocalizer(server.translator, lang)
 
-	ctx.AbortWithStatusJSON(errorDescription.HttpCode, Response{
-		StatusCode: errorDescription.HttpCode,
-		Error: &ResponseError{
-			Code:    errorDescription.Code,
+		localized, _, _ := msg.LocalizeWithTag(&i18n.LocalizeConfig{
+			MessageID: errDesc.Code,
+		})
+
+		response.Error = &ResponseError{
+			Code:    errDesc.Code,
 			Message: localized,
-		},
-		RequestID: server.getTrace(ctx).String(),
-		Body:      body,
-	})
+		}
+	}
+
+	replyCall(code, response)
+}
+
+func (server *ServiceHTTPServer) abortWithError(ctx *gin.Context, errorDescription domain.ErrorDescription, body ...interface{}) {
+	server.reply(ctx, ctx.AbortWithStatusJSON, errorDescription.HttpCode, &errorDescription, body)
 }
 
 func (server *ServiceHTTPServer) success(ctx *gin.Context, body interface{}) {
-	ctx.Set("http_code", http.StatusOK)
-	ctx.JSON(http.StatusOK, Response{
-		StatusCode: http.StatusOK,
-		Body:       body,
-		RequestID:  server.getTrace(ctx).String(),
-	})
+	server.reply(ctx, ctx.JSON, http.StatusOK, nil, body)
 }
 
 func (server *ServiceHTTPServer) created(ctx *gin.Context, body interface{}) {
-	ctx.Set("http_code", http.StatusCreated)
-	ctx.JSON(http.StatusCreated, Response{
-		StatusCode: http.StatusCreated,
-		Body:       body,
-		RequestID:  server.getTrace(ctx).String(),
-	})
+	server.reply(ctx, ctx.JSON, http.StatusCreated, nil, body)
 }

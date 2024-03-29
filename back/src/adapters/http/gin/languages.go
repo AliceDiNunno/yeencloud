@@ -24,6 +24,7 @@ func (server *ServiceHTTPServer) getLangMiddleware() gin.HandlerFunc {
 		}
 
 		if lang == "" {
+			// TODO: move to config (default to enUS)
 			lang = "enUS"
 		}
 

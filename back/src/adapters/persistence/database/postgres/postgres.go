@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"fmt"
+
 	"github.com/AliceDiNunno/yeencloud/src/core/domain/config"
 	"github.com/AliceDiNunno/yeencloud/src/core/interactor"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -11,8 +12,6 @@ import (
 )
 
 type Database struct {
-	//logger interactor.Logger
-
 	engine *gorm.DB
 }
 
@@ -29,7 +28,6 @@ func StartGormDatabase(log interactor.Logger, config config.DatabaseConfig) (*Da
 	}
 
 	return &Database{
-		//logger: log,
 		engine: db,
 	}, nil
 }

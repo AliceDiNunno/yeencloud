@@ -1,13 +1,14 @@
 package zerolog
 
 import (
+	"os"
+	"regexp"
+	"strconv"
+
 	"github.com/AliceDiNunno/yeencloud/src/adapters/log"
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/rs/zerolog"
 	zlog "github.com/rs/zerolog/log"
-	"os"
-	"regexp"
-	"strconv"
 )
 
 type ZeroLogMiddleware struct {
@@ -119,7 +120,7 @@ func (z *ZeroLogMiddleware) Log(message log.Message) {
 
 	for k, v := range message.Fields {
 		// as this middleware is used for terminal logs principally for the dev environment, we don't want to pollute the logs with the trace dump
-		if k.String() == "trace.dump" {
+		if k == domain.LogFieldTraceDump {
 			continue
 		}
 

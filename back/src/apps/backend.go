@@ -31,24 +31,24 @@ func MainBackend(bundle *ApplicationBundle) error {
 	logger.AddMiddleware(zlogmiddle)
 	logger.AddMiddleware(rollbarmiddle)
 
-	logger.Log(domain.LogLevelDebug).WithFields(map[domain.LogField]interface{}{
-		"version":        version,
-		"databaseConfig": databaseConfig,
-		"httpConfig":     httpConfig,
-		"runContext":     runContext,
-	}).Msg("Starting backend")
+	logger.Log(domain.LogLevelDebug).
+		WithField(domain.LogFieldConfigVersion, version).
+		WithField(domain.LogFieldConfigDatabase, databaseConfig).
+		WithField(domain.LogFieldConfigHTTP, httpConfig).
+		WithField(domain.LogFieldConfigRunContext, runContext).
+		Msg("Starting backend")
 
 	// #YC-12 TODO: make database dependent on config in order to have a local database for tests
 	logger.Log(domain.LogLevelInfo).Msg("Connecting to database")
 
 	database, err := postgres.StartGormDatabase(logger, databaseConfig)
 	if err != nil {
-		logger.Log(domain.LogLevelError).WithField("error", err).Msg("Error connecting to database")
+		logger.Log(domain.LogLevelError).WithField(domain.LogFieldError, err).Msg("Error connecting to database")
 		return err
 	}
 	err = database.Migrate()
 	if err != nil {
-		logger.Log(domain.LogLevelError).WithField("error", err).Msg("Error migrating database")
+		logger.Log(domain.LogLevelError).WithField(domain.LogFieldError, err).Msg("Error migrating database")
 		return err
 	}
 

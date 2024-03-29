@@ -2,6 +2,10 @@ package gin
 
 import (
 	"fmt"
+	"net/http"
+	"os"
+	"time"
+
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/AliceDiNunno/yeencloud/src/core/domain/config"
 	"github.com/AliceDiNunno/yeencloud/src/core/interactor"
@@ -9,9 +13,6 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"net/http"
-	"os"
-	"time"
 )
 
 type ServiceHTTPServer struct {
@@ -41,17 +42,19 @@ func NewServiceHttpServer(ucs usecases.Usecases, config config.HTTPConfig, log i
 
 	gin.DebugPrintRouteFunc = server.printRoutes
 
+	// TODO: use config
 	if os.Getenv("ENV") == "production" || os.Getenv("ENV") == "prod" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
 	r := gin.New()
 
+	allowHeaders := fmt.Sprintf("%s, %s, %s, %s", HeaderAuthorization, HeaderContentType, HeaderAcceptLanguage, HeaderUserAgent)
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{config.FrontendURL},
-		AllowMethods:     []string{"PUT", "PATCH", "GET", "POST", "OPTION", "DELETE"},
-		AllowHeaders:     []string{"Origin, Authorization, Content-Type, Accept-Language"},
-		ExposeHeaders:    []string{"Content-Length"},
+		AllowMethods:     []string{MethodPut, MethodPatch, MethodGet, MethodPost, MethodOption, MethodDelete},
+		AllowHeaders:     []string{allowHeaders},
+		ExposeHeaders:    []string{HeaderContentLength},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))

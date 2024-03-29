@@ -2,6 +2,7 @@ package gin
 
 import (
 	"fmt"
+
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/gin-gonic/gin"
 )
@@ -11,18 +12,15 @@ func (server *ServiceHTTPServer) ginLogger() gin.HandlerFunc {
 		ctx.Next()
 
 		status := ctx.Writer.Status()
+		httpCode := ctx.GetString(CtxHTTPCodeField)
+		trace, _ := ctx.Get(CtxTraceField)
 
 		message := fmt.Sprintf("%s %s %d", ctx.Request.Method, ctx.Request.URL.Path, status)
-
-		errorCode := ctx.GetString("http_code")
-		trace, _ := ctx.Get("trace_dump")
-
-		if errorCode != "" {
-			message += " - " + errorCode
+		if httpCode != "" {
+			message += " - " + httpCode
 		}
 
 		level := domain.LogLevelInfo
-
 		if status >= 400 && status < 500 {
 			level = domain.LogLevelWarn
 		} else if status >= 500 {
@@ -30,25 +28,24 @@ func (server *ServiceHTTPServer) ginLogger() gin.HandlerFunc {
 		}
 
 		fields := domain.LogFields{
-			"http.status": status,
-			"http.method": ctx.Request.Method,
-			"http.path":   ctx.Request.URL.Path,
-			"trace.id":    server.getTrace(ctx).String(),
+			HttpLogFieldStatus:     status,
+			HttpLogFieldMethod:     ctx.Request.Method,
+			HttpLogFieldPath:       ctx.Request.URL.Path,
+			domain.LogFieldTraceID: server.getTrace(ctx).String(),
 		}
 
 		tracedump, valid := trace.(domain.Request)
 		if valid {
-			fields["trace.dump"] = tracedump
+			fields[domain.LogFieldTraceDump] = tracedump
 		}
-
 		profile, profileExists := ctx.Get(CtxProfileField)
 		if profileExists {
 			pprofile, ok := profile.(domain.Profile)
 
 			if ok {
-				fields["profile.id"] = pprofile.ID
-				fields["profile.name"] = pprofile.Name
-				fields["profile.email"] = ctx.GetString("mail")
+				fields[domain.LogFieldTraceID] = pprofile.ID
+				fields[domain.LogFieldProfileName] = pprofile.Name
+				fields[domain.LogFieldProfileMail] = ctx.GetString("mail")
 			}
 		}
 
