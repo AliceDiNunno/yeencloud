@@ -6,6 +6,12 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
+type Audit interface {
+	NewTrace(trigger string, data ...interface{}) domain.AuditID
+	AddStep(id domain.AuditID, details ...interface{})
+	EndTrace(id domain.AuditID, result ...interface{})
+}
+
 type SettingsRepository interface {
 	SetSettingsValue(key string, value string)
 
@@ -62,6 +68,7 @@ type interactor struct {
 	cluster    ClusterAdapter
 	validator  Validator
 	translator *i18n.Bundle
+	auditer    Audit
 
 	//Main models
 	settingsRepo     SettingsRepository
@@ -75,13 +82,14 @@ type interactor struct {
 	organizationUserRepo OrganizationUserRepository
 }
 
-func NewInteractor(c ClusterAdapter, i18n *i18n.Bundle, validator Validator,
+func NewInteractor(c ClusterAdapter, i18n *i18n.Bundle, validator Validator, audit Audit,
 	sR SettingsRepository, uR UserRepository, proR ProfileRepository, servR ServiceRepository, sesR SessionRepository, oR OrganizationRepository,
 	ouR OrganizationUserRepository) *interactor {
 	inter := &interactor{
 		cluster:    c,
 		translator: i18n,
 		validator:  validator,
+		auditer:    audit,
 
 		settingsRepo:     sR,
 		userRepo:         uR,

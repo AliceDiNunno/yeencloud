@@ -7,7 +7,9 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func (i interactor) CreateOrganization(userID domain.UserID, newOrganization requests.NewOrganization) (domain.Organization, *domain.ErrorDescription) {
+func (i interactor) CreateOrganization(auditID domain.AuditID, userID domain.UserID, newOrganization requests.NewOrganization) (domain.Organization, *domain.ErrorDescription) {
+	i.auditer.AddStep(auditID, newOrganization)
+
 	organizationToCreate := domain.Organization{
 		ID:          domain.OrganizationID(uuid.New().String()),
 		Slug:        newOrganization.Name, // #YC-17 TODO: generate unique slug
@@ -30,7 +32,9 @@ func (i interactor) CreateOrganization(userID domain.UserID, newOrganization req
 	return organization, nil
 }
 
-func (i interactor) GetOrganizationsByUserID(userID domain.UserID) ([]domain.OrganizationMember, *domain.ErrorDescription) {
+func (i interactor) GetOrganizationsByUserID(auditID domain.AuditID, userID domain.UserID) ([]domain.OrganizationMember, *domain.ErrorDescription) {
+	i.auditer.AddStep(auditID, userID)
+
 	organizations, err := i.organizationUserRepo.GetUserOrganizationsByUserID(userID)
 
 	if err != nil {

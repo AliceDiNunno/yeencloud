@@ -27,6 +27,7 @@ func (server *ServiceHTTPServer) SetRoutes() {
 	r := server.engine
 
 	//Get prerequisites
+	r.Use(server.traceHandlerMiddleware())
 	r.Use(server.getSessionMiddleware())
 	r.Use(server.getUserMiddleware())
 	r.Use(server.getLangMiddleware())
@@ -43,11 +44,11 @@ func (server *ServiceHTTPServer) SetRoutes() {
 }
 
 func (server *ServiceHTTPServer) SetErrors(r *gin.Engine) {
-	r.NoRoute(func(context *gin.Context) {
-		server.abortWithError(context, domain.ErrorNotFound)
+	r.NoRoute(func(ctx *gin.Context) {
+		server.abortWithError(ctx, domain.ErrorNotFound)
 	})
 
-	r.NoMethod(func(context *gin.Context) {
-		server.abortWithError(context, domain.ErrorNoMethod)
+	r.NoMethod(func(ctx *gin.Context) {
+		server.abortWithError(ctx, domain.ErrorNoMethod)
 	})
 }

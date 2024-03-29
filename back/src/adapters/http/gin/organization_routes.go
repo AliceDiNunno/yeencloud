@@ -5,8 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (server *ServiceHTTPServer) getOrganizationsHandler(context *gin.Context) {
-	id, found := context.Get("user")
+func (server *ServiceHTTPServer) getOrganizationsHandler(ctx *gin.Context) {
+	id, found := ctx.Get("user")
 
 	if !found {
 		return
@@ -18,11 +18,11 @@ func (server *ServiceHTTPServer) getOrganizationsHandler(context *gin.Context) {
 		return
 	}
 
-	organization, err := server.ucs.GetOrganizationsByUserID(userID)
+	organization, err := server.ucs.GetOrganizationsByUserID(server.getTrace(ctx), userID)
 	if err != nil {
-		server.abortWithError(context, *err)
+		server.abortWithError(ctx, *err)
 		return
 	}
 
-	context.JSON(200, organization)
+	server.success(ctx, organization)
 }

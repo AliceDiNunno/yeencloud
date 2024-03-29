@@ -7,50 +7,52 @@ import (
 )
 
 func (server *ServiceHTTPServer) getUserMiddleware() gin.HandlerFunc {
-	return func(context *gin.Context) {
-		session, exists := context.Get("session")
+	return func(ctx *gin.Context) {
+		server.auditer.AddStep(server.getTrace(ctx))
+
+		session, exists := ctx.Get("session")
 
 		if !exists {
 			return
 		}
 
 		//This is necessary to make sure the user is still valid
-		user, err := server.ucs.GetUserByID(session.(domain.Session).UserID)
+		user, err := server.ucs.GetUserByID(server.getTrace(ctx), session.(domain.Session).UserID)
 
 		if err != nil {
-			server.abortWithError(context, *err)
+			server.abortWithError(ctx, *err)
 			return
 		}
 
-		context.Set("user", user.ID)
+		ctx.Set("user", user.ID)
 	}
 }
 
-func (server *ServiceHTTPServer) createUserHandler(context *gin.Context) {
+func (server *ServiceHTTPServer) createUserHandler(ctx *gin.Context) {
 	var createUserRequest requests.NewUser
-	if err := context.ShouldBindJSON(&createUserRequest); err != nil {
-		server.abortWithError(context, domain.ErrorBadRequest)
+	if err := ctx.ShouldBindJSON(&createUserRequest); err != nil {
+		server.abortWithError(ctx, domain.ErrorBadRequest)
 		return
 	}
 
-	if !server.validate(createUserRequest, context) {
+	if !server.validate(createUserRequest, ctx) {
 		return
 	}
 
-	language := context.GetString("lang")
+	language := ctx.GetString("lang")
 
-	profile, err := server.ucs.CreateUser(createUserRequest, language)
+	profile, err := server.ucs.CreateUser(server.getTrace(ctx), createUserRequest, language)
 
 	if err != nil {
-		server.abortWithError(context, *err)
+		server.abortWithError(ctx, *err)
 		return
 	}
 
-	context.JSON(201, profile)
+	server.created(ctx, profile)
 }
 
-func (server *ServiceHTTPServer) getCurrentUserHandler(context *gin.Context) {
-	id, found := context.Get("user")
+func (server *ServiceHTTPServer) getCurrentUserHandler(ctx *gin.Context) {
+	id, found := ctx.Get("user")
 
 	if !found {
 		return
@@ -62,20 +64,11 @@ func (server *ServiceHTTPServer) getCurrentUserHandler(context *gin.Context) {
 		return
 	}
 
-	user, err := server.ucs.GetUserByID(userID)
+	profile, err := server.ucs.GetProfileByUserID(server.getTrace(ctx), userID)
 	if err != nil {
-		server.abortWithError(context, *err)
+		server.abortWithError(ctx, *err)
 		return
 	}
 
-	profile, err := server.ucs.GetProfileByUserID(userID)
-	if err != nil {
-		server.abortWithError(context, *err)
-		return
-	}
-
-	context.JSON(200, map[string]interface{}{
-		"user":    user,
-		"profile": profile,
-	})
+	server.success(ctx, profile)
 }

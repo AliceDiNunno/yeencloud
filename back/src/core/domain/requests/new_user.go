@@ -5,3 +5,8 @@ type NewUser struct {
 	Name     string `json:"name" validate:"required"`
 	Password string `json:"password" validate:"required,password"`
 }
+
+func (u NewUser) Secure() NewUser {
+	u.Password = ""
+	return u
+}

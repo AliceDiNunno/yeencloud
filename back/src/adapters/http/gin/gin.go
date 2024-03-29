@@ -22,14 +22,16 @@ type ServiceHTTPServer struct {
 	ucs        usecases.Usecases
 	translator *i18n.Bundle
 	validator  usecases.Validator
+	auditer    usecases.Audit
 }
 
-func NewServiceHttpServer(ucs usecases.Usecases, config config.HTTPConfig, translator *i18n.Bundle, validator usecases.Validator) *ServiceHTTPServer {
+func NewServiceHttpServer(ucs usecases.Usecases, config config.HTTPConfig, translator *i18n.Bundle, validator usecases.Validator, auditer usecases.Audit) *ServiceHTTPServer {
 	server := ServiceHTTPServer{
 		config:     config,
 		ucs:        ucs,
 		translator: translator,
 		validator:  validator,
+		auditer:    auditer,
 	}
 
 	gin.DebugPrintRouteFunc = func(httpMethod, absolutePath, handlerName string, nuHandlers int) {
@@ -85,7 +87,7 @@ func (server *ServiceHTTPServer) Listen() error {
 // #YC-8 TODO : Add language list
 // #YC-7 TODO : Add git commit hash
 func (server *ServiceHTTPServer) getStatusHandler(context *gin.Context) {
-	context.JSON(200, gin.H{
+	server.success(context, gin.H{
 		"message": "OK",
 	})
 }
