@@ -2,7 +2,9 @@ LanguageDisplayName = "Français"
 LanguageFlag = "🇫🇷"
 ShortLanguageCode = "fr"
 
-HelloPerson = "Hello {{.Name}}"
 MethodNotAllowed = "Méthode non autorisée"
 PageNotFound = "Page introuvable"
 BadRequest = "Requête invalide ou incomplète"
+UnableToGetUserOrganizations = "Impossible de récupérer les organisations de l'utilisateur"
+
+DefaultOrganizationDescription = "Organisation de {{.UserFullName}}"

@@ -3,7 +3,9 @@ LanguageFlag = "🇺🇸"
 #TODO: this is used as a quick way to identify the language if we need the short code for other libraries (currently validator since it doesn't support full language codes, (I guess ?))
 ShortLanguageCode = "en"
 
-HelloPerson = "Hello {{.Name}}"
 MethodNotAllowed = "Method not allowed"
 PageNotFound = "Page not found"
 BadRequest = "Bad request"
+UnableToGetUserOrganizations = "Unable to get user organizations"
+
+DefaultOrganizationDescription = "{{.UserFullName}}'s organization"

@@ -7,7 +7,15 @@ func (db *Database) Migrate() {
 
 	err := db.engine.Debug().AutoMigrate(Settings{}, User{}, Organization{}, Profile{}, Session{})
 	if err != nil {
-		log.Err(err).Msg("Error migrating database")
+		log.Err(err).Msg("Error migrating models")
 		return
 	}
+
+	err = db.engine.Debug().AutoMigrate(&OrganizationUser{})
+	if err != nil {
+		log.Err(err).Msg("Error migrating linking tables")
+		return
+	}
+
+	log.Info().Msg("Database migrated")
 }

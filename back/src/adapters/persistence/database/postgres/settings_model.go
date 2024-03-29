@@ -4,10 +4,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type settingsRepo struct {
-	db *gorm.DB
-}
-
 type Settings struct {
 	gorm.Model
 

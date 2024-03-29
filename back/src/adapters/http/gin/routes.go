@@ -5,6 +5,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func (server *ServiceHTTPServer) setPublicRoutes(r *gin.RouterGroup) {
+	r.GET("/languages", server.getLanguagesHandler)
+	r.GET("/status", server.getStatusHandler)
+
+	users := r.Group("/users")
+	users.POST("/", server.createUserHandler)
+
+	session := r.Group("/session")
+	session.POST("/", server.createSessionHandler)
+}
+
+func (server *ServiceHTTPServer) setAuthenticatedRoutes(authenticated *gin.RouterGroup) {
+	authenticated.GET("/me", server.getCurrentUserHandler)
+
+	organizations := authenticated.Group("/organizations")
+	organizations.GET("/", server.getOrganizationsHandler)
+}
+
 func (server *ServiceHTTPServer) SetRoutes() {
 	r := server.engine
 
@@ -14,23 +32,12 @@ func (server *ServiceHTTPServer) SetRoutes() {
 	r.Use(server.getLangMiddleware())
 
 	//Unauthenticated routes
-	r.GET("/languages", server.getLanguagesHandler)
-	r.GET("/status", server.getStatusHandler)
-
-	users := r.Group("/users")
-	users.POST("/", server.createUserHandler)
-
-	session := r.Group("/session")
-	session.POST("/", server.createSessionHandler)
-
-	organizations := r.Group("/organizations")
-	organizations.GET("/", server.getOrganizationsHandler)
+	server.setPublicRoutes(r.Group("/"))
 
 	//Authenticated routes
 	authenticated := r.Group("/")
 	authenticated.Use(server.requireSessionMiddleware())
-
-	authenticated.GET("/me", server.getCurrentUserHandler)
+	server.setAuthenticatedRoutes(authenticated)
 
 	server.SetErrors(r)
 }

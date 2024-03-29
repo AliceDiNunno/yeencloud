@@ -64,7 +64,17 @@ func (server *ServiceHTTPServer) createUserHandler(context *gin.Context) {
 }
 
 func (server *ServiceHTTPServer) getCurrentUserHandler(context *gin.Context) {
-	userID := context.GetString("user")
+	id, found := context.Get("user")
+
+	if !found {
+		return
+	}
+
+	userID, ok := id.(domain.UserID)
+
+	if !ok {
+		return
+	}
 
 	user, err := server.ucs.GetUserByID(userID)
 	if err != nil {

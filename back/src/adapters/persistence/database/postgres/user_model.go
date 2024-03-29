@@ -2,21 +2,18 @@ package postgres
 
 import (
 	"back/src/core/domain"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
-
-type usersRepo struct {
-	db *gorm.DB
-}
 
 type User struct {
 	gorm.Model
 
-	ID string `gorm:"type:uuid;primary_key"`
+	ID string `gorm:"primary_key"`
 
 	Email    string
 	Password string
+
+	Organizations []OrganizationUser
 }
 
 func (db *Database) CountUsers() int64 {
@@ -25,7 +22,7 @@ func (db *Database) CountUsers() int64 {
 	return count
 }
 
-func (db *Database) FindUserByID(id uuid.UUID) (domain.User, error) {
+func (db *Database) FindUserByID(id domain.UserID) (domain.User, error) {
 	var user User
 	result := db.engine.Where("id = ?", id).First(&user)
 
@@ -61,7 +58,7 @@ func (db *Database) CreateUser(user domain.User) (domain.User, error) {
 
 func userToDomain(user User) domain.User {
 	return domain.User{
-		ID:       user.ID,
+		ID:       domain.UserID(user.ID),
 		Email:    user.Email,
 		Password: user.Password,
 	}
@@ -69,7 +66,7 @@ func userToDomain(user User) domain.User {
 
 func domainToUser(user domain.User) User {
 	return User{
-		ID:       user.ID,
+		ID:       user.ID.String(),
 		Email:    user.Email,
 		Password: user.Password,
 	}

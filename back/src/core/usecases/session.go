@@ -31,7 +31,7 @@ func (i interactor) CreateSession(newSessionRequest requests.NewSession) (domain
 		UserID:   us.ID,
 	}
 
-	session, err := i.sessionRepository.CreateSession(newSession)
+	session, err := i.sessionRepo.CreateSession(newSession)
 	if err != nil {
 		return domain.Session{}, nil
 	}
@@ -42,7 +42,7 @@ func (i interactor) CreateSession(newSessionRequest requests.NewSession) (domain
 func (i interactor) GetSessionByToken(token string) (domain.Session, *domain.ErrorDescription) {
 	//TODO: this should check if the user still exists and if the session is still valid
 
-	session, err := i.sessionRepository.FindSessionByToken(token)
+	session, err := i.sessionRepo.FindSessionByToken(token)
 	if err != nil {
 		return domain.Session{}, &domain.ErrorSessionNotFound
 	}
