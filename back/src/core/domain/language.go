@@ -6,7 +6,7 @@ type Language struct {
 	DisplayName string
 }
 
-// Translation keys
+// Translation keys.
 const (
 	DefaultOrganizationDescription    = "DefaultOrganizationDescription"
 	DefaultOrganizationDescriptionKey = "UserFullName"

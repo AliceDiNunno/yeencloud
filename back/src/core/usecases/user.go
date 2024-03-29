@@ -18,6 +18,11 @@ func (i interactor) CreateUser(auditID domain.AuditID, newUser requests.NewUser,
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
 
+	if err != nil {
+		log.Err(err).Str(domain.LogFieldMail, newUser.Email).Msg("Error hashing password")
+		return domain.Profile{}, &domain.ErrorUnableToHashPassword
+	}
+
 	userToCreate := domain.User{
 		ID:       i.newUserID(),
 		Email:    newUser.Email,
@@ -27,7 +32,7 @@ func (i interactor) CreateUser(auditID domain.AuditID, newUser requests.NewUser,
 	user, err := i.userRepo.CreateUser(userToCreate)
 
 	if err != nil {
-		log.Err(err).Str("mail", newUser.Email).Msg("Error creating user")
+		log.Err(err).Str(domain.LogFieldMail, newUser.Email).Msg("Error creating user")
 	}
 
 	profileToCreate := domain.Profile{
@@ -39,7 +44,7 @@ func (i interactor) CreateUser(auditID domain.AuditID, newUser requests.NewUser,
 	_, err = i.profileRepo.CreateProfile(profileToCreate)
 
 	if err != nil {
-		log.Err(err).Str("mail", newUser.Email).Msg("Error creating profile for user")
+		log.Err(err).Str(domain.LogFieldMail, newUser.Email).Msg("Error creating profile for user")
 	}
 
 	msg := i18n.NewLocalizer(i.translator, profileLanguage)
@@ -62,11 +67,12 @@ func (i interactor) CreateUser(auditID domain.AuditID, newUser requests.NewUser,
 		return domain.Profile{}, derr
 	}
 
-	log.Info().Str("mail", newUser.Email).Msg("User created")
+	log.Info().Str(domain.LogFieldMail, newUser.Email).Msg("User created")
 	return profileToCreate, nil
 }
 
 func (i interactor) GetUserByID(auditID domain.AuditID, id domain.UserID) (domain.User, *domain.ErrorDescription) {
+	i.auditer.AddStep(auditID)
 	user, err := i.userRepo.FindUserByID(id)
 
 	if err != nil {

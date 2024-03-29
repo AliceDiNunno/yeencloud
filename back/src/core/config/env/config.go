@@ -1,7 +1,7 @@
 package env
 
 import (
-	"fmt"
+	"back/src/core/domain"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 	"os"
@@ -20,7 +20,7 @@ func NewConfig(c *cli.Context) *Config {
 }
 
 func (config *Config) getEnvStringOrDefault(key string, defaultValue string) string {
-	//CLI takes precedence over env variables
+	// CLI takes precedence over env variables.
 	value := config.cli.String(key)
 
 	if value != "" {
@@ -72,9 +72,9 @@ func (config *Config) GetEnvStringOrDefault(key string, defaultValue string) str
 	value := config.getEnvStringOrDefault(key, defaultValue)
 
 	if strings.Contains(key, "SECRET") || strings.Contains(key, "KEY") || strings.Contains(key, "TOKEN") || strings.Contains(key, "PASSWORD") {
-		log.Info().Str("envvar", key).Msg("****")
+		log.Info().Str(domain.LogFieldEnvironmentVariable, key).Msg("****")
 	} else {
-		log.Info().Str("envvar", key).Msg(value)
+		log.Info().Str(domain.LogFieldEnvironmentVariable, key).Msg(value)
 	}
 
 	return value
@@ -111,9 +111,9 @@ func (config *Config) GetEnvIntOrDefault(key string, defaultValue int) int {
 	value := config.getEnvIntOrDefault(key, defaultValue)
 
 	if strings.Contains(key, "SECRET") || strings.Contains(key, "KEY") || strings.Contains(key, "TOKEN") || strings.Contains(key, "PASSWORD") {
-		log.Info().Str("envvar", key).Msg("****")
+		log.Info().Str(domain.LogFieldEnvironmentVariable, key).Msg("****")
 	} else {
-		log.Info().Str("envvar", key).Msg(fmt.Sprintf("%d", value))
+		log.Info().Str(domain.LogFieldEnvironmentVariable, key).Msg(strconv.Itoa(value))
 	}
 
 	return value

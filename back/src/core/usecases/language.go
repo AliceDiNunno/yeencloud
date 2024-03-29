@@ -19,7 +19,6 @@ func (i interactor) GetAvailableLanguages() []domain.Language {
 			Flag:        flag,
 			DisplayName: displayName,
 		})
-
 	}
 
 	return languages

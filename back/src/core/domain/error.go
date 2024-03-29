@@ -3,17 +3,8 @@ package domain
 import "net/http"
 
 type ErrorDescription struct {
-	HttpCode int
-	Code     string
-}
-
-type Error struct {
-	ErrorDescription
-
-	Stack          Stack
-	Child          *Error                 `json:",omitempty"`
-	AdditionalData map[string]interface{} `json:",omitempty"`
-	Fingerprint    string
+	HttpCode int    `json:"-"`
+	Code     string `json:"code"`
 }
 
 var (
@@ -24,6 +15,7 @@ var (
 	ErrorUserNotFound    = ErrorDescription{HttpCode: http.StatusNotFound, Code: "UserNotFound"}
 	ErrorProfileNotFound = ErrorDescription{HttpCode: http.StatusNotFound, Code: "ProfileNotFound"}
 
+	ErrorUnableToHashPassword         = ErrorDescription{HttpCode: http.StatusInternalServerError, Code: "UnableToHashPassword"}
 	ErrorUnableToGetUserOrganizations = ErrorDescription{HttpCode: http.StatusInternalServerError, Code: "UnableToGetUserOrganizations"}
 
 	// #YC-14 TODO: this should be moved to the adapter/http/gin package directly

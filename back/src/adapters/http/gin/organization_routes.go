@@ -6,7 +6,7 @@ import (
 )
 
 func (server *ServiceHTTPServer) getOrganizationsHandler(ctx *gin.Context) {
-	id, found := ctx.Get("user")
+	id, found := ctx.Get(CtxUserField)
 
 	if !found {
 		return

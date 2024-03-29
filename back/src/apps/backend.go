@@ -6,12 +6,11 @@ import (
 	"back/src/adapters/http/gin"
 	"back/src/adapters/persistence/database/postgres"
 	"back/src/adapters/validator/govalidator"
-	"back/src/core/domain"
 	"back/src/core/usecases"
 	"github.com/rs/zerolog/log"
 )
 
-func MainBackend(bundle *domain.ApplicationBundle) error {
+func MainBackend(bundle *ApplicationBundle) error {
 	httpConfig := bundle.Config.GetHTTPConfig()
 	databaseConfig := bundle.Config.GetDatabaseConfig()
 	version := bundle.Config.GetVersionConfig()
