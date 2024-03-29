@@ -7,10 +7,10 @@ func (id OrganizationID) String() string {
 }
 
 type Organization struct {
-	ID          OrganizationID
-	Slug        string
-	Name        string
-	Description string
+	ID          OrganizationID `json:"id"`
+	Slug        string         `json:"slug"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
 }
 
 type OrganizationRole string
@@ -26,7 +26,7 @@ func (id OrganizationRole) String() string {
 }
 
 type OrganizationMember struct {
-	User         User
-	Organization Organization
-	Role         OrganizationRole
+	Profile      Profile          `json:"profile"`
+	Organization Organization     `json:"organization"`
+	Role         OrganizationRole `json:"role"`
 }

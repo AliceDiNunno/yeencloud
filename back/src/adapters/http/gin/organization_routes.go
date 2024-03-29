@@ -12,13 +12,13 @@ func (server *ServiceHTTPServer) getOrganizationsHandler(ctx *gin.Context) {
 		return
 	}
 
-	userID, ok := id.(domain.UserID)
+	profile, ok := id.(domain.Profile)
 
 	if !ok {
 		return
 	}
 
-	organization, err := server.ucs.GetOrganizationsByUserID(server.getTrace(ctx), userID)
+	organization, err := server.ucs.GetOrganizationsByProfileID(server.getTrace(ctx), profile.ID)
 	if err != nil {
 		server.abortWithError(ctx, *err)
 		return

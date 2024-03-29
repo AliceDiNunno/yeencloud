@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (server *ServiceHTTPServer) getUserMiddleware() gin.HandlerFunc {
+func (server *ServiceHTTPServer) getUserProfileMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		server.auditer.AddStep(server.getTrace(ctx))
 
@@ -25,6 +25,15 @@ func (server *ServiceHTTPServer) getUserMiddleware() gin.HandlerFunc {
 		}
 
 		ctx.Set(CtxUserField, user.ID)
+
+		profile, err := server.ucs.GetProfileByUserID(server.getTrace(ctx), user.ID)
+
+		if err != nil {
+			server.abortWithError(ctx, *err)
+			return
+		}
+
+		ctx.Set(CtxProfileField, profile)
 	}
 }
 
@@ -52,21 +61,16 @@ func (server *ServiceHTTPServer) createUserHandler(ctx *gin.Context) {
 }
 
 func (server *ServiceHTTPServer) getCurrentUserHandler(ctx *gin.Context) {
-	id, found := ctx.Get(CtxUserField)
+	id, found := ctx.Get(CtxProfileField)
 
 	if !found {
 		return
 	}
 
-	userID, ok := id.(domain.UserID)
+	profile, ok := id.(domain.Profile)
 
 	if !ok {
-		return
-	}
-
-	profile, err := server.ucs.GetProfileByUserID(server.getTrace(ctx), userID)
-	if err != nil {
-		server.abortWithError(ctx, *err)
+		server.abortWithError(ctx, domain.ErrorProfileNotFound)
 		return
 	}
 

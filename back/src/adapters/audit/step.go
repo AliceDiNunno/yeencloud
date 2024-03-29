@@ -7,10 +7,10 @@ import (
 	"strings"
 )
 
-type step struct {
-	Next    *step
-	Caller  map[string]interface{}
-	Details []interface{}
+type Step struct {
+	Next    *Step                  `json:"next"`
+	Caller  map[string]interface{} `json:"caller"`
+	Details []interface{}          `json:"details"`
 }
 
 func (a *Audit) AddStep(id domain.AuditID, details ...interface{}) {
@@ -21,7 +21,7 @@ func (a *Audit) AddStep(id domain.AuditID, details ...interface{}) {
 		return
 	}
 
-	currentStep := step{
+	currentStep := Step{
 		Next:    nil,
 		Caller:  map[string]interface{}{},
 		Details: []interface{}{},
@@ -37,6 +37,7 @@ func (a *Audit) AddStep(id domain.AuditID, details ...interface{}) {
 	}
 
 	if ok {
+		// TODO: create a struct instead of a map
 		caller := map[string]interface{}{
 			"file":     file,
 			"line":     line,

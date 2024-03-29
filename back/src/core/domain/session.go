@@ -1,8 +1,8 @@
 package domain
 
 type Session struct {
-	Token    string
-	ExpireAt int64
-	IP       string
-	UserID   UserID
+	Token    string `json:"token"`
+	ExpireAt int64  `json:"expireAt"`
+	IP       string `json:"ip"`
+	UserID   UserID `json:"userId"`
 }

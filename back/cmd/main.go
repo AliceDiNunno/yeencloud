@@ -5,6 +5,7 @@ import (
 	"back/src/core/config/env"
 	"fmt"
 	"github.com/BurntSushi/toml"
+	"github.com/urfave/cli/v2"
 	"golang.org/x/text/language"
 	"os"
 	"strings"
@@ -14,7 +15,6 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"github.com/urfave/cli/v2"
 )
 
 func initConfig(c *cli.Context) *env.Config {
@@ -24,7 +24,7 @@ func initConfig(c *cli.Context) *env.Config {
 		configFile = ".env"
 	}
 
-	log.Info().Msg("Loading configuration from %s + configFile")
+	log.Info().Msg("Loading configuration from " + configFile)
 	err := godotenv.Load(configFile)
 	if err != nil {
 		log.Err(err).Msg("Error loading configuration")

@@ -15,11 +15,11 @@ import (
 type Audit struct {
 	SaveTrace domain.AuditSaveFunc
 
-	currentTraces map[domain.AuditID]*root
+	currentTraces map[domain.AuditID]*Request
 }
 
 func (a *Audit) NewTrace(trigger string, triggerdata ...interface{}) domain.AuditID {
-	trace := root{
+	trace := Request{
 		ID:      domain.AuditID(uuid.New().String()),
 		Trigger: trigger,
 		Content: nil,
@@ -67,7 +67,7 @@ func (a *Audit) EndTrace(id domain.AuditID, result ...interface{}) {
 	delete(a.currentTraces, id)
 }
 
-func (a *Audit) saveTrace(trace root) {
+func (a *Audit) saveTrace(trace Request) {
 	json, err := json.Marshal(trace)
 
 	if err != nil {
@@ -84,7 +84,7 @@ func (a *Audit) saveTrace(trace root) {
 
 func NewAuditer(saveTrace domain.AuditSaveFunc) *Audit {
 	return &Audit{
-		currentTraces: make(map[domain.AuditID]*root),
+		currentTraces: make(map[domain.AuditID]*Request),
 		SaveTrace:     saveTrace,
 	}
 }

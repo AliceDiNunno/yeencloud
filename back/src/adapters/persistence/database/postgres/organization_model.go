@@ -10,7 +10,7 @@ type Organization struct {
 	Name        string
 	Description string
 
-	Users []OrganizationUser
+	Users []OrganizationProfile
 }
 
 func (db *Database) CreateOrganization(organization domain.Organization) (domain.Organization, error) {
