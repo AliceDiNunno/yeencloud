@@ -1,7 +1,7 @@
 package domain
 
 type Language struct {
-	Identifier  string `json:"id"`
+	Tag         string `json:"tag"`
 	Flag        string `json:"flag"`
 	DisplayName string `json:"displayName"`
 }

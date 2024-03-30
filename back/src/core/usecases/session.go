@@ -1,15 +1,16 @@
 package usecases
 
 import (
+	"time"
+
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
-	"time"
 )
 
 // #YC-21 TODO: should a session be in the usecases or the http layer?
 func (self UCs) CreateSession(auditID domain.AuditID, newSessionRequest domain.NewSession) (domain.Session, *domain.ErrorDescription) {
-	step := self.i.Auditer.AddStep(auditID, newSessionRequest.Secure())
+	step := self.i.Trace.AddStep(auditID, newSessionRequest.Secure())
 
 	// #YC-3 TODO: implement OTP
 	us, err := self.i.Persistence.User.FindUserByEmail(newSessionRequest.Email)
@@ -19,7 +20,7 @@ func (self UCs) CreateSession(auditID domain.AuditID, newSessionRequest domain.N
 	}
 
 	if bcrypt.CompareHashAndPassword([]byte(us.Password), []byte(newSessionRequest.Password)) != nil {
-		self.i.Auditer.Log(auditID, step).WithLevel(domain.LogLevelWarn).WithField("new_session_request", newSessionRequest).Msg("User tried to login with wrong password")
+		self.i.Trace.Log(auditID, step).WithLevel(domain.LogLevelWarn).WithField("new_session_request", newSessionRequest).Msg("User tried to login with wrong password")
 		return domain.Session{}, &domain.ErrorUserNotFound
 	}
 
@@ -42,7 +43,7 @@ func (self UCs) CreateSession(auditID domain.AuditID, newSessionRequest domain.N
 }
 
 func (self UCs) GetSessionByToken(auditID domain.AuditID, token string) (domain.Session, *domain.ErrorDescription) {
-	self.i.Auditer.AddStep(auditID)
+	self.i.Trace.AddStep(auditID)
 
 	// #YC-20 TODO: this should check if the user still exists and if the session is still valid
 	session, err := self.i.Persistence.Session.FindSessionByToken(token)

@@ -4,6 +4,7 @@ import (
 	"github.com/AliceDiNunno/yeencloud/src/adapters/audit"
 	"github.com/AliceDiNunno/yeencloud/src/adapters/cluster/k8s"
 	"github.com/AliceDiNunno/yeencloud/src/adapters/http/gin"
+	localization2 "github.com/AliceDiNunno/yeencloud/src/adapters/localization"
 	"github.com/AliceDiNunno/yeencloud/src/adapters/log"
 	"github.com/AliceDiNunno/yeencloud/src/adapters/log/reporting/rollbar"
 	"github.com/AliceDiNunno/yeencloud/src/adapters/log/terminal/zerolog"
@@ -11,6 +12,7 @@ import (
 	"github.com/AliceDiNunno/yeencloud/src/adapters/validator"
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/AliceDiNunno/yeencloud/src/core/usecases"
+	"golang.org/x/text/language"
 )
 
 func MainBackend(bundle *ApplicationBundle) error {
@@ -38,6 +40,8 @@ func MainBackend(bundle *ApplicationBundle) error {
 		WithField(domain.LogFieldConfigRunContext, runContext).
 		Msg("Starting backend")
 
+	localization := localization2.NewLocalize(logger, "./src/locale", language.English)
+
 	// #YC-12 TODO: make database dependent on config in order to have a local database for tests
 	logger.Log(domain.LogLevelInfo).Msg("Connecting to database")
 
@@ -59,9 +63,9 @@ func MainBackend(bundle *ApplicationBundle) error {
 
 	persistence := usecases.NewPersistence(database, database, database, database, database, database)
 
-	ucs := usecases.NewUsecases(cluster, bundle.Translator, validator, auditer, persistence)
+	ucs := usecases.NewUsecases(cluster, localization, validator, auditer, persistence)
 
-	http := gin.NewServiceHttpServer(ucs, httpConfig, logger, version, bundle.Translator, validator, auditer)
+	http := gin.NewServiceHttpServer(ucs, httpConfig, logger, version, localization, validator, auditer)
 
 	return http.Listen()
 }

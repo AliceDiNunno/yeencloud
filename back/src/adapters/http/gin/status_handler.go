@@ -18,7 +18,7 @@ func (server *ServiceHTTPServer) getStatusHandler(context *gin.Context) {
 	status := statusReply{
 		Message:   "OK",
 		Version:   server.versionConfig,
-		Languages: server.ucs.GetAvailableLanguages(),
+		Languages: server.localize.GetAvailableLanguages(),
 	}
 	stepID := server.auditer.AddStep(auditID, status)
 	server.auditer.Log(auditID, stepID).WithLevel(domain.LogLevelInfo).Msg("Status request")

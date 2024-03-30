@@ -5,7 +5,6 @@ import (
 
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/gin-gonic/gin"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 type Response struct {
@@ -34,15 +33,9 @@ func (server *ServiceHTTPServer) reply(ctx *gin.Context, replyCall func(code int
 	if errDesc != nil {
 		lang := ctx.GetString(CtxLanguageField)
 
-		msg := i18n.NewLocalizer(server.translator, lang)
-
-		localized, _, _ := msg.LocalizeWithTag(&i18n.LocalizeConfig{
-			MessageID: errDesc.Code,
-		})
-
 		response.Error = &ResponseError{
 			Code:    errDesc.Code,
-			Message: localized,
+			Message: server.localize.GetLocalizedText(lang, errDesc.Code),
 		}
 	}
 

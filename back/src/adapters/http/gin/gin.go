@@ -12,7 +12,6 @@ import (
 	"github.com/AliceDiNunno/yeencloud/src/core/usecases"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 type ServiceHTTPServer struct {
@@ -22,22 +21,22 @@ type ServiceHTTPServer struct {
 	versionConfig config.VersionConfig
 	log           interactor.Logger
 
-	ucs        usecases.Usecases
-	translator *i18n.Bundle
-	validator  interactor.Validator
-	auditer    interactor.Audit
+	ucs       usecases.Usecases
+	localize  interactor.Localize
+	validator interactor.Validator
+	auditer   interactor.Audit
 }
 
-func NewServiceHttpServer(ucs usecases.Usecases, config config.HTTPConfig, log interactor.Logger, version config.VersionConfig, translator *i18n.Bundle, validator interactor.Validator, auditer interactor.Audit) *ServiceHTTPServer {
+func NewServiceHttpServer(ucs usecases.Usecases, config config.HTTPConfig, log interactor.Logger, version config.VersionConfig, localize interactor.Localize, validator interactor.Validator, auditer interactor.Audit) *ServiceHTTPServer {
 	server := ServiceHTTPServer{
 		config:        config,
 		versionConfig: version,
 		log:           log,
 
-		ucs:        ucs,
-		translator: translator,
-		validator:  validator,
-		auditer:    auditer,
+		ucs:       ucs,
+		localize:  localize,
+		validator: validator,
+		auditer:   auditer,
 	}
 
 	gin.DebugPrintRouteFunc = server.printRoutes

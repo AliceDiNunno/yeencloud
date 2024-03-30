@@ -3,7 +3,6 @@ package usecases
 import (
 	"github.com/AliceDiNunno/yeencloud/src/core/interactor"
 	persistenceInteractor "github.com/AliceDiNunno/yeencloud/src/core/interactor/persistence"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 type UCs struct {
@@ -22,12 +21,12 @@ func NewPersistence(user persistenceInteractor.UserRepository, service persisten
 	}
 }
 
-func NewUsecases(c interactor.ClusterAdapter, i18n *i18n.Bundle, validator interactor.Validator, audit interactor.Audit, per persistenceInteractor.Persistence) *UCs {
+func NewUsecases(c interactor.ClusterAdapter, i18n interactor.Localize, validator interactor.Validator, audit interactor.Audit, per persistenceInteractor.Persistence) *UCs {
 	ucs := &UCs{
 		i: &interactor.Interactor{Cluster: c,
-			Translator: i18n,
-			Validator:  validator,
-			Auditer:    audit,
+			Localize:  i18n,
+			Validator: validator,
+			Trace:     audit,
 
 			Persistence: per,
 		},

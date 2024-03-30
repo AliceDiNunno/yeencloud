@@ -6,7 +6,7 @@ import (
 )
 
 func (self UCs) CreateOrganization(auditID domain.AuditID, profileID domain.ProfileID, newOrganization domain.NewOrganization) (domain.Organization, *domain.ErrorDescription) {
-	auditStepID := self.i.Auditer.AddStep(auditID, newOrganization)
+	auditStepID := self.i.Trace.AddStep(auditID, newOrganization)
 
 	organizationToCreate := domain.Organization{
 		ID:          domain.OrganizationID(uuid.New().String()),
@@ -18,7 +18,7 @@ func (self UCs) CreateOrganization(auditID domain.AuditID, profileID domain.Prof
 	organization, err := self.i.Persistence.Organization.CreateOrganization(organizationToCreate)
 
 	if err != nil {
-		self.i.Auditer.Log(auditID, auditStepID).WithFields(domain.LogFields{
+		self.i.Trace.Log(auditID, auditStepID).WithFields(domain.LogFields{
 			"error": err,
 			"id":    profileID.String()}).
 			Msg("Error creating organization for user")
@@ -27,24 +27,24 @@ func (self UCs) CreateOrganization(auditID domain.AuditID, profileID domain.Prof
 	err = self.i.Persistence.OrganizationProfile.LinkProfileToOrganization(profileID, organization.ID, "admin")
 
 	if err != nil {
-		self.i.Auditer.Log(auditID, auditStepID).WithFields(domain.LogFields{
+		self.i.Trace.Log(auditID, auditStepID).WithFields(domain.LogFields{
 			"error": err,
 			"id":    profileID.String()}).
 			Msg("Error linking user to organization")
 	}
 
-	self.i.Auditer.EndStep(auditID, auditStepID)
+	self.i.Trace.EndStep(auditID, auditStepID)
 
 	return organization, nil
 }
 
 func (self UCs) GetOrganizationsByProfileID(auditID domain.AuditID, profileID domain.ProfileID) ([]domain.OrganizationMember, *domain.ErrorDescription) {
-	auditStepID := self.i.Auditer.AddStep(auditID, profileID)
+	auditStepID := self.i.Trace.AddStep(auditID, profileID)
 
 	organizations, err := self.i.Persistence.OrganizationProfile.GetProfileOrganizationsByProfileID(profileID)
 
 	if err != nil {
-		self.i.Auditer.Log(auditID, auditStepID).WithLevel(domain.LogLevelError).WithFields(domain.LogFields{
+		self.i.Trace.Log(auditID, auditStepID).WithLevel(domain.LogLevelError).WithFields(domain.LogFields{
 			"error": err,
 			"id":    profileID.String()}).
 			Msg("Error getting organizations for user")

@@ -4,10 +4,6 @@ import (
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 )
 
-type LanguageUsecases interface {
-	GetAvailableLanguages() []domain.Language
-}
-
 type UserUsecases interface {
 	CreateUser(auditID domain.AuditID, user domain.NewUser, language string) (domain.Profile, *domain.ErrorDescription)
 
@@ -34,6 +30,5 @@ type Usecases interface {
 	UserUsecases
 	ProfileUsecases
 	SessionUsecases
-	LanguageUsecases
 	OrganizationUsecases
 }
