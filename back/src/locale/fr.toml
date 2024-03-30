@@ -1,5 +1,6 @@
 LanguageDisplayName = "Français"
 LanguageFlag = "🇫🇷"
+#
 ShortLanguageCode = "fr"
 
 MethodNotAllowed = "Méthode non autorisée"
@@ -12,3 +13,13 @@ UnableToGetUserOrganizations = "Impossible de récupérer les organisations de l
 AuthenticationTokenMissing = "Le jeton d'authentification est manquant"
 
 DefaultOrganizationDescription = "Organisation de {{.UserFullName}}"
+
+#Validation
+ValidationFieldIsRequired = "Ce champ est requis"
+ValidationMailIsInvalid = "L'adresse mail est invalide"
+ValidationUserAlreadyExists = "Cet utilisateur existe déjà"
+ValidationPasswordMustBeBetween8And64Characters = "Le mot de passe doit contenir entre 8 et 64 caractères"
+ValidationPasswordMustContainAtLeastANumber = "Le mot de passe doit contenir au moins un chiffre"
+ValidationPasswordMustContainAtLeastASpecialCharacter = "Le mot de passe doit contenir au moins un caractère spécial"
+ValidationPasswordMustContainAtLeastAnUppercaseLetter = "Le mot de passe doit contenir au moins une lettre majuscule"
+ValidationPasswordMustContainAtLeastALowercaseLetter = "Le mot de passe doit contenir au moins une lettre minuscule"

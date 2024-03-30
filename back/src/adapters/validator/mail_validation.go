@@ -1,19 +1,20 @@
 package validator
 
 import (
-	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"net/mail"
+
+	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 )
 
-func (validator *Validator) EmailValidator(field FieldToValidate) []domain.ValidationFieldError {
+var ValidationErrorMailIsInvalid = domain.Translatable{Key: "ValidationMailIsInvalid"}
+
+func (validator *Validator) EmailValidator(field FieldToValidate) []domain.Translatable {
 	email := field.FieldValue.String()
 
 	_, err := mail.ParseAddress(email)
 
 	if err != nil {
-		return []domain.ValidationFieldError{
-			"Email is not valid",
-		}
+		return []domain.Translatable{ValidationErrorMailIsInvalid}
 	}
-	return []domain.ValidationFieldError{}
+	return []domain.Translatable{}
 }

@@ -130,7 +130,6 @@ func (z *ZeroLogMiddleware) Log(message log.Message) {
 		} else {
 			currentLog = currentLog.Any(k.String(), v)
 		}
-
 	}
 
 	msgStr := message.Message

@@ -29,26 +29,24 @@ func (rt requestTrace) data() map[string]string {
 	}
 }
 
-func (server *ServiceHTTPServer) traceHandlerMiddleware() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		requestData := requestTrace{
-			UserAgent:      ctx.GetHeader(HeaderUserAgent),
-			AcceptLanguage: ctx.GetHeader(HeaderAcceptLanguage),
-			IP:             ctx.ClientIP(),
-			Method:         ctx.Request.Method,
-			Path:           ctx.Request.URL.Path,
-			Status:         strconv.Itoa(ctx.Writer.Status()),
-		}
-
-		trace := server.auditer.NewTrace(fmt.Sprintf("REST %s %s", ctx.Request.Method, ctx.Request.URL.Path),
-			requestData.data())
-		ctx.Set(CtxAuditField, trace)
-		ctx.Next()
-		defer func() {
-			dump := server.auditer.EndTrace(trace)
-			ctx.Set(CtxTraceField, dump)
-		}()
+func (server *ServiceHTTPServer) traceHandlerMiddleware(ctx *gin.Context) {
+	requestData := requestTrace{
+		UserAgent:      ctx.GetHeader(HeaderUserAgent),
+		AcceptLanguage: ctx.GetHeader(HeaderAcceptLanguage),
+		IP:             ctx.ClientIP(),
+		Method:         ctx.Request.Method,
+		Path:           ctx.Request.URL.Path,
+		Status:         strconv.Itoa(ctx.Writer.Status()),
 	}
+
+	trace := server.auditer.NewTrace(fmt.Sprintf("REST %s %s", ctx.Request.Method, ctx.Request.URL.Path),
+		requestData.data())
+	ctx.Set(CtxAuditField, trace)
+	ctx.Next()
+	defer func() {
+		dump := server.auditer.EndTrace(trace)
+		ctx.Set(CtxTraceField, dump)
+	}()
 }
 
 func (server *ServiceHTTPServer) getTrace(ctx *gin.Context) domain.AuditID {

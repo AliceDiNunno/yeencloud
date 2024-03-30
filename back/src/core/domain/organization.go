@@ -16,9 +16,9 @@ type Organization struct {
 type OrganizationRole string
 
 const (
-	OrganizationRoleOwner OrganizationRole = "OWNER"
-	OrganizationRoleAdmin OrganizationRole = "ADMIN"
-	OrganizationRoleUser  OrganizationRole = "USER"
+	OrganizationRoleOwner OrganizationRole = "owner"
+	OrganizationRoleAdmin OrganizationRole = "admin"
+	OrganizationRoleUser  OrganizationRole = "user"
 )
 
 func (id OrganizationRole) String() string {
@@ -32,7 +32,7 @@ type OrganizationMember struct {
 }
 
 type NewOrganization struct {
-	Name        string `json:"name" binding:"required"`
+	Name        string `json:"name" validate:"required"`
 	Description string `json:"description"`
 }
 

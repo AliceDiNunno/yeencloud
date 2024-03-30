@@ -1,20 +1,33 @@
 package gin
 
 import (
+	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/gin-gonic/gin"
 )
 
-func (server *ServiceHTTPServer) validate(i interface{}, c *gin.Context) bool {
+func (server *ServiceHTTPServer) validate(c *gin.Context, obj interface{}) bool {
 	server.auditer.AddStep(server.getTrace(c))
 
-	succeeded, validationErrors := server.validator.Validate(i)
+	succeeded, validationErrors := server.validator.Validate(obj)
 
 	if succeeded {
 		return true
 	}
+	lang := c.GetString(CtxLanguageField)
 
-	// TODO: translation here
-	server.abortWithError(c, ErrorBadRequest, validationErrors)
+	translatedErrors := map[domain.ValidationFieldName][]string{}
+
+	for name, validationError := range validationErrors {
+		fields := []string{}
+
+		for _, err := range validationError {
+			fields = append(fields, server.localize.GetLocalizedText(lang, err))
+		}
+
+		translatedErrors[name] = fields
+	}
+
+	server.abortWithError(c, ErrorBadRequest, translatedErrors)
 
 	return false
 }

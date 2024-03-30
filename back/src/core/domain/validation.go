@@ -1,6 +1,7 @@
 package domain
 
 type ValidationFieldName string
-type ValidationFieldError string
 
-type ValidationErrors map[ValidationFieldName][]ValidationFieldError
+type ValidationErrors map[ValidationFieldName][]Translatable
+
+var ValidationErrorUserAlreadyExists = Translatable{Key: "ValidationUserAlreadyExists"}

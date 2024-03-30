@@ -58,9 +58,6 @@ func NewServiceHttpServer(ucs usecases.Usecases, config config.HTTPConfig, log i
 		MaxAge:           12 * time.Hour,
 	}))
 
-	r.Use(server.ginLogger())
-	r.Use(gin.Recovery())
-
 	server.engine = r
 
 	server.SetRoutes()

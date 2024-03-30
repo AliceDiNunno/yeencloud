@@ -6,6 +6,6 @@ import (
 )
 
 type Validator interface {
-	Validate(s interface{}) (bool, []domain.ValidationFieldError)
+	Validate(s interface{}) (bool, domain.ValidationErrors)
 	RegisterValidation(tag string, fn validator.ValidationFunc)
 }

@@ -4,11 +4,11 @@ import (
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 )
 
-func (validator *Validator) RequiredValidator(field FieldToValidate) []domain.ValidationFieldError {
+var ValidationErrorFieldIsRequired = domain.Translatable{Key: "ValidationFieldIsRequired"}
+
+func (validator *Validator) RequiredValidator(field FieldToValidate) []domain.Translatable {
 	if field.FieldValue.String() == "" {
-		return []domain.ValidationFieldError{
-			"Field is required",
-		}
+		return []domain.Translatable{ValidationErrorFieldIsRequired}
 	}
-	return []domain.ValidationFieldError{}
+	return []domain.Translatable{}
 }

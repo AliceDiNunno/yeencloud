@@ -5,46 +5,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (server *ServiceHTTPServer) getUserProfileMiddleware() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		server.auditer.AddStep(server.getTrace(ctx))
-
-		session, exists := ctx.Get(CtxSessionField)
-
-		if !exists {
-			return
-		}
-
-		// This is necessary to make sure the user is still valid
-		user, err := server.ucs.GetUserByID(server.getTrace(ctx), session.(domain.Session).UserID)
-
-		if err != nil {
-			server.abortWithError(ctx, *err)
-			return
-		}
-
-		ctx.Set(CtxUserField, user.ID)
-
-		profile, err := server.ucs.GetProfileByUserID(server.getTrace(ctx), user.ID)
-
-		if err != nil {
-			server.abortWithError(ctx, *err)
-			return
-		}
-
-		ctx.Set(CtxProfileMailField, user.Email)
-		ctx.Set(CtxProfileField, profile)
-	}
-}
-
 func (server *ServiceHTTPServer) createUserHandler(ctx *gin.Context) {
 	var createUserRequest domain.NewUser
+
 	if err := ctx.ShouldBindJSON(&createUserRequest); err != nil {
 		server.abortWithError(ctx, ErrorBadRequest)
 		return
 	}
 
-	if !server.validate(createUserRequest, ctx) {
+	if !server.validate(ctx, createUserRequest) {
 		return
 	}
 

@@ -6,10 +6,20 @@ ShortLanguageCode = "en"
 MethodNotAllowed = "Method not allowed"
 PageNotFound = "Page not found"
 BadRequest = "Bad request"
-SessionNotFound = "Session not found"
 InternalError = "Internal server error"
 
+SessionNotFound = "Session not found"
 UnableToGetUserOrganizations = "Unable to get user organizations"
 AuthenticationTokenMissing = "Authentication token missing"
 
 DefaultOrganizationDescription = "{{.UserFullName}}'s organization"
+
+#Validation
+ValidationFieldIsRequired = "This field is required"
+ValidationMailIsInvalid = "The email address is invalid"
+ValidationUserAlreadyExists = "This user already exists"
+ValidationPasswordMustBeBetween8And64Characters = "The password must be between 8 and 64 characters"
+ValidationPasswordMustContainAtLeastADigit = "The password must contain at least a digit"
+ValidationPasswordMustContainAtLeastASpecialCharacter = "The password must contain at least a special character"
+ValidationPasswordMustContainAtLeastAnUppercaseLetter = "The password must contain at least an uppercase letter"
+ValidationPasswordMustContainAtLeastALowercaseLetter = "The password must contain at least a lowercase letter"

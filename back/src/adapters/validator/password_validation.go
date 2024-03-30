@@ -4,6 +4,12 @@ import (
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 )
 
+var ValidationErrorPasswordMustContainAtLeastADigit = domain.Translatable{Key: "ValidationPasswordMustContainAtLeastADigit"}
+var ValidationErrorPasswordMustContainAtLeastAnUppercaseLetter = domain.Translatable{Key: "ValidationPasswordMustContainAtLeastAnUppercaseLetter"}
+var ValidationErrorPasswordMustContainAtLeastALowercaseLetter = domain.Translatable{Key: "ValidationPasswordMustContainAtLeastALowercaseLetter"}
+var ValidationErrorPasswordMustContainAtLeastASpecialCharacter = domain.Translatable{Key: "ValidationPasswordMustContainAtLeastASpecialCharacter"}
+var ValidationErrorPasswordMustBeBetween8And64Characters = domain.Translatable{Key: "ValidationPasswordMustBeBetween8And64Characters"}
+
 func stringHasNumber(value string) bool {
 	for _, char := range value {
 		if char >= '0' && char <= '9' {
@@ -45,28 +51,28 @@ func stringHasSpecialCharacter(value string) bool {
 
 // PasswordValidator validates a password using certain rules
 // We could use a regex to validate it but then we can't have precise error messages for each rule
-func (validator *Validator) PasswordValidator(field FieldToValidate) []domain.ValidationFieldError {
-	fieldErrors := []domain.ValidationFieldError{}
+func (validator *Validator) PasswordValidator(field FieldToValidate) []domain.Translatable {
+	fieldErrors := []domain.Translatable{}
 	password := field.FieldValue.String()
 
 	if len(password) < 8 || len(password) > 64 {
-		fieldErrors = append(fieldErrors, "Password must be between 8 and 64 characters")
+		fieldErrors = append(fieldErrors, ValidationErrorPasswordMustBeBetween8And64Characters)
 	}
 
 	if !stringHasNumber(password) {
-		fieldErrors = append(fieldErrors, "Password must contain at least one number")
+		fieldErrors = append(fieldErrors, ValidationErrorPasswordMustContainAtLeastADigit)
 	}
 
 	if !stringHasUppercaseLetter(password) {
-		fieldErrors = append(fieldErrors, "Password must contain at least one uppercase letter")
+		fieldErrors = append(fieldErrors, ValidationErrorPasswordMustContainAtLeastAnUppercaseLetter)
 	}
 
 	if !stringHasLowercaseLetter(password) {
-		fieldErrors = append(fieldErrors, "Password must contain at least one lowercase letter")
+		fieldErrors = append(fieldErrors, ValidationErrorPasswordMustContainAtLeastALowercaseLetter)
 	}
 
 	if !stringHasSpecialCharacter(password) {
-		fieldErrors = append(fieldErrors, "Password must contain at least one special character")
+		fieldErrors = append(fieldErrors, ValidationErrorPasswordMustContainAtLeastASpecialCharacter)
 	}
 
 	return fieldErrors

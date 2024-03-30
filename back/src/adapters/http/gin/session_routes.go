@@ -5,45 +5,42 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (server *ServiceHTTPServer) getSessionMiddleware() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		server.auditer.AddStep(server.getTrace(ctx))
+func (server *ServiceHTTPServer) getSessionMiddleware(ctx *gin.Context) {
+	server.auditer.AddStep(server.getTrace(ctx))
 
-		token := ctx.GetHeader(HeaderAuthorization)
-		if token == "" {
-			return
-		}
-
-		session, err := server.ucs.GetSessionByToken(server.getTrace(ctx), token)
-		if err != nil {
-			server.abortWithError(ctx, *err)
-			return
-		}
-
-		ctx.Set(CtxSessionField, session)
+	token := ctx.GetHeader(HeaderAuthorization)
+	if token == "" {
+		return
 	}
+
+	session, err := server.ucs.GetSessionByToken(server.getTrace(ctx), token)
+	if err != nil {
+		server.abortWithError(ctx, *err)
+		return
+	}
+
+	ctx.Set(CtxSessionField, session)
 }
 
-func (server *ServiceHTTPServer) requireSessionMiddleware() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		server.auditer.AddStep(server.getTrace(ctx))
+func (server *ServiceHTTPServer) requireSessionMiddleware(ctx *gin.Context) {
+	server.auditer.AddStep(server.getTrace(ctx))
 
-		_, exists := ctx.Get(CtxSessionField)
-		if !exists {
-			server.abortWithError(ctx, ErrorAuthenticationTokenMissing)
-			return
-		}
+	_, exists := ctx.Get(CtxSessionField)
+	if !exists {
+		server.abortWithError(ctx, ErrorAuthenticationTokenMissing)
+		return
+	}
 
-		_, exists = ctx.Get(CtxUserField)
-		if !exists {
-			server.abortWithError(ctx, domain.ErrorUserNotFound)
-			return
-		}
+	_, exists = ctx.Get(CtxUserField)
+	if !exists {
+		server.abortWithError(ctx, domain.ErrorUserNotFound)
+		return
 	}
 }
 
 func (server *ServiceHTTPServer) createSessionHandler(ctx *gin.Context) {
 	var createSessionRequest domain.NewSession
+
 	if err := ctx.ShouldBindJSON(&createSessionRequest); err != nil {
 		server.abortWithError(ctx, ErrorBadRequest)
 		return
@@ -51,7 +48,7 @@ func (server *ServiceHTTPServer) createSessionHandler(ctx *gin.Context) {
 
 	createSessionRequest.Origin = ctx.ClientIP()
 
-	if !server.validate(createSessionRequest, ctx) {
+	if !server.validate(ctx, createSessionRequest) {
 		return
 	}
 

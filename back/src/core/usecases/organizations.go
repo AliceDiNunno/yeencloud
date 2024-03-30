@@ -24,7 +24,7 @@ func (self UCs) CreateOrganization(auditID domain.AuditID, profileID domain.Prof
 			Msg("Error creating organization for user")
 	}
 
-	err = self.i.Persistence.OrganizationProfile.LinkProfileToOrganization(profileID, organization.ID, "admin")
+	err = self.i.Persistence.OrganizationProfile.LinkProfileToOrganization(profileID, organization.ID, domain.OrganizationRoleOwner)
 
 	if err != nil {
 		self.i.Trace.Log(auditID, auditStepID).WithFields(domain.LogFields{

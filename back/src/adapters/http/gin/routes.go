@@ -18,26 +18,35 @@ func (server *ServiceHTTPServer) setPublicRoutes(r *gin.RouterGroup) {
 func (server *ServiceHTTPServer) setAuthenticatedRoutes(authenticated *gin.RouterGroup) {
 	authenticated.GET("/me", server.getCurrentUserHandler)
 
+	// Organizations
 	organizations := authenticated.Group("/organizations")
 	organizations.GET("/", server.getOrganizationsHandler)
+	organizations.POST("/", server.createOrganizationHandler)
+
+	organization := authenticated.Group("/:organization")
+	organization.GET("/", server.getOrganizationHandler)
+	organization.PATCH("/", server.updateOrganizationHandler)
+	organization.DELETE("/", server.deleteOrganizationHandler)
 }
 
 func (server *ServiceHTTPServer) SetRoutes() {
 	r := server.engine
 
 	// Get prerequisites
-	r.Use(server.traceHandlerMiddleware())
-	r.Use(server.noResponseHandlerMiddleware())
-	r.Use(server.getSessionMiddleware())
-	r.Use(server.getUserProfileMiddleware())
-	r.Use(server.getLangMiddleware())
+	r.Use(server.ginLogger)
+	r.Use(gin.Recovery())
+	r.Use(server.traceHandlerMiddleware)
+	r.Use(server.noResponseHandlerMiddleware)
+	r.Use(server.getSessionMiddleware)
+	r.Use(server.getUserProfileMiddleware)
+	r.Use(server.getLangMiddleware)
 
 	// Unauthenticated routes
 	server.setPublicRoutes(r.Group("/"))
 
 	// Authenticated routes
 	authenticated := r.Group("/")
-	authenticated.Use(server.requireSessionMiddleware())
+	authenticated.Use(server.requireSessionMiddleware)
 	server.setAuthenticatedRoutes(authenticated)
 
 	server.SetErrors(r)
@@ -53,19 +62,17 @@ func (server *ServiceHTTPServer) SetErrors(r *gin.Engine) {
 	})
 }
 
-func (server *ServiceHTTPServer) noResponseHandlerMiddleware() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		// This should never happen, if a router does not write a response, we're returning an internal error
-		ctx.Next()
+func (server *ServiceHTTPServer) noResponseHandlerMiddleware(ctx *gin.Context) {
+	// This should never happen, if a router does not write a response, we're returning an internal error
+	ctx.Next()
 
-		// TODO: add error to audit
+	// TODO: add error to audit
 
-		if ctx.Writer.Written() {
-			return
-		}
-
-		server.abortWithError(ctx, ErrorInternal)
+	if ctx.Writer.Written() {
+		return
 	}
+
+	server.abortWithError(ctx, ErrorInternal)
 }
 
 func (server *ServiceHTTPServer) printRoutes(httpMethod, absolutePath, handlerName string, nuHandlers int) {
