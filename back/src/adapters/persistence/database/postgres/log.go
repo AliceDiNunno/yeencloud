@@ -9,8 +9,10 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-const LogFieldSQL = "sql"
-const LogFieldSQLRowsAffected = LogFieldSQL + ".rows_affected"
+var (
+	LogFieldSQL             = domain.LogField{Name: "sql"}
+	LogFieldSQLRowsAffected = domain.LogField{Parent: &LogFieldSQL, Name: "rows_affected"}
+)
 
 type gormLogger struct {
 	logger interactor.Logger

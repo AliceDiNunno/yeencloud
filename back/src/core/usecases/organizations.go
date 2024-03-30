@@ -19,8 +19,8 @@ func (self UCs) CreateOrganization(auditID domain.AuditID, profileID domain.Prof
 
 	if err != nil {
 		self.i.Trace.Log(auditID, auditStepID).WithFields(domain.LogFields{
-			"error": err,
-			"id":    profileID.String()}).
+			domain.LogFieldError:  err,
+			domain.LogFieldUserID: profileID.String()}).
 			Msg("Error creating organization for user")
 	}
 
@@ -28,8 +28,8 @@ func (self UCs) CreateOrganization(auditID domain.AuditID, profileID domain.Prof
 
 	if err != nil {
 		self.i.Trace.Log(auditID, auditStepID).WithFields(domain.LogFields{
-			"error": err,
-			"id":    profileID.String()}).
+			domain.LogFieldError:  err,
+			domain.LogFieldUserID: profileID.String()}).
 			Msg("Error linking user to organization")
 	}
 
@@ -45,8 +45,8 @@ func (self UCs) GetOrganizationsByProfileID(auditID domain.AuditID, profileID do
 
 	if err != nil {
 		self.i.Trace.Log(auditID, auditStepID).WithLevel(domain.LogLevelError).WithFields(domain.LogFields{
-			"error": err,
-			"id":    profileID.String()}).
+			domain.LogFieldError:     err,
+			domain.LogFieldProfileID: profileID.String()}).
 			Msg("Error getting organizations for user")
 
 		return nil, &domain.ErrorUnableToGetUserOrganizations

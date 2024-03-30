@@ -3,24 +3,26 @@ package domain
 import "net/http"
 
 type ErrorDescription struct {
-	HttpCode int    `json:"-"`
-	Code     string `json:"code"`
+	HttpCode int          `json:"-"`
+	Code     Translatable `json:"code"`
 }
 
 var (
-	ErrorNotFound   = ErrorDescription{HttpCode: http.StatusNotFound, Code: "PageNotFound"}
-	ErrorNoMethod   = ErrorDescription{HttpCode: http.StatusMethodNotAllowed, Code: "MethodNotAllowed"}
-	ErrorBadRequest = ErrorDescription{HttpCode: http.StatusBadRequest, Code: "BadRequest"}
-	ErrorInternal   = ErrorDescription{HttpCode: http.StatusInternalServerError, Code: "InternalError"}
+	TranslatableUserNotFound    = Translatable{Key: "UserNotFound"}
+	TranslatableProfileNotFound = Translatable{Key: "ProfileNotFound"}
 
-	ErrorUserNotFound    = ErrorDescription{HttpCode: http.StatusNotFound, Code: "UserNotFound"}
-	ErrorProfileNotFound = ErrorDescription{HttpCode: http.StatusNotFound, Code: "ProfileNotFound"}
+	TranslatableUnableToHashPassword         = Translatable{Key: "UnableToHashPassword"}
+	TranslatableUnableToGetUserOrganizations = Translatable{Key: "UnableToGetUserOrganizations"}
+	TranslatableUserAlreadyExists            = Translatable{Key: "UserAlreadyExists"}
+	TranslatableSessionNotFound              = Translatable{Key: "SessionNotFound"}
+)
 
-	ErrorUnableToHashPassword         = ErrorDescription{HttpCode: http.StatusInternalServerError, Code: "UnableToHashPassword"}
-	ErrorUnableToGetUserOrganizations = ErrorDescription{HttpCode: http.StatusInternalServerError, Code: "UnableToGetUserOrganizations"}
-	ErrorUserAlreadyExists            = ErrorDescription{HttpCode: http.StatusConflict, Code: "UserAlreadyExists"}
+var (
+	ErrorUserNotFound    = ErrorDescription{HttpCode: http.StatusNotFound, Code: TranslatableUserNotFound}
+	ErrorProfileNotFound = ErrorDescription{HttpCode: http.StatusNotFound, Code: TranslatableProfileNotFound}
 
-	// #YC-14 TODO: this should be moved to the adapter/http/gin package directly
-	ErrorAuthenticationTokenMissing = ErrorDescription{HttpCode: http.StatusUnauthorized, Code: "AuthenticationTokenMissing"}
-	ErrorSessionNotFound            = ErrorDescription{HttpCode: http.StatusUnauthorized, Code: "SessionNotFound"}
+	ErrorUnableToHashPassword         = ErrorDescription{HttpCode: http.StatusInternalServerError, Code: TranslatableUnableToHashPassword}
+	ErrorUnableToGetUserOrganizations = ErrorDescription{HttpCode: http.StatusInternalServerError, Code: TranslatableUnableToGetUserOrganizations}
+	ErrorUserAlreadyExists            = ErrorDescription{HttpCode: http.StatusConflict, Code: TranslatableUserAlreadyExists}
+	ErrorSessionNotFound              = ErrorDescription{HttpCode: http.StatusUnauthorized, Code: TranslatableSessionNotFound}
 )

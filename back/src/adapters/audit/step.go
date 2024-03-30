@@ -12,7 +12,7 @@ func (a *Audit) AddStep(id domain.AuditID, details ...interface{}) domain.StepID
 	trace, exists := a.currentTraces[id]
 
 	if !exists {
-		a.Logger.Log(domain.LogLevelInfo).WithField(domain.LogFieldTraceID, id.String()).Msg("Trace not found, aborting add step")
+		a.Logger.Log(domain.LogLevelInfo).WithField(domain.LogFieldTraceID, id).Msg("Trace not found, aborting add step")
 		return NoStep
 	}
 
@@ -30,7 +30,7 @@ func (a *Audit) AddStep(id domain.AuditID, details ...interface{}) domain.StepID
 		trace.Content[len(trace.Content)-1].End = time.Now()
 	}
 
-	a.Logger.Log(domain.LogLevelInfo).WithField(domain.LogFieldTraceID, id.String()).WithField(domain.LogFieldStepID, currentStep.ID.String()).Msg("Step added")
+	a.Logger.Log(domain.LogLevelInfo).WithField(domain.LogFieldTraceID, id).WithField(domain.LogFieldStepID, currentStep.ID).Msg("Step added")
 	currentStep.Start = time.Now()
 	trace.Content = append(trace.Content, currentStep)
 	return currentStep.ID
@@ -56,7 +56,7 @@ func (audit *Audit) findStep(auditID domain.AuditID, stepID domain.StepID) *doma
 }
 
 func (audit *Audit) Log(auditID domain.AuditID, stepID domain.StepID) interactor.LogMessage {
-	return audit.Logger.Log(domain.LogLevelInfo)
+	return audit.Logger.Log(domain.LogLevelInfo).WithField(domain.LogFieldTraceID, auditID).WithField(domain.LogFieldStepID, stepID)
 }
 
 func (audit *Audit) EndStep(auditID domain.AuditID, stepID domain.StepID) {

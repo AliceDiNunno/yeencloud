@@ -13,7 +13,7 @@ type NewSession struct {
 	OTPCode  string `json:"otpCode"`
 
 	// Origin of the request to be filled internally (can, and will probably be an IP)
-	Origin string `json:"-"`
+	Origin string `json:"-"` // TODO: remove it and use the request context
 }
 
 // Secure : remove sensitive data from the request.

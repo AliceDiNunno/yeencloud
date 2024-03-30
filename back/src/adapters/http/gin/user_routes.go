@@ -40,7 +40,7 @@ func (server *ServiceHTTPServer) getUserProfileMiddleware() gin.HandlerFunc {
 func (server *ServiceHTTPServer) createUserHandler(ctx *gin.Context) {
 	var createUserRequest domain.NewUser
 	if err := ctx.ShouldBindJSON(&createUserRequest); err != nil {
-		server.abortWithError(ctx, domain.ErrorBadRequest)
+		server.abortWithError(ctx, ErrorBadRequest)
 		return
 	}
 

@@ -5,6 +5,9 @@ ShortLanguageCode = "fr"
 MethodNotAllowed = "Méthode non autorisée"
 PageNotFound = "Page introuvable"
 BadRequest = "Requête invalide ou incomplète"
+InternalError = "Erreur interne du serveur"
+
+SessionNotFound = "Session introuvable"
 UnableToGetUserOrganizations = "Impossible de récupérer les organisations de l'utilisateur"
 AuthenticationTokenMissing = "Le jeton d'authentification est manquant"
 

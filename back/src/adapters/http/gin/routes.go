@@ -45,11 +45,11 @@ func (server *ServiceHTTPServer) SetRoutes() {
 
 func (server *ServiceHTTPServer) SetErrors(r *gin.Engine) {
 	r.NoRoute(func(ctx *gin.Context) {
-		server.abortWithError(ctx, domain.ErrorNotFound)
+		server.abortWithError(ctx, ErrorPageNotFound)
 	})
 
 	r.NoMethod(func(ctx *gin.Context) {
-		server.abortWithError(ctx, domain.ErrorNoMethod)
+		server.abortWithError(ctx, ErrorMethodNotAllowed)
 	})
 }
 
@@ -64,7 +64,7 @@ func (server *ServiceHTTPServer) noResponseHandlerMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		server.abortWithError(ctx, domain.ErrorInternal)
+		server.abortWithError(ctx, ErrorInternal)
 	}
 }
 

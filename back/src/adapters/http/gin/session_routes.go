@@ -30,7 +30,7 @@ func (server *ServiceHTTPServer) requireSessionMiddleware() gin.HandlerFunc {
 
 		_, exists := ctx.Get(CtxSessionField)
 		if !exists {
-			server.abortWithError(ctx, domain.ErrorAuthenticationTokenMissing)
+			server.abortWithError(ctx, ErrorAuthenticationTokenMissing)
 			return
 		}
 
@@ -45,7 +45,7 @@ func (server *ServiceHTTPServer) requireSessionMiddleware() gin.HandlerFunc {
 func (server *ServiceHTTPServer) createSessionHandler(ctx *gin.Context) {
 	var createSessionRequest domain.NewSession
 	if err := ctx.ShouldBindJSON(&createSessionRequest); err != nil {
-		server.abortWithError(ctx, domain.ErrorBadRequest)
+		server.abortWithError(ctx, ErrorBadRequest)
 		return
 	}
 

@@ -53,8 +53,8 @@ func (self UCs) CreateUser(auditID domain.AuditID, newUser domain.NewUser, profi
 		return domain.Profile{}, &domain.ErrorUserAlreadyExists // TODO: wrong error ?
 	}
 
-	localizedDescription := self.i.Localize.GetLocalizedText(profileLanguage, domain.DefaultOrganizationDescription, map[string]interface{}{
-		domain.DefaultOrganizationDescriptionKey: newUser.Name,
+	localizedDescription := self.i.Localize.GetLocalizedText(profileLanguage, domain.TranslatableDefaultOrganization, domain.TranslatableArgumentMap{
+		domain.TranslatableArgumentUserFullName: newUser.Name,
 	})
 
 	organizationToCreate := domain.NewOrganization{
@@ -79,7 +79,7 @@ func (self UCs) GetUserByID(auditID domain.AuditID, id domain.UserID) (domain.Us
 	user, err := self.i.Persistence.User.FindUserByID(id)
 
 	if err != nil {
-		self.i.Trace.Log(auditID, auditStepID).WithLevel(domain.LogLevelError).WithField("error", err).WithField("id", id.String()).Msg("Error finding user")
+		self.i.Trace.Log(auditID, auditStepID).WithLevel(domain.LogLevelError).WithField(domain.LogFieldError, err).WithField(domain.LogFieldUserID, id).Msg("Error finding user")
 		self.i.Trace.EndStep(auditID, auditStepID)
 		return domain.User{}, &domain.ErrorUserNotFound
 	}
@@ -94,7 +94,7 @@ func (self UCs) GetProfileByUserID(auditID domain.AuditID, userID domain.UserID)
 
 	// #YC-22 TODO: this should never happen, a profile should be created if it ever is missing (while also reporting the error so it can be investigated)
 	if err != nil {
-		self.i.Trace.Log(auditID, auditStepID).WithLevel(domain.LogLevelError).WithField("error", err).Msg("Error finding user")
+		self.i.Trace.Log(auditID, auditStepID).WithLevel(domain.LogLevelError).WithField(domain.LogFieldError, err).Msg("Error finding user")
 		self.i.Trace.EndStep(auditID, auditStepID)
 		return domain.Profile{}, &domain.ErrorProfileNotFound
 	}

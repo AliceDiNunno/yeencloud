@@ -13,10 +13,10 @@ import (
 	"golang.org/x/text/language"
 )
 
-var LogFieldLanguage = domain.LogField("language")
-var LogFieldLanguageTag = LogFieldLanguage + ".tag"
-var LogFieldLanguageName = LogFieldLanguage + ".name"
-var LogFieldLanguageMessage = LogFieldLanguage + ".message"
+var LogFieldLanguage = domain.LogField{Name: "language"}
+var LogFieldLanguageTag = domain.LogField{Parent: &LogFieldLanguage, Name: "tag"}
+var LogFieldLanguageName = domain.LogField{Parent: &LogFieldLanguage, Name: "name"}
+var LogFieldLanguageMessage = domain.LogField{Parent: &LogFieldLanguage, Name: "message"}
 
 type localize struct {
 	bundle *i18n.Bundle
@@ -34,13 +34,13 @@ func (l localize) GetAvailableLanguages() []domain.Language {
 
 		displayName, err := localizer.Localize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{ID: "LanguageDisplayName"}})
 		if err != nil {
-			l.logger.Log(domain.LogLevelError).WithField(LogFieldLanguageTag, tag.String()).WithField(domain.LogFieldError, err).Msg("Error getting language display name")
+			l.logger.Log(domain.LogLevelError).WithField(LogFieldLanguageTag, tag).WithField(domain.LogFieldError, err).Msg("Error getting language display name")
 			continue
 		}
 
 		flag, err := localizer.Localize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{ID: "LanguageFlag"}})
 		if err != nil {
-			l.logger.Log(domain.LogLevelError).WithField(LogFieldLanguageTag, tag.String()).WithField(LogFieldLanguageName, displayName).WithField(domain.LogFieldError, err).Msg("Error getting language flag")
+			l.logger.Log(domain.LogLevelError).WithField(LogFieldLanguageTag, tag).WithField(LogFieldLanguageName, displayName).WithField(domain.LogFieldError, err).Msg("Error getting language flag")
 			continue
 		}
 
@@ -54,8 +54,23 @@ func (l localize) GetAvailableLanguages() []domain.Language {
 	return languages
 }
 
-func (l localize) GetLocalizedText(language string, key string, params ...map[string]interface{}) string {
+func (l localize) translatableArgumentsToMap(params []domain.TranslatableArgumentMap) map[string]interface{} {
+	result := map[string]interface{}{}
+	for _, arg := range params {
+		for key, value := range arg {
+			result[key.Key] = value
+		}
+	}
+
+	return result
+}
+
+func (l localize) GetLocalizedText(language string, translatable domain.Translatable, params ...domain.TranslatableArgumentMap) string {
 	msg := i18n.NewLocalizer(l.bundle, language)
+
+	if language == "" {
+		language = l.defaultLanguage.String()
+	}
 
 	var isDefault bool = false
 	languages := l.GetAvailableLanguages()
@@ -66,9 +81,10 @@ func (l localize) GetLocalizedText(language string, key string, params ...map[st
 		}
 	}
 
+	key := translatable.Key
 	localizedMessage, _, err := msg.LocalizeWithTag(&i18n.LocalizeConfig{
 		MessageID:    key,
-		TemplateData: params,
+		TemplateData: l.translatableArgumentsToMap(params),
 	})
 
 	if err != nil {
@@ -79,7 +95,7 @@ func (l localize) GetLocalizedText(language string, key string, params ...map[st
 			Msg("Error getting localized text")
 
 		if !isDefault {
-			return l.GetLocalizedText(l.defaultLanguage.String(), key, params...)
+			return l.GetLocalizedText(l.defaultLanguage.String(), translatable, params...)
 		}
 
 		return key

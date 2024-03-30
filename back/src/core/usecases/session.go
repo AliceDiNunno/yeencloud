@@ -20,7 +20,7 @@ func (self UCs) CreateSession(auditID domain.AuditID, newSessionRequest domain.N
 	}
 
 	if bcrypt.CompareHashAndPassword([]byte(us.Password), []byte(newSessionRequest.Password)) != nil {
-		self.i.Trace.Log(auditID, step).WithLevel(domain.LogLevelWarn).WithField("new_session_request", newSessionRequest).Msg("User tried to login with wrong password")
+		self.i.Trace.Log(auditID, step).WithLevel(domain.LogLevelWarn).WithField(domain.LogFieldSessionRequestMail, newSessionRequest.Email).Msg("User tried to login with wrong password")
 		return domain.Session{}, &domain.ErrorUserNotFound
 	}
 

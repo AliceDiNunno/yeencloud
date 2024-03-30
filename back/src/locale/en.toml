@@ -6,6 +6,9 @@ ShortLanguageCode = "en"
 MethodNotAllowed = "Method not allowed"
 PageNotFound = "Page not found"
 BadRequest = "Bad request"
+SessionNotFound = "Session not found"
+InternalError = "Internal server error"
+
 UnableToGetUserOrganizations = "Unable to get user organizations"
 AuthenticationTokenMissing = "Authentication token missing"
 

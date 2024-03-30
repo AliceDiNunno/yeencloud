@@ -41,7 +41,7 @@ func (z *ZeroLogMiddleware) colorForMethod(method string) string {
 }
 
 func (z *ZeroLogMiddleware) colorForStatus(status int) string {
-	// So gocritic wants me to use a switch statement here instead of if/else but how the f am I supposed to do that with ranges?"z'e<<<<<<<<<<<<<<<
+	// So gocritic wants me to use a switch statement here instead of if/else but how the f am I supposed to do that with ranges?
 	//nolint:all
 	if status >= 200 && status < 300 {
 		return greenColor
@@ -124,7 +124,13 @@ func (z *ZeroLogMiddleware) Log(message log.Message) {
 			continue
 		}
 
-		currentLog = currentLog.Any(k.String(), v)
+		err, valid := v.(error)
+		if k == domain.LogFieldError && valid {
+			currentLog = currentLog.Any(k.String(), err.Error())
+		} else {
+			currentLog = currentLog.Any(k.String(), v)
+		}
+
 	}
 
 	msgStr := message.Message

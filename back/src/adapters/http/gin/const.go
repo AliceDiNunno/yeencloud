@@ -30,11 +30,11 @@ const (
 	MethodOption = "OPTION"
 )
 
-const (
-	HttpLogField          = domain.LogField("http")
-	HttpLogFieldStatus    = HttpLogField + ".status"
-	HttpLogFieldMethod    = HttpLogField + ".method"
-	HttpLogFieldPath      = HttpLogField + ".path"
-	HttpHandlerField      = HttpLogField + ".handler"
-	HttpHandlerCountField = HttpLogField + ".handler_count"
+var (
+	HttpLogField          = domain.LogField{Name: "http"}
+	HttpLogFieldStatus    = domain.LogField{Parent: &HttpLogField, Name: "status"}
+	HttpLogFieldMethod    = domain.LogField{Parent: &HttpLogField, Name: "method"}
+	HttpLogFieldPath      = domain.LogField{Parent: &HttpLogField, Name: "path"}
+	HttpHandlerField      = domain.LogField{Parent: &HttpLogField, Name: "handler"}
+	HttpHandlerCountField = domain.LogField{Parent: &HttpLogField, Name: "handler_count"}
 )

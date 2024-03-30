@@ -1,7 +1,6 @@
 package gin
 
 import (
-	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,7 +14,7 @@ func (server *ServiceHTTPServer) validate(i interface{}, c *gin.Context) bool {
 	}
 
 	// TODO: translation here
-	server.abortWithError(c, domain.ErrorBadRequest, validationErrors)
+	server.abortWithError(c, ErrorBadRequest, validationErrors)
 
 	return false
 }

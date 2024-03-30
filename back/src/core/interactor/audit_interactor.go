@@ -3,6 +3,7 @@ package interactor
 import "github.com/AliceDiNunno/yeencloud/src/core/domain"
 
 type Audit interface {
+	// TODO: change data map keys to LogField for constitency
 	NewTrace(trigger string, data map[string]string) domain.AuditID
 	AddStep(id domain.AuditID, details ...interface{}) domain.StepID
 

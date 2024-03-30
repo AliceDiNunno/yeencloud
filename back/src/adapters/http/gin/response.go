@@ -34,7 +34,7 @@ func (server *ServiceHTTPServer) reply(ctx *gin.Context, replyCall func(code int
 		lang := ctx.GetString(CtxLanguageField)
 
 		response.Error = &ResponseError{
-			Code:    errDesc.Code,
+			Code:    errDesc.Code.RawKey(),
 			Message: server.localize.GetLocalizedText(lang, errDesc.Code),
 		}
 	}
