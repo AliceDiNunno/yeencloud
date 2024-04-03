@@ -8,6 +8,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type SessionUsecases interface {
+	CreateSession(auditID domain.AuditID, user domain.NewSession) (domain.Session, *domain.ErrorDescription)
+
+	GetSessionByToken(auditID domain.AuditID, token string) (domain.Session, *domain.ErrorDescription)
+}
+
 // #YC-21 TODO: should a session be in the usecases or the http layer?
 func (self UCs) CreateSession(auditID domain.AuditID, newSessionRequest domain.NewSession) (domain.Session, *domain.ErrorDescription) {
 	step := self.i.Trace.AddStep(auditID, newSessionRequest.Secure())
@@ -16,11 +22,13 @@ func (self UCs) CreateSession(auditID domain.AuditID, newSessionRequest domain.N
 	us, err := self.i.Persistence.User.FindUserByEmail(newSessionRequest.Email)
 
 	if err != nil {
+		self.i.Trace.EndStep(auditID, step)
 		return domain.Session{}, &domain.ErrorUserNotFound
 	}
 
 	if bcrypt.CompareHashAndPassword([]byte(us.Password), []byte(newSessionRequest.Password)) != nil {
 		self.i.Trace.Log(auditID, step).WithLevel(domain.LogLevelWarn).WithField(domain.LogFieldSessionRequestMail, newSessionRequest.Email).Msg("User tried to login with wrong password")
+		self.i.Trace.EndStep(auditID, step)
 		return domain.Session{}, &domain.ErrorUserNotFound
 	}
 
@@ -36,20 +44,24 @@ func (self UCs) CreateSession(auditID domain.AuditID, newSessionRequest domain.N
 
 	session, err := self.i.Persistence.Session.CreateSession(newSession)
 	if err != nil {
+		self.i.Trace.EndStep(auditID, step)
 		return domain.Session{}, nil
 	}
 
+	self.i.Trace.EndStep(auditID, step)
 	return session, nil
 }
 
 func (self UCs) GetSessionByToken(auditID domain.AuditID, token string) (domain.Session, *domain.ErrorDescription) {
-	self.i.Trace.AddStep(auditID)
+	step := self.i.Trace.AddStep(auditID)
 
 	// #YC-20 TODO: this should check if the user still exists and if the session is still valid
 	session, err := self.i.Persistence.Session.FindSessionByToken(token)
 	if err != nil {
+		self.i.Trace.EndStep(auditID, step)
 		return domain.Session{}, &domain.ErrorSessionNotFound
 	}
 
+	self.i.Trace.EndStep(auditID, step)
 	return session, nil
 }

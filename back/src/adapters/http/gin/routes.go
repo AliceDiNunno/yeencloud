@@ -1,6 +1,7 @@
 package gin
 
 import (
+	"github.com/AliceDiNunno/yeencloud/src/adapters/audit"
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/gin-gonic/gin"
 )
@@ -9,24 +10,17 @@ func (server *ServiceHTTPServer) setPublicRoutes(r *gin.RouterGroup) {
 	r.GET("/status", server.getStatusHandler)
 
 	users := r.Group("/users")
-	users.POST("/", server.createUserHandler)
+	users.POST("", server.createUserHandler)
 
 	session := r.Group("/session")
-	session.POST("/", server.createSessionHandler)
+	session.POST("", server.createSessionHandler)
 }
 
 func (server *ServiceHTTPServer) setAuthenticatedRoutes(authenticated *gin.RouterGroup) {
-	authenticated.GET("/me", server.getCurrentUserHandler)
+	authenticated.GET("/me", server.retrieveCurrentUserHandler)
 
-	// Organizations
 	organizations := authenticated.Group("/organizations")
-	organizations.GET("/", server.getOrganizationsHandler)
-	organizations.POST("/", server.createOrganizationHandler)
-
-	organization := authenticated.Group("/:organization")
-	organization.GET("/", server.getOrganizationHandler)
-	organization.PATCH("/", server.updateOrganizationHandler)
-	organization.DELETE("/", server.deleteOrganizationHandler)
+	server.setOrganizationRoutes(organizations)
 }
 
 func (server *ServiceHTTPServer) SetRoutes() {
@@ -37,7 +31,7 @@ func (server *ServiceHTTPServer) SetRoutes() {
 	r.Use(gin.Recovery())
 	r.Use(server.traceHandlerMiddleware)
 	r.Use(server.noResponseHandlerMiddleware)
-	r.Use(server.getSessionMiddleware)
+	r.Use(server.retrieveSessionMiddleware)
 	r.Use(server.getUserProfileMiddleware)
 	r.Use(server.getLangMiddleware)
 
@@ -66,11 +60,11 @@ func (server *ServiceHTTPServer) noResponseHandlerMiddleware(ctx *gin.Context) {
 	// This should never happen, if a router does not write a response, we're returning an internal error
 	ctx.Next()
 
-	// TODO: add error to audit
-
 	if ctx.Writer.Written() {
 		return
 	}
+
+	server.auditer.Log(server.getTrace(ctx), audit.NoStep).WithLevel(domain.LogLevelError).Msg("No response written")
 
 	server.abortWithError(ctx, ErrorInternal)
 }

@@ -12,7 +12,10 @@ SessionNotFound = "Session introuvable"
 UnableToGetUserOrganizations = "Impossible de récupérer les organisations de l'utilisateur"
 AuthenticationTokenMissing = "Le jeton d'authentification est manquant"
 
+#Organization
+OrganizationNotFound = "Organisation introuvable"
 DefaultOrganizationDescription = "Organisation de {{.UserFullName}}"
+UnableToDeleteOrganization = "Impossible de supprimer l'organisation"
 
 #Validation
 ValidationFieldIsRequired = "Ce champ est requis"

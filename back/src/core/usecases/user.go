@@ -6,11 +6,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type UserUsecases interface {
+	CreateUser(auditID domain.AuditID, user domain.NewUser, language string) (domain.Profile, *domain.ErrorDescription)
+
+	GetUserByID(auditID domain.AuditID, userID domain.UserID) (domain.User, *domain.ErrorDescription)
+}
+
 func (self UCs) newUserID() domain.UserID {
 	return domain.UserID(uuid.New().String())
-}
-func (self UCs) newProfileID() domain.ProfileID {
-	return domain.ProfileID(uuid.New().String())
 }
 
 func (self UCs) CreateUser(auditID domain.AuditID, newUser domain.NewUser, profileLanguage string) (domain.Profile, *domain.ErrorDescription) {
@@ -38,19 +41,11 @@ func (self UCs) CreateUser(auditID domain.AuditID, newUser domain.NewUser, profi
 		return domain.Profile{}, &domain.ErrorUserAlreadyExists // TODO: wrong error ?
 	}
 
-	profileToCreate := domain.Profile{
-		ID:       self.newProfileID(),
-		UserID:   user.ID,
-		Name:     newUser.Name,
-		Language: profileLanguage,
-	}
+	profile, derr := self.createProfile(auditID, user.ID, newUser.Name, profileLanguage)
 
-	profile, err := self.i.Persistence.Profile.CreateProfile(profileToCreate)
-
-	if err != nil {
-		self.i.Trace.Log(auditID, auditStepID).WithField(domain.LogFieldProfileMail, newUser.Email).Msg("Error creating profile for user")
+	if derr != nil {
 		self.i.Trace.EndStep(auditID, auditStepID)
-		return domain.Profile{}, &domain.ErrorUserAlreadyExists // TODO: wrong error ?
+		return domain.Profile{}, derr
 	}
 
 	localizedDescription := self.i.Localize.GetLocalizedText(profileLanguage, domain.TranslatableDefaultOrganization, domain.TranslatableArgumentMap{
@@ -62,7 +57,7 @@ func (self UCs) CreateUser(auditID domain.AuditID, newUser domain.NewUser, profi
 		Description: localizedDescription,
 	}
 
-	_, derr := self.CreateOrganization(auditID, profile.ID, organizationToCreate)
+	_, derr = self.CreateOrganization(auditID, profile.ID, organizationToCreate)
 
 	if derr != nil {
 		self.i.Trace.EndStep(auditID, auditStepID)
@@ -71,7 +66,7 @@ func (self UCs) CreateUser(auditID domain.AuditID, newUser domain.NewUser, profi
 
 	self.i.Trace.Log(auditID, auditStepID).WithField(domain.LogFieldProfileMail, newUser.Email).Msg("Profile created")
 	self.i.Trace.EndStep(auditID, auditStepID)
-	return profileToCreate, nil
+	return profile, nil
 }
 
 func (self UCs) GetUserByID(auditID domain.AuditID, id domain.UserID) (domain.User, *domain.ErrorDescription) {
@@ -85,20 +80,4 @@ func (self UCs) GetUserByID(auditID domain.AuditID, id domain.UserID) (domain.Us
 	}
 	self.i.Trace.EndStep(auditID, auditStepID)
 	return user, nil
-}
-
-func (self UCs) GetProfileByUserID(auditID domain.AuditID, userID domain.UserID) (domain.Profile, *domain.ErrorDescription) {
-	auditStepID := self.i.Trace.AddStep(auditID)
-
-	profile, err := self.i.Persistence.Profile.FindProfileByUserID(userID)
-
-	// #YC-22 TODO: this should never happen, a profile should be created if it ever is missing (while also reporting the error so it can be investigated)
-	if err != nil {
-		self.i.Trace.Log(auditID, auditStepID).WithLevel(domain.LogLevelError).WithField(domain.LogFieldError, err).Msg("Error finding user")
-		self.i.Trace.EndStep(auditID, auditStepID)
-		return domain.Profile{}, &domain.ErrorProfileNotFound
-	}
-
-	self.i.Trace.EndStep(auditID, auditStepID)
-	return profile, nil
 }

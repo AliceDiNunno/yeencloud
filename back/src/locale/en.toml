@@ -12,7 +12,10 @@ SessionNotFound = "Session not found"
 UnableToGetUserOrganizations = "Unable to get user organizations"
 AuthenticationTokenMissing = "Authentication token missing"
 
+#Organization
+OrganizationNotFound = "Organization not found"
 DefaultOrganizationDescription = "{{.UserFullName}}'s organization"
+UnableToDeleteOrganization = "Unable to delete organization"
 
 #Validation
 ValidationFieldIsRequired = "This field is required"

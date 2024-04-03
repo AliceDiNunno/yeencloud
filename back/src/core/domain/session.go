@@ -9,7 +9,7 @@ type Session struct {
 
 type NewSession struct {
 	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,password"`
+	Password string `json:"password" validate:"required"`
 	OTPCode  string `json:"otpCode"`
 
 	// Origin of the request to be filled internally (can, and will probably be an IP)

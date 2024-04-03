@@ -22,7 +22,7 @@ func (db *Database) LinkProfileToOrganization(profileID domain.ProfileID, organi
 	return result.Error
 }
 
-func (db *Database) GetProfileOrganizationsByProfileID(profileID domain.ProfileID) ([]domain.OrganizationMember, error) {
+func (db *Database) ListProfileOrganizationsByProfileID(profileID domain.ProfileID) ([]domain.OrganizationMember, error) {
 	var orgs []OrganizationProfile
 
 	result := db.engine.Preload("Profile").Preload("Organization").Where("profile_id = ?", profileID).Find(&orgs)
@@ -34,7 +34,7 @@ func (db *Database) GetProfileOrganizationsByProfileID(profileID domain.ProfileI
 	return organizationMembersToDomain(orgs), nil
 }
 
-func (db *Database) GetOrganizationMembers(orgID domain.OrganizationID) ([]domain.OrganizationMember, error) {
+func (db *Database) ListOrganizationMembers(orgID domain.OrganizationID) ([]domain.OrganizationMember, error) {
 	var users []OrganizationProfile
 
 	result := db.engine.Where("organization_id = ?", orgID).Find(&users)
@@ -44,6 +44,18 @@ func (db *Database) GetOrganizationMembers(orgID domain.OrganizationID) ([]domai
 	}
 
 	return organizationMembersToDomain(users), nil
+}
+
+func (db *Database) GetOrganizationByIDAndProfileID(profileID domain.ProfileID, organizationID domain.OrganizationID) (domain.Organization, error) {
+	var org OrganizationProfile
+
+	result := db.engine.Preload("Organization").Where("profile_id = ? AND organization_id = ?", profileID, organizationID).First(&org)
+
+	if result.Error != nil {
+		return domain.Organization{}, result.Error
+	}
+
+	return organizationToDomain(org.Organization), nil
 }
 
 func organizationMembersToDomain(profiles []OrganizationProfile) []domain.OrganizationMember {

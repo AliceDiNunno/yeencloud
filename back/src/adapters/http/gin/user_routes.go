@@ -29,7 +29,7 @@ func (server *ServiceHTTPServer) createUserHandler(ctx *gin.Context) {
 	server.created(ctx, profile)
 }
 
-func (server *ServiceHTTPServer) getCurrentUserHandler(ctx *gin.Context) {
+func (server *ServiceHTTPServer) retrieveCurrentUserHandler(ctx *gin.Context) {
 	id, found := ctx.Get(CtxProfileField)
 
 	if !found {

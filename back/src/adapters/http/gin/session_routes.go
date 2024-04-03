@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (server *ServiceHTTPServer) getSessionMiddleware(ctx *gin.Context) {
+func (server *ServiceHTTPServer) retrieveSessionMiddleware(ctx *gin.Context) {
 	server.auditer.AddStep(server.getTrace(ctx))
 
 	token := ctx.GetHeader(HeaderAuthorization)

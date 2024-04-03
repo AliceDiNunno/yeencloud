@@ -60,8 +60,9 @@ func (db *Database) UpdateOrganization(organization domain.OrganizationID, updat
 }
 
 func (db *Database) DeleteOrganizationByID(id domain.OrganizationID) error {
-	// #YC-10 TODO implement me
-	panic("implement me")
+	err := db.engine.Where("id = ?", id.String()).Delete(&Organization{}).Error
+
+	return err
 }
 
 func domainToOrganization(org domain.Organization) Organization {

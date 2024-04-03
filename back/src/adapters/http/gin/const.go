@@ -3,14 +3,15 @@ package gin
 import "github.com/AliceDiNunno/yeencloud/src/core/domain"
 
 const (
-	CtxAuditField       = "audit"
-	CtxLanguageField    = "lang"
-	CtxSessionField     = "session"
-	CtxUserField        = "user"
-	CtxProfileField     = "profile"
-	CtxHTTPCodeField    = "http_code"
-	CtxTraceField       = "trace_dump"
-	CtxProfileMailField = "mail"
+	CtxAuditField        = "audit"
+	CtxLanguageField     = "lang"
+	CtxSessionField      = "session"
+	CtxUserField         = "user"
+	CtxProfileField      = "profile"
+	CtxHTTPCodeField     = "http_code"
+	CtxTraceField        = "trace_dump"
+	CtxProfileMailField  = "mail"
+	CtxOrganizationField = "organization"
 )
 
 const (
