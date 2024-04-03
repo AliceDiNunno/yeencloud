@@ -192,129 +192,135 @@ func (suite *ValidationTestSuite) TestStringHasNoSpecialCharacter() {
 }
 
 func (suite *ValidationTestSuite) TestValidPassword() {
-	//Given
+	// Given
 	password := validPassword
 
-	//When
+	// When
 	ok, errors := suite.validator.Validate(password)
 
-	//Then
+	// Then
 	suite.Assert().True(ok)
 	suite.Assert().Empty(errors)
 }
 
 func (suite *ValidationTestSuite) TestValidPasswordWithSpaces() {
-	//Given
+	// Given
 	password := validPasswordWithSpaces
 
-	//When
+	// When
 	ok, errors := suite.validator.Validate(password)
 
-	//Then
+	// Then
 	suite.Assert().True(ok)
 	suite.Assert().Empty(errors)
 }
 
 func (suite *ValidationTestSuite) TestInvalidPasswordNoNumber() {
-	//Given
+	// Given
 	password := invalidPasswordNoNumber
 
-	//When
+	// When
 	ok, errors := suite.validator.Validate(password)
 
-	//Then
+	// Then
 	suite.Assert().False(ok)
 	suite.Assert().NotEmpty(errors)
 	suite.Assert().Len(errors, 1)
 }
 
 func (suite *ValidationTestSuite) TestInvalidPasswordNoUppercase() {
-	//Given
+	// Given
 	password := invalidPasswordNoUppercase
 
-	//When
+	// When
 	ok, errors := suite.validator.Validate(password)
 
-	//Then
+	// Then
 	suite.Assert().False(ok)
 	suite.Assert().NotEmpty(errors)
 	suite.Assert().Len(errors, 1)
 }
 
 func (suite *ValidationTestSuite) TestInvalidPasswordNoLowercase() {
-	//Given
+	// Given
 	password := invalidPasswordNoLowercase
 
-	//When
+	// When
 	ok, errors := suite.validator.Validate(password)
 
-	//Then
+	// Then
 	suite.Assert().False(ok)
 	suite.Assert().NotEmpty(errors)
 	suite.Assert().Len(errors, 1)
 }
 
 func (suite *ValidationTestSuite) TestInvalidPasswordNoSpecialCharacter() {
-	//Given
+	// Given
 	password := invalidPasswordNoSpecialCharacter
 
-	//When
+	// When
 	ok, errors := suite.validator.Validate(password)
 
-	//Then
+	// Then
 	suite.Assert().False(ok)
 	suite.Assert().NotEmpty(errors)
 	suite.Assert().Len(errors, 1)
 }
 
 func (suite *ValidationTestSuite) TestInvalidPasswordTooShort() {
-	//Given
+	// Given
 	password := invalidPasswordTooShort
 
-	//When
+	// When
 	ok, errors := suite.validator.Validate(password)
 
-	//Then
+	// Then
 	suite.Assert().False(ok)
 	suite.Assert().NotEmpty(errors)
 	suite.Assert().Len(errors, 1)
 }
 
 func (suite *ValidationTestSuite) TestInvalidPasswordTooLong() {
-	//Given
+	// Given
 	password := invalidPasswordTooLong
 
-	//When
+	// When
 	ok, errors := suite.validator.Validate(password)
 
-	//Then
+	// Then
 	suite.Assert().False(ok)
 	suite.Assert().NotEmpty(errors)
 	suite.Assert().Len(errors, 1)
 }
 
 func (suite *ValidationTestSuite) TestInvalidPasswordWithMultipleErrors() {
-	//Given
+	// Given
 	password := invalidPasswordWithMultipleErrors
 
-	//When
+	// When
 	ok, errors := suite.validator.Validate(password)
 
-	//Then
+	// Then
 	suite.Assert().False(ok)
 	suite.Assert().NotEmpty(errors)
-	suite.Assert().Len(errors, 4)
+	suite.Assert().Len(errors, 1)
+	passwordErrors, valid := errors["password"]
+	suite.Assert().True(valid)
+	suite.Assert().Len(passwordErrors, 4)
 }
 
 func (suite *ValidationTestSuite) TestInvalidEmptyPassword() {
-	//Given
+	// Given
 	password := invalidEmptyPassword
 
-	//When
+	// When
 	ok, errors := suite.validator.Validate(password)
 
-	//Then
+	// Then
 	suite.Assert().False(ok)
 	suite.Assert().NotEmpty(errors)
-	suite.Assert().Len(errors, 5)
+	suite.Assert().Len(errors, 1)
+	passwordErrors, valid := errors["password"]
+	suite.Assert().True(valid)
+	suite.Assert().Len(passwordErrors, 5)
 }
