@@ -12,6 +12,9 @@ SessionNotFound = "Session not found"
 UnableToGetUserOrganizations = "Unable to get user organizations"
 AuthenticationTokenMissing = "Authentication token missing"
 
+#User
+UserNotFound = "User not found"
+
 #Organization
 OrganizationNotFound = "Organization not found"
 DefaultOrganizationDescription = "{{.UserFullName}}'s organization"

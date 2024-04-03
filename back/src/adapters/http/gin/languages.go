@@ -23,8 +23,7 @@ func (server *ServiceHTTPServer) getLangMiddleware(ctx *gin.Context) {
 	}
 
 	if lang == "" {
-		// TODO: move to config (default to enUS)
-		lang = "enUS"
+		lang = server.localize.DefaultLanguageName()
 	}
 
 	ctx.Set(CtxLanguageField, lang)

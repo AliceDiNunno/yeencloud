@@ -1,4 +1,4 @@
-package localization
+package i18n
 
 import (
 	"fmt"
@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
+	"github.com/AliceDiNunno/yeencloud/src/core/domain/config"
 	"github.com/AliceDiNunno/yeencloud/src/core/interactor"
 	"github.com/BurntSushi/toml"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -104,8 +105,14 @@ func (l localize) GetLocalizedText(language string, translatable domain.Translat
 	return localizedMessage
 }
 
-func NewLocalize(logger interactor.Logger, localizationPath string, defaultLanguage language.Tag) interactor.Localize {
-	bundle := i18n.NewBundle(defaultLanguage)
+func (l localize) DefaultLanguageName() string {
+	return l.defaultLanguage.String()
+}
+
+func NewLocalize(logger interactor.Logger, config config.Localization, localizationPath string) interactor.Localize {
+	defaultLanguageTag := language.Make(config.DefaultLang)
+
+	bundle := i18n.NewBundle(defaultLanguageTag)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 
 	files, err := os.ReadDir(localizationPath)
@@ -124,6 +131,6 @@ func NewLocalize(logger interactor.Logger, localizationPath string, defaultLangu
 	return &localize{
 		bundle:          bundle,
 		logger:          logger,
-		defaultLanguage: defaultLanguage,
+		defaultLanguage: defaultLanguageTag,
 	}
 }

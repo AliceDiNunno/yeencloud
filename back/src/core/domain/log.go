@@ -9,11 +9,12 @@ type LogField struct {
 type LogFields map[LogField]interface{}
 
 var (
-	LogFieldConfig           = LogField{Name: "config"}
-	LogFieldConfigVersion    = LogField{Parent: &LogFieldConfig, Name: "version"}
-	LogFieldConfigDatabase   = LogField{Parent: &LogFieldConfig, Name: "database"}
-	LogFieldConfigHTTP       = LogField{Parent: &LogFieldConfig, Name: "http"}
-	LogFieldConfigRunContext = LogField{Parent: &LogFieldConfig, Name: "run_context"}
+	LogFieldConfig             = LogField{Name: "config"}
+	LogFieldConfigVersion      = LogField{Parent: &LogFieldConfig, Name: "version"}
+	LogFieldConfigDatabase     = LogField{Parent: &LogFieldConfig, Name: "database"}
+	LogFieldConfigHTTP         = LogField{Parent: &LogFieldConfig, Name: "http"}
+	LogFieldConfigRunContext   = LogField{Parent: &LogFieldConfig, Name: "run_context"}
+	LogFieldConfigLocalization = LogField{Parent: &LogFieldConfig, Name: "localization"}
 
 	LogFieldProfile     = LogField{Name: "profile"}
 	LogFieldProfileID   = LogField{Parent: &LogFieldProfile, Name: "id"}

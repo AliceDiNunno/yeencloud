@@ -4,7 +4,7 @@ import (
 	"github.com/AliceDiNunno/yeencloud/src/adapters/audit"
 	"github.com/AliceDiNunno/yeencloud/src/adapters/cluster/k8s"
 	"github.com/AliceDiNunno/yeencloud/src/adapters/http/gin"
-	localization2 "github.com/AliceDiNunno/yeencloud/src/adapters/localization"
+	localization2 "github.com/AliceDiNunno/yeencloud/src/adapters/localization/i18n"
 	"github.com/AliceDiNunno/yeencloud/src/adapters/log"
 	"github.com/AliceDiNunno/yeencloud/src/adapters/log/reporting/rollbar"
 	"github.com/AliceDiNunno/yeencloud/src/adapters/log/terminal/zerolog"
@@ -12,7 +12,6 @@ import (
 	"github.com/AliceDiNunno/yeencloud/src/adapters/validator"
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/AliceDiNunno/yeencloud/src/core/usecases"
-	"golang.org/x/text/language"
 )
 
 func MainBackend(bundle *ApplicationBundle) error {
@@ -21,6 +20,7 @@ func MainBackend(bundle *ApplicationBundle) error {
 	version := bundle.Config.GetVersionConfig()
 	rollbarConfig := bundle.Config.GetRollbarConfig()
 	runContext := bundle.Config.GetRunContextConfig()
+	localizationConfig := bundle.Config.GetLocalizationConfig()
 
 	_ = bundle.Config.GetKubernetesConfig()
 
@@ -38,9 +38,10 @@ func MainBackend(bundle *ApplicationBundle) error {
 		WithField(domain.LogFieldConfigDatabase, databaseConfig).
 		WithField(domain.LogFieldConfigHTTP, httpConfig).
 		WithField(domain.LogFieldConfigRunContext, runContext).
+		WithField(domain.LogFieldConfigLocalization, localizationConfig).
 		Msg("Starting backend")
 
-	localization := localization2.NewLocalize(logger, "./src/locale", language.English)
+	localization := localization2.NewLocalize(logger, localizationConfig, "./src/locale")
 
 	// #YC-12 TODO: make database dependent on config in order to have a local database for tests
 	logger.Log(domain.LogLevelInfo).Msg("Connecting to database")

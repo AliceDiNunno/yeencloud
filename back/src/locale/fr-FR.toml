@@ -12,6 +12,9 @@ SessionNotFound = "Session introuvable"
 UnableToGetUserOrganizations = "Impossible de récupérer les organisations de l'utilisateur"
 AuthenticationTokenMissing = "Le jeton d'authentification est manquant"
 
+#User
+UserNotFound="Utilisateur introuvable"
+
 #Organization
 OrganizationNotFound = "Organisation introuvable"
 DefaultOrganizationDescription = "Organisation de {{.UserFullName}}"
