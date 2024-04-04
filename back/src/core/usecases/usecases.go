@@ -5,4 +5,5 @@ type Usecases interface {
 	ProfileUsecases
 	SessionUsecases
 	OrganizationUsecases
+	TransactionRequest
 }

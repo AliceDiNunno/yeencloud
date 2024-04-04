@@ -1,24 +1,16 @@
 package usecases
 
 import (
+	"time"
+
 	"github.com/AliceDiNunno/yeencloud/src/core/interactor"
 	persistenceInteractor "github.com/AliceDiNunno/yeencloud/src/core/interactor/persistence"
 )
 
 type UCs struct {
 	i *interactor.Interactor
-}
 
-func NewPersistence(user persistenceInteractor.UserRepository, service persistenceInteractor.ServiceRepository, session persistenceInteractor.SessionRepository, profile persistenceInteractor.ProfileRepository, organization persistenceInteractor.OrganizationRepository, organizationProfile persistenceInteractor.OrganizationProfileRepository) persistenceInteractor.Persistence {
-	return persistenceInteractor.Persistence{
-		User:         user,
-		Service:      service,
-		Session:      session,
-		Profile:      profile,
-		Organization: organization,
-
-		OrganizationProfile: organizationProfile,
-	}
+	requestTimer *time.Timer
 }
 
 func NewUsecases(c interactor.ClusterAdapter, i18n interactor.Localize, validator interactor.Validator, audit interactor.Audit, per persistenceInteractor.Persistence) *UCs {

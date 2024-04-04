@@ -27,7 +27,7 @@ func (self UCs) CreateOrganization(auditID domain.AuditID, profileID domain.Prof
 		Description: newOrganization.Description,
 	}
 
-	organization, err := self.i.Persistence.Organization.CreateOrganization(organizationToCreate)
+	organization, err := self.i.Persistence.CreateOrganization(organizationToCreate)
 
 	if err != nil {
 		self.i.Trace.Log(auditID, auditStepID).WithFields(domain.LogFields{
@@ -35,9 +35,10 @@ func (self UCs) CreateOrganization(auditID domain.AuditID, profileID domain.Prof
 			domain.LogFieldUserID: profileID.String()}).
 			Msg("Error creating organization for user")
 		self.i.Trace.EndStep(auditID, auditStepID)
+		return domain.Organization{}, &domain.ErrorUnableToCreateOrganization
 	}
 
-	err = self.i.Persistence.OrganizationProfile.LinkProfileToOrganization(profileID, organization.ID, domain.OrganizationRoleOwner)
+	err = self.i.Persistence.LinkProfileToOrganization(profileID, organization.ID, domain.OrganizationRoleOwner)
 
 	if err != nil {
 		self.i.Trace.Log(auditID, auditStepID).WithFields(domain.LogFields{
@@ -45,6 +46,7 @@ func (self UCs) CreateOrganization(auditID domain.AuditID, profileID domain.Prof
 			domain.LogFieldUserID: profileID.String()}).
 			Msg("Error linking user to organization")
 		self.i.Trace.EndStep(auditID, auditStepID)
+		return domain.Organization{}, &domain.ErrorUnableToLinkUserOrganization
 	}
 
 	self.i.Trace.EndStep(auditID, auditStepID)
@@ -54,7 +56,7 @@ func (self UCs) CreateOrganization(auditID domain.AuditID, profileID domain.Prof
 func (self UCs) GetOrganizationsByProfileID(auditID domain.AuditID, profileID domain.ProfileID) ([]domain.OrganizationMember, *domain.ErrorDescription) {
 	auditStepID := self.i.Trace.AddStep(auditID, profileID)
 
-	organizations, err := self.i.Persistence.OrganizationProfile.ListProfileOrganizationsByProfileID(profileID)
+	organizations, err := self.i.Persistence.ListProfileOrganizationsByProfileID(profileID)
 
 	if err != nil {
 		self.i.Trace.Log(auditID, auditStepID).WithLevel(domain.LogLevelError).WithFields(domain.LogFields{
@@ -73,7 +75,7 @@ func (self UCs) GetOrganizationsByProfileID(auditID domain.AuditID, profileID do
 func (self UCs) ListOrganizationsByProfile(auditID domain.AuditID, profileID domain.ProfileID) ([]domain.OrganizationMember, *domain.ErrorDescription) {
 	auditStepID := self.i.Trace.AddStep(auditID, profileID)
 
-	organizations, err := self.i.Persistence.OrganizationProfile.ListProfileOrganizationsByProfileID(profileID)
+	organizations, err := self.i.Persistence.ListProfileOrganizationsByProfileID(profileID)
 
 	if err != nil {
 		self.i.Trace.EndStep(auditID, auditStepID)
@@ -87,7 +89,7 @@ func (self UCs) ListOrganizationsByProfile(auditID domain.AuditID, profileID dom
 func (self UCs) ListOrganizationsMembers(auditID domain.AuditID, organizationID domain.OrganizationID) ([]domain.OrganizationMember, *domain.ErrorDescription) {
 	auditStepID := self.i.Trace.AddStep(auditID, organizationID)
 
-	organizationMembers, err := self.i.Persistence.OrganizationProfile.ListOrganizationMembers(organizationID)
+	organizationMembers, err := self.i.Persistence.ListOrganizationMembers(organizationID)
 
 	if err != nil {
 		self.i.Trace.EndStep(auditID, auditStepID)
@@ -101,7 +103,7 @@ func (self UCs) ListOrganizationsMembers(auditID domain.AuditID, organizationID 
 func (self UCs) GetOrganizationByID(auditID domain.AuditID, profileID domain.ProfileID, organizationID domain.OrganizationID) (domain.Organization, *domain.ErrorDescription) {
 	auditStepID := self.i.Trace.AddStep(auditID, profileID, organizationID)
 
-	organization, err := self.i.Persistence.OrganizationProfile.GetOrganizationByIDAndProfileID(profileID, organizationID)
+	organization, err := self.i.Persistence.GetOrganizationByIDAndProfileID(profileID, organizationID)
 
 	if err != nil {
 		self.i.Trace.EndStep(auditID, auditStepID)
@@ -115,7 +117,7 @@ func (self UCs) GetOrganizationByID(auditID domain.AuditID, profileID domain.Pro
 func (self UCs) UpdateOrganization(auditID domain.AuditID, profileID domain.ProfileID, organizationID domain.OrganizationID, update domain.UpdateOrganization) (domain.Organization, *domain.ErrorDescription) {
 	auditStepID := self.i.Trace.AddStep(auditID, profileID, organizationID, update)
 
-	organization, err := self.i.Persistence.OrganizationProfile.GetOrganizationByIDAndProfileID(profileID, organizationID)
+	organization, err := self.i.Persistence.GetOrganizationByIDAndProfileID(profileID, organizationID)
 
 	if err != nil {
 		return domain.Organization{}, &domain.ErrorOrganizationNotFound
@@ -129,7 +131,7 @@ func (self UCs) UpdateOrganization(auditID domain.AuditID, profileID domain.Prof
 		update.Description = organization.Description
 	}
 
-	organization, err = self.i.Persistence.Organization.UpdateOrganization(organization.ID, update)
+	organization, err = self.i.Persistence.UpdateOrganization(organization.ID, update)
 
 	if err != nil {
 		self.i.Trace.EndStep(auditID, auditStepID)
@@ -143,7 +145,7 @@ func (self UCs) UpdateOrganization(auditID domain.AuditID, profileID domain.Prof
 func (self UCs) DeleteOrganization(auditID domain.AuditID, profileID domain.ProfileID, organizationID domain.OrganizationID) *domain.ErrorDescription {
 	auditStepID := self.i.Trace.AddStep(auditID, profileID, organizationID)
 
-	err := self.i.Persistence.Organization.DeleteOrganizationByID(organizationID)
+	err := self.i.Persistence.DeleteOrganizationByID(organizationID)
 	if err != nil {
 		self.i.Trace.EndStep(auditID, auditStepID)
 		return &domain.ErrorUnableToDeleteOrganization

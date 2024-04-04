@@ -3,6 +3,7 @@ package gin
 import (
 	"github.com/AliceDiNunno/yeencloud/src/adapters/audit"
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
+	nice "github.com/ekyoung/gin-nice-recovery"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,14 +27,17 @@ func (server *ServiceHTTPServer) setAuthenticatedRoutes(authenticated *gin.Route
 func (server *ServiceHTTPServer) SetRoutes() {
 	r := server.engine
 
-	// Get prerequisites
-	r.Use(server.ginLogger)
-	r.Use(gin.Recovery())
-	r.Use(server.traceHandlerMiddleware)
-	r.Use(server.noResponseHandlerMiddleware)
-	r.Use(server.retrieveSessionMiddleware)
-	r.Use(server.getUserProfileMiddleware)
-	r.Use(server.getLangMiddleware)
+	// Middlewares
+	// They are executed in the order they are declared and they will end in the reverse order
+	r.Use(server.ginLogger) // Log all requests
+	r.Use(nice.Recovery(server.recoverFromPanic))
+	r.Use(server.traceHandlerMiddleware)   // Start tracing the request
+	r.Use(server.RequestContextMiddleware) // Create a request context
+	// r.Use(server.timeoutMiddleware())
+	r.Use(server.noResponseHandlerMiddleware) // Ensure that all routes write a response // create a request context
+	r.Use(server.retrieveSessionMiddleware)   // Retrieve a session if it exists
+	r.Use(server.getUserProfileMiddleware)    // Retrieve the user profile a session exists
+	r.Use(server.getLangMiddleware)           // Retrieve the language of the user if it exists or use the one set by the request
 
 	// Unauthenticated routes
 	server.setPublicRoutes(r.Group("/"))

@@ -5,6 +5,7 @@ import (
 
 	"github.com/AliceDiNunno/yeencloud/src/core/domain/config"
 	"github.com/AliceDiNunno/yeencloud/src/core/interactor"
+	"github.com/AliceDiNunno/yeencloud/src/core/interactor/persistence"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
 	pg "gorm.io/driver/postgres"
@@ -13,6 +14,26 @@ import (
 
 type Database struct {
 	engine *gorm.DB
+}
+
+func (db *Database) Begin() persistence.Persistence {
+	newTransaction := db.engine.Begin()
+
+	if newTransaction.Error != nil {
+		panic(newTransaction.Error)
+	}
+
+	return &Database{
+		engine: newTransaction,
+	}
+}
+
+func (db *Database) Commit() error {
+	return db.engine.Commit().Error
+}
+
+func (db *Database) Rollback() error {
+	return db.engine.Rollback().Error
 }
 
 func StartGormDatabase(log interactor.Logger, config config.DatabaseConfig) (*Database, error) {

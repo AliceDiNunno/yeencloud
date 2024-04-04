@@ -62,9 +62,7 @@ func MainBackend(bundle *ApplicationBundle) error {
 
 	auditer := audit.NewAuditer(logger, nil)
 
-	persistence := usecases.NewPersistence(database, database, database, database, database, database)
-
-	ucs := usecases.NewUsecases(cluster, localization, validator, auditer, persistence)
+	ucs := usecases.NewUsecases(cluster, localization, validator, auditer, database)
 
 	http := gin.NewServiceHttpServer(ucs, httpConfig, logger, version, localization, validator, auditer)
 

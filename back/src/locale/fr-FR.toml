@@ -14,11 +14,13 @@ AuthenticationTokenMissing = "Le jeton d'authentification est manquant"
 
 #User
 UserNotFound="Utilisateur introuvable"
+UnableToCreateUser = "Impossible de créer l'utilisateur"
 
 #Organization
 OrganizationNotFound = "Organisation introuvable"
 DefaultOrganizationDescription = "Organisation de {{.UserFullName}}"
 UnableToDeleteOrganization = "Impossible de supprimer l'organisation"
+UnableToCreateOrganization = "Impossible de créer l'organisation"
 
 #Validation
 ValidationFieldIsRequired = "Ce champ est requis"

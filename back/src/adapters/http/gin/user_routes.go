@@ -19,7 +19,7 @@ func (server *ServiceHTTPServer) createUserHandler(ctx *gin.Context) {
 
 	language := ctx.GetString(CtxLanguageField)
 
-	profile, err := server.ucs.CreateUser(server.getTrace(ctx), createUserRequest, language)
+	profile, err := server.getContext(ctx).Usecases.CreateUser(server.getTrace(ctx), createUserRequest, language)
 
 	if err != nil {
 		server.abortWithError(ctx, *err)

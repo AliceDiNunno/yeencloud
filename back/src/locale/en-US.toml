@@ -14,11 +14,13 @@ AuthenticationTokenMissing = "Authentication token missing"
 
 #User
 UserNotFound = "User not found"
+UnableToCreateUser = "Unable to create user"
 
 #Organization
 OrganizationNotFound = "Organization not found"
 DefaultOrganizationDescription = "{{.UserFullName}}'s organization"
 UnableToDeleteOrganization = "Unable to delete organization"
+UnableToCreateOrganization = "Unable to create organization"
 
 #Validation
 ValidationFieldIsRequired = "This field is required"

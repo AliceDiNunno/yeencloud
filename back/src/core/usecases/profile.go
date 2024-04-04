@@ -25,7 +25,7 @@ func (self UCs) createProfile(auditID domain.AuditID, userID domain.UserID, name
 		Language: language,
 	}
 
-	profile, err := self.i.Persistence.Profile.CreateProfile(profileToCreate)
+	profile, err := self.i.Persistence.CreateProfile(profileToCreate)
 
 	if err != nil {
 		self.i.Trace.Log(auditID, auditStepID).WithField(domain.LogFieldProfileName, name).Msg("Error creating profile for user")
@@ -40,7 +40,7 @@ func (self UCs) createProfile(auditID domain.AuditID, userID domain.UserID, name
 func (self UCs) GetProfileByUserID(auditID domain.AuditID, userID domain.UserID) (domain.Profile, *domain.ErrorDescription) {
 	auditStepID := self.i.Trace.AddStep(auditID)
 
-	profile, err := self.i.Persistence.Profile.FindProfileByUserID(userID)
+	profile, err := self.i.Persistence.FindProfileByUserID(userID)
 
 	if err != nil {
 		self.i.Trace.Log(auditID, auditStepID).WithLevel(domain.LogLevelError).WithField(domain.LogFieldError, err).Msg("Error fetching profile by user ID")

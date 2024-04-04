@@ -5,7 +5,7 @@ import (
 )
 
 type Interactor struct {
-	Log Logger
+	// Log Logger
 
 	Cluster   ClusterAdapter
 	Validator Validator

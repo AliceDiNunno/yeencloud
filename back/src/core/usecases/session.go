@@ -14,12 +14,11 @@ type SessionUsecases interface {
 	GetSessionByToken(auditID domain.AuditID, token string) (domain.Session, *domain.ErrorDescription)
 }
 
-// #YC-21 TODO: should a session be in the usecases or the http layer?
 func (self UCs) CreateSession(auditID domain.AuditID, newSessionRequest domain.NewSession) (domain.Session, *domain.ErrorDescription) {
 	step := self.i.Trace.AddStep(auditID, newSessionRequest.Secure())
 
 	// #YC-3 TODO: implement OTP
-	us, err := self.i.Persistence.User.FindUserByEmail(newSessionRequest.Email)
+	us, err := self.i.Persistence.FindUserByEmail(newSessionRequest.Email)
 
 	if err != nil {
 		self.i.Trace.EndStep(auditID, step)
@@ -42,7 +41,7 @@ func (self UCs) CreateSession(auditID domain.AuditID, newSessionRequest domain.N
 		UserID:   us.ID,
 	}
 
-	session, err := self.i.Persistence.Session.CreateSession(newSession)
+	session, err := self.i.Persistence.CreateSession(newSession)
 	if err != nil {
 		self.i.Trace.EndStep(auditID, step)
 		return domain.Session{}, nil
@@ -56,7 +55,7 @@ func (self UCs) GetSessionByToken(auditID domain.AuditID, token string) (domain.
 	step := self.i.Trace.AddStep(auditID)
 
 	// #YC-20 TODO: this should check if the user still exists and if the session is still valid
-	session, err := self.i.Persistence.Session.FindSessionByToken(token)
+	session, err := self.i.Persistence.FindSessionByToken(token)
 	if err != nil {
 		self.i.Trace.EndStep(auditID, step)
 		return domain.Session{}, &domain.ErrorSessionNotFound

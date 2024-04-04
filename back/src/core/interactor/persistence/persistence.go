@@ -1,13 +1,16 @@
 package persistence
 
-type Persistence struct {
+type Persistence interface {
 	// Main models
-	User         UserRepository
-	Service      ServiceRepository
-	Session      SessionRepository
-	Profile      ProfileRepository
-	Organization OrganizationRepository
+	UserRepository
+	ServiceRepository
+	SessionRepository
+	ProfileRepository
+	OrganizationRepository
 
 	// Linking models
-	OrganizationProfile OrganizationProfileRepository
+	OrganizationProfileRepository
+
+	// Transaction
+	Transaction
 }

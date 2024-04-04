@@ -33,12 +33,12 @@ func (self UCs) CreateUser(auditID domain.AuditID, newUser domain.NewUser, profi
 		Password: string(hashedPassword),
 	}
 
-	user, err := self.i.Persistence.User.CreateUser(userToCreate)
+	user, err := self.i.Persistence.CreateUser(userToCreate)
 
 	if err != nil {
-		self.i.Trace.Log(auditID, auditStepID).WithField(domain.LogFieldProfileMail, newUser.Email).Msg("Error creating user")
+		self.i.Trace.Log(auditID, auditStepID).WithField(domain.LogFieldProfileMail, newUser.Email).WithField(domain.LogFieldError, err).Msg("Error creating user")
 		self.i.Trace.EndStep(auditID, auditStepID)
-		return domain.Profile{}, &domain.ErrorUserAlreadyExists // TODO: wrong error ?
+		return domain.Profile{}, &domain.ErrorUnableToCreateUser
 	}
 
 	profile, derr := self.createProfile(auditID, user.ID, newUser.Name, profileLanguage)
@@ -71,7 +71,7 @@ func (self UCs) CreateUser(auditID domain.AuditID, newUser domain.NewUser, profi
 
 func (self UCs) GetUserByID(auditID domain.AuditID, id domain.UserID) (domain.User, *domain.ErrorDescription) {
 	auditStepID := self.i.Trace.AddStep(auditID)
-	user, err := self.i.Persistence.User.FindUserByID(id)
+	user, err := self.i.Persistence.FindUserByID(id)
 
 	if err != nil {
 		self.i.Trace.Log(auditID, auditStepID).WithLevel(domain.LogLevelError).WithField(domain.LogFieldError, err).WithField(domain.LogFieldUserID, id).Msg("Error finding user")
