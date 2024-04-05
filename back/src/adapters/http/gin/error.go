@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
+	"github.com/gin-gonic/gin"
 )
 
 var (
@@ -23,3 +24,7 @@ var (
 
 	ErrorAuthenticationTokenMissing = domain.ErrorDescription{HttpCode: http.StatusUnauthorized, Code: TranslatableAuthenticationTokenMissing}
 )
+
+func (server *ServiceHTTPServer) recoverFromPanic(c *gin.Context, err interface{}) {
+	server.abortWithError(c, ErrorInternal, err)
+}

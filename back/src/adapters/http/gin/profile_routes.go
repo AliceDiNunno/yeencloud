@@ -15,7 +15,7 @@ func (server *ServiceHTTPServer) getUserProfileMiddleware(ctx *gin.Context) {
 	}
 
 	// This is necessary to make sure the user is still valid
-	user, err := server.ucs.GetUserByID(server.getTrace(ctx), session.(domain.Session).UserID)
+	user, err := server.usecases(ctx).GetUserByID(server.getTrace(ctx), session.(domain.Session).UserID)
 
 	if err != nil {
 		server.abortWithError(ctx, *err)
@@ -24,7 +24,7 @@ func (server *ServiceHTTPServer) getUserProfileMiddleware(ctx *gin.Context) {
 
 	ctx.Set(CtxUserField, user.ID)
 
-	profile, err := server.ucs.GetProfileByUserID(server.getTrace(ctx), user.ID)
+	profile, err := server.usecases(ctx).GetProfileByUserID(server.getTrace(ctx), user.ID)
 
 	if err != nil {
 		server.abortWithError(ctx, *err)

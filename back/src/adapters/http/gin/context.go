@@ -37,6 +37,6 @@ func (server *ServiceHTTPServer) getContext(ctx *gin.Context) *RequestContext {
 	return context
 }
 
-func (server *ServiceHTTPServer) recoverFromPanic(c *gin.Context, err interface{}) {
-	server.abortWithError(c, ErrorInternal, err)
+func (server *ServiceHTTPServer) usecases(ctx *gin.Context) usecases.Usecases {
+	return server.getContext(ctx).Usecases
 }

@@ -27,7 +27,7 @@ func (server *ServiceHTTPServer) retrieveOrganizationMiddleware(ctx *gin.Context
 
 	organizationID := ctx.Param("organization")
 
-	organization, err := server.ucs.GetOrganizationByID(server.getTrace(ctx), profile.ID, domain.OrganizationID(organizationID))
+	organization, err := server.usecases(ctx).GetOrganizationByID(server.getTrace(ctx), profile.ID, domain.OrganizationID(organizationID))
 	if err != nil {
 		server.abortWithError(ctx, *err)
 		return
@@ -61,7 +61,7 @@ func (server *ServiceHTTPServer) listOrganizationsHandler(ctx *gin.Context) {
 
 	trace := server.getTrace(ctx)
 
-	organizations, err := server.ucs.ListOrganizationsByProfile(trace, profile.ID)
+	organizations, err := server.usecases(ctx).ListOrganizationsByProfile(trace, profile.ID)
 
 	if err != nil {
 		server.abortWithError(ctx, *err)
@@ -90,7 +90,7 @@ func (server *ServiceHTTPServer) createOrganizationHandler(ctx *gin.Context) {
 
 	audit := server.getTrace(ctx)
 
-	session, err := server.ucs.CreateOrganization(audit, profile.ID, createOrganizationRequest)
+	session, err := server.usecases(ctx).CreateOrganization(audit, profile.ID, createOrganizationRequest)
 
 	if err != nil {
 		server.abortWithError(ctx, *err)
@@ -111,7 +111,7 @@ func (server *ServiceHTTPServer) getOrganizationHandler(ctx *gin.Context) {
 		return
 	}
 
-	organization, err := server.ucs.GetOrganizationByID(server.getTrace(ctx), profile.ID, organization.ID)
+	organization, err := server.usecases(ctx).GetOrganizationByID(server.getTrace(ctx), profile.ID, organization.ID)
 
 	if err != nil {
 		server.abortWithError(ctx, *err)
@@ -143,7 +143,7 @@ func (server *ServiceHTTPServer) updateOrganizationHandler(ctx *gin.Context) {
 		return
 	}
 
-	organization, err := server.ucs.UpdateOrganization(server.getTrace(ctx), profile.ID, organization.ID, updateOrganizationRequest)
+	organization, err := server.usecases(ctx).UpdateOrganization(server.getTrace(ctx), profile.ID, organization.ID, updateOrganizationRequest)
 
 	if err != nil {
 		server.abortWithError(ctx, *err)
@@ -164,7 +164,7 @@ func (server *ServiceHTTPServer) deleteOrganizationHandler(ctx *gin.Context) {
 		return
 	}
 
-	err := server.ucs.DeleteOrganization(server.getTrace(ctx), profile.ID, organization.ID)
+	err := server.usecases(ctx).DeleteOrganization(server.getTrace(ctx), profile.ID, organization.ID)
 
 	if err != nil {
 		server.abortWithError(ctx, *err)

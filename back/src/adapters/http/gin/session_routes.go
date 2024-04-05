@@ -13,7 +13,7 @@ func (server *ServiceHTTPServer) retrieveSessionMiddleware(ctx *gin.Context) {
 		return
 	}
 
-	session, err := server.ucs.GetSessionByToken(server.getTrace(ctx), token)
+	session, err := server.usecases(ctx).GetSessionByToken(server.getTrace(ctx), token)
 	if err != nil {
 		server.abortWithError(ctx, *err)
 		return
@@ -52,7 +52,7 @@ func (server *ServiceHTTPServer) createSessionHandler(ctx *gin.Context) {
 		return
 	}
 
-	session, err := server.ucs.CreateSession(server.getTrace(ctx), createSessionRequest)
+	session, err := server.usecases(ctx).CreateSession(server.getTrace(ctx), createSessionRequest)
 
 	if err != nil {
 		server.abortWithError(ctx, *err)

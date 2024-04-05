@@ -31,9 +31,8 @@ func (server *ServiceHTTPServer) SetRoutes() {
 	// They are executed in the order they are declared and they will end in the reverse order
 	r.Use(server.ginLogger) // Log all requests
 	r.Use(nice.Recovery(server.recoverFromPanic))
-	r.Use(server.traceHandlerMiddleware)   // Start tracing the request
-	r.Use(server.RequestContextMiddleware) // Create a request context
-	// r.Use(server.timeoutMiddleware())
+	r.Use(server.traceHandlerMiddleware)      // Start tracing the request
+	r.Use(server.RequestContextMiddleware)    // Create a request context
 	r.Use(server.noResponseHandlerMiddleware) // Ensure that all routes write a response // create a request context
 	r.Use(server.retrieveSessionMiddleware)   // Retrieve a session if it exists
 	r.Use(server.getUserProfileMiddleware)    // Retrieve the user profile a session exists
