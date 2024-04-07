@@ -4,12 +4,12 @@ import "github.com/AliceDiNunno/yeencloud/src/core/domain"
 
 type Audit interface {
 	// TODO: change data map keys to LogField for constitency
-	NewTrace(trigger string, data map[string]string) domain.AuditID
-	AddStep(id domain.AuditID, details ...interface{}) domain.StepID
+	NewTrace(trigger string, data map[string]string) domain.AuditTraceID
+	AddStep(id domain.AuditTraceID, details ...interface{}) domain.AuditTraceStepID
 
-	EndStep(id domain.AuditID, step domain.StepID)
-	EndTrace(id domain.AuditID) domain.Request
+	EndStep(id domain.AuditTraceID, step domain.AuditTraceStepID)
+	EndTrace(id domain.AuditTraceID) domain.AuditTrace
 
-	Log(id domain.AuditID, step domain.StepID) LogMessage
-	DumpTrace(id domain.AuditID) *domain.Request
+	Log(id domain.AuditTraceID, step domain.AuditTraceStepID) LogMessage
+	DumpTrace(id domain.AuditTraceID) *domain.AuditTrace
 }

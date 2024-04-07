@@ -33,10 +33,10 @@ const (
 )
 
 var (
-	HttpLogField          = domain.LogField{Name: "http"}
-	HttpLogFieldStatus    = domain.LogField{Parent: &HttpLogField, Name: "status"}
-	HttpLogFieldMethod    = domain.LogField{Parent: &HttpLogField, Name: "method"}
-	HttpLogFieldPath      = domain.LogField{Parent: &HttpLogField, Name: "path"}
-	HttpHandlerField      = domain.LogField{Parent: &HttpLogField, Name: "handler"}
-	HttpHandlerCountField = domain.LogField{Parent: &HttpLogField, Name: "handler_count"}
+	LogScopeHttp             = domain.LogScope{Identifier: "http"}
+	LogFieldHttpStatus       = domain.LogField{Scope: LogScopeHttp, Identifier: "status"}
+	LogFieldHttpMethod       = domain.LogField{Scope: LogScopeHttp, Identifier: "method"}
+	LogFieldHttpPath         = domain.LogField{Scope: LogScopeHttp, Identifier: "path"}
+	LogFieldHttpHandler      = domain.LogField{Scope: LogScopeHttp, Identifier: "handler"}
+	LogFieldHttpHandlerCount = domain.LogField{Scope: LogScopeHttp, Identifier: "handler_count"}
 )

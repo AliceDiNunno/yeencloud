@@ -41,7 +41,7 @@ func (r *Middleware) Traceback(message log.Message) []runtime.Frame {
 	dump, present := message.Fields[domain.LogFieldTraceDump]
 
 	if present {
-		trace, ok := dump.(domain.Request)
+		trace, ok := dump.(domain.AuditTrace)
 
 		if ok {
 			for _, step := range trace.Content {
@@ -86,7 +86,7 @@ func (r *Middleware) Log(message log.Message) {
 
 	for key, v := range message.Fields {
 		if key == domain.LogFieldTraceDump {
-			trace, traceOk := v.(domain.Request)
+			trace, traceOk := v.(domain.AuditTrace)
 
 			if traceOk {
 				for triggerKey, triggerValue := range trace.TriggerData {

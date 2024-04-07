@@ -12,6 +12,9 @@ SessionNotFound = "Session introuvable"
 UnableToGetUserOrganizations = "Impossible de récupérer les organisations de l'utilisateur"
 AuthenticationTokenMissing = "Le jeton d'authentification est manquant"
 
+#Permission
+PermissionRequired = "Permission necessaire ({{.PermissionIdentifier}}) pour effectuer cette action"
+
 #User
 UserNotFound="Utilisateur introuvable"
 UnableToCreateUser = "Impossible de créer l'utilisateur"

@@ -49,17 +49,17 @@ func (server *ServiceHTTPServer) traceHandlerMiddleware(ctx *gin.Context) {
 	}()
 }
 
-func (server *ServiceHTTPServer) getTrace(ctx *gin.Context) domain.AuditID {
+func (server *ServiceHTTPServer) getTrace(ctx *gin.Context) domain.AuditTraceID {
 	contextTrace, exists := ctx.Get(CtxAuditField)
 	if !exists {
-		return domain.AuditID("")
+		return domain.AuditTraceID("")
 	}
 
-	trace, valid := contextTrace.(domain.AuditID)
+	trace, valid := contextTrace.(domain.AuditTraceID)
 
 	if !valid {
 		server.log.Log(domain.LogLevelWarn).Msg("Trace not found in context, returning empty ID")
-		return domain.AuditID(uuid.Nil.String())
+		return domain.AuditTraceID(uuid.Nil.String())
 	}
 
 	return trace

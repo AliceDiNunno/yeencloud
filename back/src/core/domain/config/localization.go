@@ -1,5 +1,5 @@
 package config
 
-type Localization struct {
+type LocalizationConfig struct {
 	DefaultLang string
 }

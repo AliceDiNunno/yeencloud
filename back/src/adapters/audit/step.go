@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (a *Audit) AddStep(id domain.AuditID, details ...interface{}) domain.StepID {
+func (a *Audit) AddStep(id domain.AuditTraceID, details ...interface{}) domain.AuditTraceStepID {
 	trace, exists := a.currentTraces[id]
 
 	if !exists {
@@ -16,8 +16,8 @@ func (a *Audit) AddStep(id domain.AuditID, details ...interface{}) domain.StepID
 		return NoStep
 	}
 
-	currentStep := domain.Step{
-		ID:      domain.StepID(uuid.New().String()),
+	currentStep := domain.AuditTraceStep{
+		ID:      domain.AuditTraceStepID(uuid.New().String()),
 		Caller:  a.getFrame(),
 		Details: []interface{}{},
 	}
@@ -36,7 +36,7 @@ func (a *Audit) AddStep(id domain.AuditID, details ...interface{}) domain.StepID
 	return currentStep.ID
 }
 
-func (audit *Audit) findStep(auditID domain.AuditID, stepID domain.StepID) *domain.Step {
+func (audit *Audit) findStep(auditID domain.AuditTraceID, stepID domain.AuditTraceStepID) *domain.AuditTraceStep {
 	trace, exists := audit.currentTraces[auditID]
 	if !exists {
 		return nil
@@ -55,11 +55,11 @@ func (audit *Audit) findStep(auditID domain.AuditID, stepID domain.StepID) *doma
 	return nil
 }
 
-func (audit *Audit) Log(auditID domain.AuditID, stepID domain.StepID) interactor.LogMessage {
+func (audit *Audit) Log(auditID domain.AuditTraceID, stepID domain.AuditTraceStepID) interactor.LogMessage {
 	return audit.Logger.Log(domain.LogLevelInfo).WithField(domain.LogFieldTraceID, auditID).WithField(domain.LogFieldStepID, stepID)
 }
 
-func (audit *Audit) EndStep(auditID domain.AuditID, stepID domain.StepID) {
+func (audit *Audit) EndStep(auditID domain.AuditTraceID, stepID domain.AuditTraceStepID) {
 	endTime := time.Now()
 	step := audit.findStep(auditID, stepID)
 

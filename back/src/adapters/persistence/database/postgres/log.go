@@ -10,8 +10,9 @@ import (
 )
 
 var (
-	LogFieldSQL             = domain.LogField{Name: "sql"}
-	LogFieldSQLRowsAffected = domain.LogField{Parent: &LogFieldSQL, Name: "rows_affected"}
+	LogFieldSQL = domain.LogScope{Identifier: "sql"}
+
+	LogFieldSQLRowsAffected = domain.LogField{Scope: LogFieldSQL, Identifier: "rows_affected"}
 )
 
 type gormLogger struct {

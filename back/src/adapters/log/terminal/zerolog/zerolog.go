@@ -14,6 +14,8 @@ import (
 type ZeroLogMiddleware struct {
 }
 
+// MARK: - Colorization
+
 const clearColor = "\x1b[0m"
 const greenColor = "\x1b[32m"
 const redColor = "\x1b[31m"
@@ -95,6 +97,8 @@ func (z *ZeroLogMiddleware) colorize(str string) string {
 
 	return str
 }
+
+// MARK: - Logging
 
 func (z *ZeroLogMiddleware) Log(message log.Message) {
 	level := zerolog.NoLevel

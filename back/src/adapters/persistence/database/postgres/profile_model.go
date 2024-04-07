@@ -16,6 +16,8 @@ type Profile struct {
 	Name     string
 	Language string
 
+	Role string
+
 	Organizations []OrganizationProfile
 }
 
@@ -29,6 +31,18 @@ func (db *Database) CreateProfile(profile domain.Profile) (domain.Profile, error
 	}
 
 	return profileToDomain(profileToCreate), nil
+}
+
+func (db *Database) FindProfileByID(profileID domain.ProfileID) (domain.Profile, error) {
+	var profile Profile
+
+	result := db.engine.Where("id = ?", profileID).First(&profile)
+
+	if result.Error != nil {
+		return domain.Profile{}, result.Error
+	}
+
+	return profileToDomain(profile), nil
 }
 
 func (db *Database) FindProfileByUserID(userID domain.UserID) (domain.Profile, error) {
@@ -49,6 +63,7 @@ func domainToProfile(profile domain.Profile) Profile {
 		UserID:   profile.UserID.String(),
 		Name:     profile.Name,
 		Language: profile.Language,
+		Role:     profile.Role,
 	}
 }
 
@@ -58,5 +73,6 @@ func profileToDomain(profile Profile) domain.Profile {
 		UserID:   domain.UserID(profile.UserID),
 		Name:     profile.Name,
 		Language: profile.Language,
+		Role:     profile.Role,
 	}
 }

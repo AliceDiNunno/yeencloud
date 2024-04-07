@@ -1,5 +1,7 @@
 package domain
 
+// MARK: - Objects
+
 type Language struct {
 	Tag         string `json:"tag"`
 	Flag        string `json:"flag"`
@@ -15,18 +17,22 @@ type Translatable struct {
 	Arguments []TranslatableArgument
 }
 
-func (t Translatable) RawKey() string {
-	return t.Key
-}
-
 type TranslatableArgumentMap map[TranslatableArgument]interface{}
 
-// Translation keys.
+// MARK: - Translatable
+
 var (
 	TranslatableDefaultOrganization = Translatable{Key: "DefaultOrganizationDescription", Arguments: []TranslatableArgument{TranslatableArgumentUserFullName}}
 )
 
-// Translation Arguments
+// MARK: - Translatable Args
+
 var (
 	TranslatableArgumentUserFullName = TranslatableArgument{Key: "UserFullName"}
 )
+
+// MARK: - Functions
+
+func (t Translatable) RawKey() string {
+	return t.Key
+}

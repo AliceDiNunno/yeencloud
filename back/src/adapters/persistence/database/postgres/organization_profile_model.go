@@ -10,7 +10,7 @@ type OrganizationProfile struct {
 	UserRole       string
 }
 
-func (db *Database) LinkProfileToOrganization(profileID domain.ProfileID, organizationID domain.OrganizationID, role domain.OrganizationRole) error {
+func (db *Database) LinkProfileToOrganization(profileID domain.ProfileID, organizationID domain.OrganizationID, role domain.Role) error {
 	NewLink := OrganizationProfile{
 		OrganizationID: organizationID.String(),
 		ProfileID:      profileID.String(),
@@ -58,6 +58,24 @@ func (db *Database) GetOrganizationByIDAndProfileID(profileID domain.ProfileID, 
 	return organizationToDomain(org.Organization), nil
 }
 
+func (db *Database) GetOrganizationMemberRole(profileID domain.ProfileID, organizationID domain.OrganizationID) (string, error) {
+	organizationProfile := OrganizationProfile{}
+
+	result := db.engine.Where("profile_id = ? AND organization_id = ?", profileID.String(), organizationID.String()).First(&organizationProfile)
+
+	if result.Error != nil {
+		return "", result.Error
+	}
+
+	return organizationProfile.UserRole, nil
+}
+
+func (db *Database) RemoveAllMembersFromOrganization(organizationID domain.OrganizationID) error {
+	result := db.engine.Where("organization_id = ?", organizationID).Delete(&OrganizationProfile{})
+
+	return result.Error
+}
+
 func organizationMembersToDomain(profiles []OrganizationProfile) []domain.OrganizationMember {
 	var result []domain.OrganizationMember
 	for _, profile := range profiles {
@@ -70,6 +88,6 @@ func organizationMemberToDomain(user OrganizationProfile) domain.OrganizationMem
 	return domain.OrganizationMember{
 		Profile:      profileToDomain(user.Profile),
 		Organization: organizationToDomain(user.Organization),
-		Role:         domain.OrganizationRole(user.UserRole),
+		Role:         user.UserRole,
 	}
 }

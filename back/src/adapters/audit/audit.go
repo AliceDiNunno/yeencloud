@@ -11,16 +11,16 @@ import (
 // #YC-24 TODO: add end step function to measure time between steps
 // #YC-25 TODO: add more data to each step if necessary (like error, or inter steps)
 
-var NoStep domain.StepID = domain.StepID("NoStep")
+var NoStep domain.AuditTraceStepID = domain.AuditTraceStepID("NoStep")
 
 type Audit struct {
 	SaveTrace domain.AuditSaveFunc
 	Logger    interactor.Logger
 
-	currentTraces map[domain.AuditID]*domain.Request
+	currentTraces map[domain.AuditTraceID]*domain.AuditTrace
 }
 
-func (a *Audit) save(trace domain.Request) {
+func (a *Audit) save(trace domain.AuditTrace) {
 	json, err := json.Marshal(trace)
 
 	if err != nil {
@@ -38,7 +38,7 @@ func (a *Audit) save(trace domain.Request) {
 
 func NewAuditer(logger interactor.Logger, saveTrace domain.AuditSaveFunc) *Audit {
 	return &Audit{
-		currentTraces: make(map[domain.AuditID]*domain.Request),
+		currentTraces: make(map[domain.AuditTraceID]*domain.AuditTrace),
 		SaveTrace:     saveTrace,
 		Logger:        logger,
 	}

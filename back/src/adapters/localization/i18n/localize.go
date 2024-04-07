@@ -14,10 +14,10 @@ import (
 	"golang.org/x/text/language"
 )
 
-var LogFieldLanguage = domain.LogField{Name: "language"}
-var LogFieldLanguageTag = domain.LogField{Parent: &LogFieldLanguage, Name: "tag"}
-var LogFieldLanguageName = domain.LogField{Parent: &LogFieldLanguage, Name: "name"}
-var LogFieldLanguageMessage = domain.LogField{Parent: &LogFieldLanguage, Name: "message"}
+var LogScopeLanguage = domain.LogScope{Identifier: "language"}
+var LogFieldLanguageTag = domain.LogField{Scope: LogScopeLanguage, Identifier: "tag"}
+var LogFieldLanguageName = domain.LogField{Scope: LogScopeLanguage, Identifier: "name"}
+var LogFieldLanguageMessage = domain.LogField{Scope: LogScopeLanguage, Identifier: "message"}
 
 type localize struct {
 	bundle *i18n.Bundle
@@ -109,7 +109,7 @@ func (l localize) DefaultLanguageName() string {
 	return l.defaultLanguage.String()
 }
 
-func NewLocalize(logger interactor.Logger, config config.Localization, localizationPath string) interactor.Localize {
+func NewLocalize(logger interactor.Logger, config config.LocalizationConfig, localizationPath string) interactor.Localize {
 	defaultLanguageTag := language.Make(config.DefaultLang)
 
 	bundle := i18n.NewBundle(defaultLanguageTag)

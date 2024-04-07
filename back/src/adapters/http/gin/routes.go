@@ -74,7 +74,7 @@ func (server *ServiceHTTPServer) noResponseHandlerMiddleware(ctx *gin.Context) {
 
 func (server *ServiceHTTPServer) printRoutes(httpMethod, absolutePath, handlerName string, nuHandlers int) {
 	server.log.Log(domain.LogLevelInfo).WithFields(domain.LogFields{
-		HttpHandlerField:      handlerName,
-		HttpHandlerCountField: nuHandlers,
+		LogFieldHttpHandler:      handlerName,
+		LogFieldHttpHandlerCount: nuHandlers,
 	}).Msg(httpMethod + " " + absolutePath)
 }

@@ -27,13 +27,13 @@ func (server *ServiceHTTPServer) ginLogger(ctx *gin.Context) {
 	}
 
 	fields := domain.LogFields{
-		HttpLogFieldStatus:     status,
-		HttpLogFieldMethod:     ctx.Request.Method,
-		HttpLogFieldPath:       ctx.Request.URL.Path,
+		LogFieldHttpStatus:     status,
+		LogFieldHttpMethod:     ctx.Request.Method,
+		LogFieldHttpPath:       ctx.Request.URL.Path,
 		domain.LogFieldTraceID: server.getTrace(ctx).String(),
 	}
 
-	tracedump, valid := trace.(domain.Request)
+	tracedump, valid := trace.(domain.AuditTrace)
 	if valid {
 		fields[domain.LogFieldTraceDump] = tracedump
 	}

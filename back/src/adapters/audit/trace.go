@@ -7,9 +7,9 @@ import (
 	"github.com/google/uuid"
 )
 
-func (a *Audit) NewTrace(trigger string, data map[string]string) domain.AuditID {
-	trace := domain.Request{
-		ID:          domain.AuditID(uuid.New().String()),
+func (a *Audit) NewTrace(trigger string, data map[string]string) domain.AuditTraceID {
+	trace := domain.AuditTrace{
+		ID:          domain.AuditTraceID(uuid.New().String()),
 		Trigger:     trigger,
 		Content:     nil,
 		TriggerData: data,
@@ -27,14 +27,14 @@ func (a *Audit) NewTrace(trigger string, data map[string]string) domain.AuditID 
 	return trace.ID
 }
 
-func (a *Audit) EndTrace(id domain.AuditID) domain.Request {
+func (a *Audit) EndTrace(id domain.AuditTraceID) domain.AuditTrace {
 	trace, exists := a.currentTraces[id]
 	trace.EndedAt = time.Now().UnixMilli()
 
 	duration := time.Duration(trace.EndedAt - trace.StartedAt)
 	if !exists {
 		a.Log(trace.ID, NoStep).WithLevel(domain.LogLevelWarn).Msg("Trace not found, aborting EndTrace")
-		return domain.Request{}
+		return domain.AuditTrace{}
 	}
 
 	lastStep := &trace.Content[len(trace.Content)-1]

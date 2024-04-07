@@ -1,57 +1,35 @@
 package domain
 
+// MARK: - Objects
+
 type LogLevel string
 
 type LogField struct {
-	Parent *LogField
-	Name   string
+	Scope LogScope
+
+	Identifier string
 }
 type LogFields map[LogField]interface{}
 
 var (
-	LogFieldConfig             = LogField{Name: "config"}
-	LogFieldConfigVersion      = LogField{Parent: &LogFieldConfig, Name: "version"}
-	LogFieldConfigDatabase     = LogField{Parent: &LogFieldConfig, Name: "database"}
-	LogFieldConfigHTTP         = LogField{Parent: &LogFieldConfig, Name: "http"}
-	LogFieldConfigRunContext   = LogField{Parent: &LogFieldConfig, Name: "run_context"}
-	LogFieldConfigLocalization = LogField{Parent: &LogFieldConfig, Name: "localization"}
+	// MARK: - Config
 
-	LogFieldProfile     = LogField{Name: "profile"}
-	LogFieldProfileID   = LogField{Parent: &LogFieldProfile, Name: "id"}
-	LogFieldProfileMail = LogField{Parent: &LogFieldProfile, Name: "mail"}
-	LogFieldProfileName = LogField{Parent: &LogFieldProfile, Name: "name"}
+	LogFieldConfig             = LogScope{Identifier: "config"}
+	LogFieldConfigVersion      = LogField{Scope: LogFieldConfig, Identifier: "version"}
+	LogFieldConfigDatabase     = LogField{Scope: LogFieldConfig, Identifier: "database"}
+	LogFieldConfigHTTP         = LogField{Scope: LogFieldConfig, Identifier: "http"}
+	LogFieldConfigRunContext   = LogField{Scope: LogFieldConfig, Identifier: "run_context"}
+	LogFieldConfigLocalization = LogField{Scope: LogFieldConfig, Identifier: "localization"}
 
-	LogFieldUser   = LogField{Name: "user"}
-	LogFieldUserID = LogField{Parent: &LogFieldUser, Name: "id"}
+	// MARK: - Time
 
-	LogFieldSession = LogField{Name: "session"}
-
-	LogFieldSessionRequest     = LogField{Parent: &LogFieldSession, Name: "request"}
-	LogFieldSessionRequestMail = LogField{Parent: &LogFieldSessionRequest, Name: "mail"}
-
-	LogFieldTrace          = LogField{Name: "trace"}
-	LogFieldTraceID        = LogField{Parent: &LogFieldTrace, Name: "id"}
-	LogFieldTraceDump      = LogField{Parent: &LogFieldTrace, Name: "dump"}
-	LogFieldTraceResult    = LogField{Parent: &LogFieldTrace, Name: "result"}
-	LogFieldTraceTrigger   = LogField{Parent: &LogFieldTrace, Name: "trigger"}
-	LogFieldTraceStepCount = LogField{Parent: &LogFieldTrace, Name: "step_count"}
-
-	LogFieldTraceStep        = LogField{Parent: &LogFieldTrace, Name: "%d"}
-	LogFieldTraceStepCaller  = LogField{Parent: &LogFieldTraceStep, Name: "caller"}
-	LogFieldTraceStepDetails = LogField{Parent: &LogFieldTraceStep, Name: "details"}
-	LogFieldTraceStepStart   = LogField{Parent: &LogFieldTraceStep, Name: "start"}
-	LogFieldTraceStepEnd     = LogField{Parent: &LogFieldTraceStep, Name: "end"}
-
-	LogFieldStep   = LogField{Name: "step"}
-	LogFieldStepID = LogField{Parent: &LogFieldStep, Name: "id"}
-
-	LogFieldError = LogField{Name: "error"}
-
-	LogFieldTime        = LogField{Name: "time"}
-	LogFieldTimeStarted = LogField{Parent: &LogFieldTime, Name: "started"}
-	LogFieldTimeEnded   = LogField{Parent: &LogFieldTime, Name: "ended"}
-	LogFieldDuration    = LogField{Parent: &LogFieldTime, Name: "duration"}
+	LogFieldTime        = LogScope{Identifier: "time"}
+	LogFieldTimeStarted = LogField{Scope: LogFieldTime, Identifier: "started"}
+	LogFieldTimeEnded   = LogField{Scope: LogFieldTime, Identifier: "ended"}
+	LogFieldDuration    = LogField{Scope: LogFieldTime, Identifier: "duration"}
 )
+
+// MARK: - Log Levels
 
 const (
 	LogLevelDebug = LogLevel("DEBUG")
@@ -63,13 +41,12 @@ const (
 	LogLevelFatal = LogLevel("FATAL")
 )
 
+// MARK: - Functions
+
 func (l LogLevel) String() string {
 	return string(l)
 }
 
 func (l LogField) String() string {
-	if l.Parent == nil {
-		return l.Name
-	}
-	return l.Parent.String() + "." + l.Name
+	return l.Scope.String() + logSeparator + l.Identifier
 }

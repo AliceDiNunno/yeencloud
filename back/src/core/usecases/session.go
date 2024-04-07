@@ -9,12 +9,12 @@ import (
 )
 
 type SessionUsecases interface {
-	CreateSession(auditID domain.AuditID, user domain.NewSession) (domain.Session, *domain.ErrorDescription)
+	CreateSession(auditID domain.AuditTraceID, user domain.NewSession) (domain.Session, *domain.ErrorDescription)
 
-	GetSessionByToken(auditID domain.AuditID, token string) (domain.Session, *domain.ErrorDescription)
+	GetSessionByToken(auditID domain.AuditTraceID, token string) (domain.Session, *domain.ErrorDescription)
 }
 
-func (self UCs) CreateSession(auditID domain.AuditID, newSessionRequest domain.NewSession) (domain.Session, *domain.ErrorDescription) {
+func (self UCs) CreateSession(auditID domain.AuditTraceID, newSessionRequest domain.NewSession) (domain.Session, *domain.ErrorDescription) {
 	step := self.i.Trace.AddStep(auditID, newSessionRequest.Secure())
 
 	// #YC-3 TODO: implement OTP
@@ -51,7 +51,7 @@ func (self UCs) CreateSession(auditID domain.AuditID, newSessionRequest domain.N
 	return session, nil
 }
 
-func (self UCs) GetSessionByToken(auditID domain.AuditID, token string) (domain.Session, *domain.ErrorDescription) {
+func (self UCs) GetSessionByToken(auditID domain.AuditTraceID, token string) (domain.Session, *domain.ErrorDescription) {
 	step := self.i.Trace.AddStep(auditID)
 
 	// #YC-20 TODO: this should check if the user still exists and if the session is still valid

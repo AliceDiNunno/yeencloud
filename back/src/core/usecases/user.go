@@ -7,16 +7,16 @@ import (
 )
 
 type UserUsecases interface {
-	CreateUser(auditID domain.AuditID, user domain.NewUser, language string) (domain.Profile, *domain.ErrorDescription)
+	CreateUser(auditID domain.AuditTraceID, user domain.NewUser, language string) (domain.Profile, *domain.ErrorDescription)
 
-	GetUserByID(auditID domain.AuditID, userID domain.UserID) (domain.User, *domain.ErrorDescription)
+	GetUserByID(auditID domain.AuditTraceID, userID domain.UserID) (domain.User, *domain.ErrorDescription)
 }
 
 func (self UCs) newUserID() domain.UserID {
 	return domain.UserID(uuid.New().String())
 }
 
-func (self UCs) CreateUser(auditID domain.AuditID, newUser domain.NewUser, profileLanguage string) (domain.Profile, *domain.ErrorDescription) {
+func (self UCs) CreateUser(auditID domain.AuditTraceID, newUser domain.NewUser, profileLanguage string) (domain.Profile, *domain.ErrorDescription) {
 	auditStepID := self.i.Trace.AddStep(auditID, newUser.Secure())
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
@@ -69,7 +69,7 @@ func (self UCs) CreateUser(auditID domain.AuditID, newUser domain.NewUser, profi
 	return profile, nil
 }
 
-func (self UCs) GetUserByID(auditID domain.AuditID, id domain.UserID) (domain.User, *domain.ErrorDescription) {
+func (self UCs) GetUserByID(auditID domain.AuditTraceID, id domain.UserID) (domain.User, *domain.ErrorDescription) {
 	auditStepID := self.i.Trace.AddStep(auditID)
 	user, err := self.i.Persistence.FindUserByID(id)
 

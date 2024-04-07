@@ -12,6 +12,9 @@ SessionNotFound = "Session not found"
 UnableToGetUserOrganizations = "Unable to get user organizations"
 AuthenticationTokenMissing = "Authentication token missing"
 
+#Permission
+PermissionRequired = "Permission required ({{.PermissionIdentifier}}) to perform this action"
+
 #User
 UserNotFound = "User not found"
 UnableToCreateUser = "Unable to create user"

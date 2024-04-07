@@ -21,7 +21,7 @@ type ResponseError struct {
 	Message string `json:"message"`
 }
 
-func (server *ServiceHTTPServer) reply(ctx *gin.Context, replyCall func(code int, obj any), code int, errDesc *domain.ErrorDescription, body interface{}) {
+func (server *ServiceHTTPServer) reply(ctx *gin.Context, replyCall func(code int, obj any), code int, body interface{}, errDesc *domain.ErrorDescription) {
 	ctx.Set(CtxHTTPCodeField, code)
 
 	context := server.getContext(ctx)
@@ -45,7 +45,7 @@ func (server *ServiceHTTPServer) reply(ctx *gin.Context, replyCall func(code int
 
 		response.Error = &ResponseError{
 			Code:    errDesc.Code.RawKey(),
-			Message: server.localize.GetLocalizedText(lang, errDesc.Code),
+			Message: server.localize.GetLocalizedText(lang, errDesc.Code, errDesc.Arguments),
 		}
 	}
 
@@ -53,15 +53,15 @@ func (server *ServiceHTTPServer) reply(ctx *gin.Context, replyCall func(code int
 }
 
 func (server *ServiceHTTPServer) abortWithError(ctx *gin.Context, errorDescription domain.ErrorDescription, body ...interface{}) {
-	server.reply(ctx, ctx.AbortWithStatusJSON, errorDescription.HttpCode, &errorDescription, body)
+	server.reply(ctx, ctx.AbortWithStatusJSON, errorDescription.HttpCode, body, &errorDescription)
 }
 
 func (server *ServiceHTTPServer) success(ctx *gin.Context, body interface{}) {
-	server.reply(ctx, ctx.JSON, http.StatusOK, nil, body)
+	server.reply(ctx, ctx.JSON, http.StatusOK, body, nil)
 }
 
 func (server *ServiceHTTPServer) created(ctx *gin.Context, body interface{}) {
-	server.reply(ctx, ctx.JSON, http.StatusCreated, nil, body)
+	server.reply(ctx, ctx.JSON, http.StatusCreated, body, nil)
 }
 
 func (server *ServiceHTTPServer) timedOut(ctx *gin.Context) {
