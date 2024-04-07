@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="clean_tables.sql" type="DatabaseScript" editBeforeRun="true" nameIsGenerated="true">
+    <script-file value="$PROJECT_DIR$/back/sql/tools/clean_tables.sql" />
+    <script-mode>FILE</script-mode>
+    <data-source id="228d6ef3-21e2-49b1-8706-818ee974d73b" />
+    <method v="2" />
+  </configuration>
+</component>
