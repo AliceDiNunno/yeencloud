@@ -1,12 +1,13 @@
 package gin
 
 import (
+	"github.com/AliceDiNunno/yeencloud/src/adapters/audit"
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/gin-gonic/gin"
 )
 
 func (server *ServiceHTTPServer) getUserProfileMiddleware(ctx *gin.Context) {
-	server.auditer.AddStep(server.getTrace(ctx))
+	server.auditer.AddStep(server.getTrace(ctx), audit.DefaultSkip)
 
 	session, exists := ctx.Get(CtxSessionField)
 

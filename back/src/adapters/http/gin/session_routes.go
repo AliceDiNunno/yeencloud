@@ -1,12 +1,13 @@
 package gin
 
 import (
+	"github.com/AliceDiNunno/yeencloud/src/adapters/audit"
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/gin-gonic/gin"
 )
 
 func (server *ServiceHTTPServer) retrieveSessionMiddleware(ctx *gin.Context) {
-	server.auditer.AddStep(server.getTrace(ctx))
+	server.auditer.AddStep(server.getTrace(ctx), audit.DefaultSkip)
 
 	token := ctx.GetHeader(HeaderAuthorization)
 	if token == "" {
@@ -23,7 +24,7 @@ func (server *ServiceHTTPServer) retrieveSessionMiddleware(ctx *gin.Context) {
 }
 
 func (server *ServiceHTTPServer) requireSessionMiddleware(ctx *gin.Context) {
-	server.auditer.AddStep(server.getTrace(ctx))
+	server.auditer.AddStep(server.getTrace(ctx), audit.DefaultSkip)
 
 	_, exists := ctx.Get(CtxSessionField)
 	if !exists {

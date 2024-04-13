@@ -5,7 +5,7 @@ import "github.com/AliceDiNunno/yeencloud/src/core/domain"
 type Audit interface {
 	// TODO: change data map keys to LogField for constitency
 	NewTrace(trigger string, data map[string]string) domain.AuditTraceID
-	AddStep(id domain.AuditTraceID, details ...interface{}) domain.AuditTraceStepID
+	AddStep(id domain.AuditTraceID, skip int, details ...interface{}) domain.AuditTraceStepID
 
 	EndStep(id domain.AuditTraceID, step domain.AuditTraceStepID)
 	EndTrace(id domain.AuditTraceID) domain.AuditTrace

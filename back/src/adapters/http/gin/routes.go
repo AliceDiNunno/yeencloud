@@ -15,6 +15,9 @@ func (server *ServiceHTTPServer) setPublicRoutes(r *gin.RouterGroup) {
 
 	session := r.Group("/session")
 	session.POST("", server.createSessionHandler)
+
+	token := r.Group("/token")
+	server.setTokenRoutes(token)
 }
 
 func (server *ServiceHTTPServer) setAuthenticatedRoutes(authenticated *gin.RouterGroup) {

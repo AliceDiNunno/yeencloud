@@ -1,6 +1,7 @@
 package gin
 
 import (
+	"github.com/AliceDiNunno/yeencloud/src/adapters/audit"
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/gin-gonic/gin"
 )
@@ -17,7 +18,7 @@ func (server *ServiceHTTPServer) setOrganizationRoutes(organizationGroup *gin.Ro
 }
 
 func (server *ServiceHTTPServer) retrieveOrganizationMiddleware(ctx *gin.Context) {
-	server.auditer.AddStep(server.getTrace(ctx))
+	server.auditer.AddStep(server.getTrace(ctx), audit.DefaultSkip)
 
 	profile, found := server.getProfile(ctx)
 
@@ -61,14 +62,20 @@ func (server *ServiceHTTPServer) listOrganizationsHandler(ctx *gin.Context) {
 
 	trace := server.getTrace(ctx)
 
-	organizations, err := server.usecases(ctx).ListOrganizationsByProfile(trace, profile.ID)
+	domainContext := domain.RequestContext{
+		TraceID: trace,
+		Profile: &profile,
+		Done: func(organizations interface{}, err *domain.ErrorDescription) {
+			if err != nil {
+				server.abortWithError(ctx, *err)
+				return
+			}
 
-	if err != nil {
-		server.abortWithError(ctx, *err)
-		return
+			server.success(ctx, organizations)
+		},
 	}
 
-	server.success(ctx, organizations)
+	server.usecases(ctx).ListOrganizationsByProfile(&domainContext, profile.ID)
 }
 
 func (server *ServiceHTTPServer) createOrganizationHandler(ctx *gin.Context) {

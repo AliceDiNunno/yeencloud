@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"github.com/AliceDiNunno/yeencloud/src/adapters/audit"
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/google/uuid"
 )
@@ -16,7 +17,7 @@ type OrganizationUsecases interface {
 }
 
 func (self UCs) CreateOrganization(auditID domain.AuditTraceID, profileID domain.ProfileID, newOrganization domain.NewOrganization) (domain.Organization, *domain.ErrorDescription) {
-	auditStepID := self.i.Trace.AddStep(auditID, newOrganization)
+	auditStepID := self.i.Trace.AddStep(auditID, audit.DefaultSkip, newOrganization)
 
 	if err := self.checkPermissions(auditID, profileID, nil, domain.PermissionGlobalOrganizationCreation); err != nil {
 		self.i.Trace.EndStep(auditID, auditStepID)
@@ -57,7 +58,7 @@ func (self UCs) CreateOrganization(auditID domain.AuditTraceID, profileID domain
 }
 
 func (self UCs) GetOrganizationByID(auditID domain.AuditTraceID, profileID domain.ProfileID, organizationID domain.OrganizationID) (domain.Organization, *domain.ErrorDescription) {
-	auditStepID := self.i.Trace.AddStep(auditID, profileID, organizationID)
+	auditStepID := self.i.Trace.AddStep(auditID, audit.DefaultSkip, profileID, organizationID)
 
 	role, err := self.i.Persistence.GetOrganizationMemberRole(profileID, organizationID)
 
@@ -83,7 +84,7 @@ func (self UCs) GetOrganizationByID(auditID domain.AuditTraceID, profileID domai
 }
 
 func (self UCs) UpdateOrganization(auditID domain.AuditTraceID, profileID domain.ProfileID, organizationID domain.OrganizationID, update domain.UpdateOrganization) (domain.Organization, *domain.ErrorDescription) {
-	auditStepID := self.i.Trace.AddStep(auditID, profileID, organizationID, update)
+	auditStepID := self.i.Trace.AddStep(auditID, audit.DefaultSkip, profileID, organizationID, update)
 
 	role, err := self.i.Persistence.GetOrganizationMemberRole(profileID, organizationID)
 
@@ -123,7 +124,7 @@ func (self UCs) UpdateOrganization(auditID domain.AuditTraceID, profileID domain
 }
 
 func (self UCs) DeleteOrganization(auditID domain.AuditTraceID, profileID domain.ProfileID, organizationID domain.OrganizationID) *domain.ErrorDescription {
-	auditStepID := self.i.Trace.AddStep(auditID, profileID, organizationID)
+	auditStepID := self.i.Trace.AddStep(auditID, audit.DefaultSkip, profileID, organizationID)
 
 	role, err := self.i.Persistence.GetOrganizationMemberRole(profileID, organizationID)
 

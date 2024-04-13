@@ -22,6 +22,10 @@ type ResponseError struct {
 }
 
 func (server *ServiceHTTPServer) reply(ctx *gin.Context, replyCall func(code int, obj any), code int, body interface{}, errDesc *domain.ErrorDescription) {
+	if ctx.Writer.Written() {
+		return
+	}
+
 	ctx.Set(CtxHTTPCodeField, code)
 
 	context := server.getContext(ctx)

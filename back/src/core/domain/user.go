@@ -34,10 +34,6 @@ var (
 	TranslatableUnableToCreateUser           = Translatable{Key: "UnableToCreateUser"}
 	TranslatableUnableToHashPassword         = Translatable{Key: "UnableToHashPassword"}
 	TranslatableUnableToGetUserOrganizations = Translatable{Key: "UnableToGetUserOrganizations"}
-
-	TranslatableUserRoleLimitedDisplayName  = Translatable{Key: "UserRoleLimitedDisplayName"}
-	TranslatableUserRoleStandardDisplayName = Translatable{Key: "UserRoleStandardDisplayName"}
-	TranslatableUserRoleStaffDisplayName    = Translatable{Key: "UserRoleStaffDisplayName"}
 )
 
 // MARK: - Errors
@@ -66,57 +62,4 @@ func (id UserID) String() string {
 func (u NewUser) Secure() NewUser {
 	u.Password = ""
 	return u
-}
-
-// MARK: - Roles
-
-var RoleScopeUser = RoleScope{
-	Identifier:  "user",
-	DisplayName: "User",
-}
-
-// RoleUserLimited is the role that is assigned if a user is not validated yet.
-var RoleUserLimited = Role{
-	Scope: RoleScopeUser,
-
-	Name:        "limited",
-	DisplayName: TranslatableUserRoleLimitedDisplayName,
-
-	Permissions: []Permission{},
-}
-
-var RoleUserStandard = Role{
-	Scope: RoleScopeUser,
-
-	Name:        "standard",
-	DisplayName: TranslatableUserRoleStandardDisplayName,
-	Inherit: []Role{
-		RoleUserLimited,
-	},
-	Permissions: []Permission{
-		PermissionGlobalOrganizationCreation,
-	},
-}
-
-// RoleUserStaff is basically a "root" role that's used to define the permissions of an internal staff member
-// it might also be used for internal scripts (tbd). Name makes it so it's not to be confused with "admin" or "owner" of other entities
-// if you are in production and have this role, you should be able to do everything (with great power comes great responsibility).
-var RoleUserStaff = Role{
-	Scope: RoleScopeUser,
-
-	Name:        "staff",
-	DisplayName: TranslatableUserRoleStaffDisplayName,
-	Inherit: []Role{
-		RoleUserStandard,
-
-		// those roles should not be inherited by any non-staff user roles, they give owner power to everything
-		RoleOrganizationOwner,
-	},
-	Permissions: []Permission{},
-}
-
-var UserRoles = []Role{
-	RoleUserLimited,
-	RoleUserStandard,
-	RoleUserStaff,
 }

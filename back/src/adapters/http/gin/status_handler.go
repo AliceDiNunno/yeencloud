@@ -1,6 +1,7 @@
 package gin
 
 import (
+	"github.com/AliceDiNunno/yeencloud/src/adapters/audit"
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
 	"github.com/AliceDiNunno/yeencloud/src/core/domain/config"
 	"github.com/gin-gonic/gin"
@@ -20,7 +21,7 @@ func (server *ServiceHTTPServer) getStatusHandler(context *gin.Context) {
 		Version:   server.versionConfig,
 		Languages: server.localize.GetAvailableLanguages(),
 	}
-	stepID := server.auditer.AddStep(auditID, status)
+	stepID := server.auditer.AddStep(auditID, audit.DefaultSkip, status)
 	server.auditer.Log(auditID, stepID).WithLevel(domain.LogLevelInfo).Msg("Status request")
 
 	server.auditer.EndStep(auditID, stepID)

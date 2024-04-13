@@ -1,7 +1,7 @@
 package postgres
 
 func (db *Database) Migrate() error {
-	err := db.engine.Debug().AutoMigrate(User{}, Organization{}, Profile{}, Session{})
+	err := db.engine.Debug().AutoMigrate(User{}, Organization{}, Profile{}, Session{}, Token{})
 	if err != nil {
 		return err
 	}

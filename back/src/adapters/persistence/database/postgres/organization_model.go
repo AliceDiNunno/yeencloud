@@ -2,9 +2,12 @@ package postgres
 
 import (
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
+	"gorm.io/gorm"
 )
 
 type Organization struct {
+	gorm.Model
+
 	ID          string `gorm:"primary_key;unique;not null;default:null;<-:create"`
 	Slug        string `gorm:"unique;not null;default:null;<-:create"`
 	Name        string

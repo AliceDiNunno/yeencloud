@@ -57,6 +57,16 @@ func (db *Database) FindProfileByUserID(userID domain.UserID) (domain.Profile, e
 	return profileToDomain(profile), nil
 }
 
+func (db *Database) SetProfileRole(profileID domain.ProfileID, role domain.Role) error {
+	result := db.engine.Model(&Profile{}).Where("id = ?", profileID).Update("role", role.String())
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
 func domainToProfile(profile domain.Profile) Profile {
 	return Profile{
 		ID:       profile.ID.String(),

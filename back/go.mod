@@ -4,6 +4,7 @@ go 1.21
 
 require (
 	github.com/BurntSushi/toml v1.3.2
+	github.com/davecgh/go-spew v1.1.1
 	github.com/ekyoung/gin-nice-recovery v0.0.0-20160510022553-1654dca486db
 	github.com/gin-contrib/cors v1.5.0
 	github.com/gin-gonic/gin v1.9.1
@@ -18,6 +19,7 @@ require (
 	github.com/urfave/cli/v2 v2.25.7
 	golang.org/x/crypto v0.21.0
 	golang.org/x/text v0.14.0
+	gopkg.in/mail.v2 v2.3.1
 	gorm.io/driver/postgres v1.5.4
 	gorm.io/gorm v1.25.5
 	k8s.io/client-go v0.28.4
@@ -28,7 +30,6 @@ require (
 	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect
 	github.com/chenzhuoyu/iasm v0.9.1 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/emicklei/go-restful/v3 v3.9.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
@@ -80,6 +81,7 @@ require (
 	golang.org/x/tools v0.14.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
+	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

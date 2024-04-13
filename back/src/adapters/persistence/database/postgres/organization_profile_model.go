@@ -1,13 +1,20 @@
 package postgres
 
-import "github.com/AliceDiNunno/yeencloud/src/core/domain"
+import (
+	"github.com/AliceDiNunno/yeencloud/src/core/domain"
+	"gorm.io/gorm"
+)
 
 type OrganizationProfile struct {
+	gorm.Model
+
 	OrganizationID string
 	Organization   Organization
-	ProfileID      string
-	Profile        Profile
-	UserRole       string
+
+	ProfileID string
+	Profile   Profile
+
+	UserRole string
 }
 
 func (db *Database) LinkProfileToOrganization(profileID domain.ProfileID, organizationID domain.OrganizationID, role domain.Role) error {
@@ -76,18 +83,18 @@ func (db *Database) RemoveAllMembersFromOrganization(organizationID domain.Organ
 	return result.Error
 }
 
-func organizationMembersToDomain(profiles []OrganizationProfile) []domain.OrganizationMember {
+func organizationMembersToDomain(organizationProfiles []OrganizationProfile) []domain.OrganizationMember {
 	var result []domain.OrganizationMember
-	for _, profile := range profiles {
+	for _, profile := range organizationProfiles {
 		result = append(result, organizationMemberToDomain(profile))
 	}
 	return result
 }
 
-func organizationMemberToDomain(user OrganizationProfile) domain.OrganizationMember {
+func organizationMemberToDomain(organizationProfile OrganizationProfile) domain.OrganizationMember {
 	return domain.OrganizationMember{
-		Profile:      profileToDomain(user.Profile),
-		Organization: organizationToDomain(user.Organization),
-		Role:         user.UserRole,
+		Profile:      profileToDomain(organizationProfile.Profile),
+		Organization: organizationToDomain(organizationProfile.Organization),
+		Role:         organizationProfile.UserRole,
 	}
 }

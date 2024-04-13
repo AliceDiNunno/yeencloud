@@ -8,7 +8,9 @@ import (
 	"github.com/google/uuid"
 )
 
-func (a *Audit) AddStep(id domain.AuditTraceID, details ...interface{}) domain.AuditTraceStepID {
+var DefaultSkip = 2
+
+func (a *Audit) AddStep(id domain.AuditTraceID, skip int, details ...interface{}) domain.AuditTraceStepID {
 	trace, exists := a.currentTraces[id]
 
 	if !exists {
@@ -18,7 +20,7 @@ func (a *Audit) AddStep(id domain.AuditTraceID, details ...interface{}) domain.A
 
 	currentStep := domain.AuditTraceStep{
 		ID:      domain.AuditTraceStepID(uuid.New().String()),
-		Caller:  a.getFrame(),
+		Caller:  a.getFrame(skip),
 		Details: []interface{}{},
 	}
 

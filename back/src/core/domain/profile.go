@@ -29,18 +29,25 @@ type UpdateProfile struct {
 var (
 	TranslatableProfileNotFound       = Translatable{Key: "ProfileNotFound"}
 	TranslatableUnableToCreateProfile = Translatable{Key: "UnableToCreateProfile"}
+
+	TranslatableProfileRoleUnvalidatedDisplayName = Translatable{Key: "ProfileRoleUnvalidatedDisplayName"}
+	TranslatableProfileRoleStandardDisplayName    = Translatable{Key: "ProfileRoleStandardDisplayName"}
+	TranslatableProfileRoleStaffDisplayName       = Translatable{Key: "ProfileRoleStaffDisplayName"}
+	TranslatableUnableToSetProfileRole            = Translatable{Key: "UnableToSetProfileRole"}
 )
 
 // MARK: - Errors
 var (
 	ErrorProfileNotFound       = ErrorDescription{HttpCode: http.StatusNotFound, Code: TranslatableProfileNotFound}
 	ErrorUnableToCreateProfile = ErrorDescription{HttpCode: http.StatusInternalServerError, Code: TranslatableUnableToCreateProfile}
+	ErrUnableToSetProfileRole  = ErrorDescription{HttpCode: http.StatusInternalServerError, Code: TranslatableUnableToSetProfileRole}
 )
 
 // MARK: - Logs
 var (
 	LogScopeProfile     = LogScope{Identifier: "profile"}
 	LogFieldProfileID   = LogField{Scope: LogScopeProfile, Identifier: "id"}
+	LogFieldProfileRole = LogField{Scope: LogScopeProfile, Identifier: "role"}
 	LogFieldProfileMail = LogField{Scope: LogScopeProfile, Identifier: "mail"}
 	LogFieldProfileName = LogField{Scope: LogScopeProfile, Identifier: "name"}
 )
@@ -49,4 +56,57 @@ var (
 
 func (id ProfileID) String() string {
 	return string(id)
+}
+
+// MARK: - Roles
+
+var RoleScopeProfile = RoleScope{
+	Identifier:  "profile",
+	DisplayName: "Profile",
+}
+
+// RoleProfileUnvalidated is the role that is assigned if a profile is not validated yet.
+var RoleProfileUnvalidated = Role{
+	Scope: RoleScopeProfile,
+
+	Name:        "unvalidated",
+	DisplayName: TranslatableProfileRoleUnvalidatedDisplayName,
+
+	Permissions: []Permission{},
+}
+
+var RoleProfileStandard = Role{
+	Scope: RoleScopeProfile,
+
+	Name:        "standard",
+	DisplayName: TranslatableProfileRoleStandardDisplayName,
+	Inherit: []Role{
+		RoleProfileUnvalidated,
+	},
+	Permissions: []Permission{
+		PermissionGlobalOrganizationCreation,
+	},
+}
+
+// RoleProfileStaff is basically a "root" role that's used to define the permissions of an internal staff member
+// it might also be used for internal scripts (tbd). Name makes it so it's not to be confused with "admin" or "owner" of other entities
+// if you are in production and have this role, you should be able to do everything (with great power comes great responsibility).
+var RoleProfileStaff = Role{
+	Scope: RoleScopeProfile,
+
+	Name:        "staff",
+	DisplayName: TranslatableProfileRoleStaffDisplayName,
+	Inherit: []Role{
+		RoleProfileStandard,
+
+		// those roles should not be inherited by any non-staff profile roles, they give owner power to everything
+		RoleOrganizationOwner,
+	},
+	Permissions: []Permission{},
+}
+
+var ProfileRoles = []Role{
+	RoleProfileUnvalidated,
+	RoleProfileStandard,
+	RoleProfileStaff,
 }

@@ -10,15 +10,14 @@ type TransactionRequest interface {
 }
 
 func (self UCs) StartRequest() Usecases {
-	usecases := NewUsecases(self.i.Cluster, self.i.Localize, self.i.Validator, self.i.Trace, self.i.Persistence.Begin())
+	usecases := NewUsecases(self.i.Cluster, self.i.Mailer, self.i.Localize, self.i.Validator, self.i.Trace, self.i.Persistence.Begin())
 
 	// This helps to prevent the transaction from being open forever and then hanging the database.
 	// TODO: Change this to an environment variable.
-	usecases.requestTimer = time.NewTimer(2 * time.Second)
+	usecases.requestTimer = time.NewTimer(10 * time.Second)
 
 	go func() {
 		<-usecases.requestTimer.C
-		// self.i.Log.Log(domain.LogLevelError).Msg("Transaction request timed out. Forcing rollback.")
 		usecases.EndRequest(false)
 	}()
 

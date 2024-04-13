@@ -13,12 +13,13 @@ type UCs struct {
 	requestTimer *time.Timer
 }
 
-func NewUsecases(c interactor.ClusterAdapter, i18n interactor.Localize, validator interactor.Validator, audit interactor.Audit, per persistenceInteractor.Persistence) *UCs {
+func NewUsecases(c interactor.ClusterAdapter, mailer interactor.Mailer, i18n interactor.Localize, validator interactor.Validator, audit interactor.Audit, per persistenceInteractor.Persistence) *UCs {
 	ucs := &UCs{
 		i: &interactor.Interactor{Cluster: c,
 			Localize:  i18n,
 			Validator: validator,
 			Trace:     audit,
+			Mailer:    mailer,
 
 			Persistence: per,
 		},

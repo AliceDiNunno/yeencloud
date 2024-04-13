@@ -13,7 +13,7 @@ func (a *Audit) NewTrace(trigger string, data map[string]string) domain.AuditTra
 		Trigger:     trigger,
 		Content:     nil,
 		TriggerData: data,
-		Frame:       a.getFrame(),
+		Frame:       a.getFrame(2),
 	}
 
 	a.Log(trace.ID, NoStep).

@@ -8,6 +8,7 @@ import (
 	"github.com/AliceDiNunno/yeencloud/src/adapters/log"
 	"github.com/AliceDiNunno/yeencloud/src/adapters/log/reporting/rollbar"
 	"github.com/AliceDiNunno/yeencloud/src/adapters/log/terminal/zerolog"
+	"github.com/AliceDiNunno/yeencloud/src/adapters/mail/gomail"
 	"github.com/AliceDiNunno/yeencloud/src/adapters/persistence/database/postgres"
 	"github.com/AliceDiNunno/yeencloud/src/adapters/validator"
 	"github.com/AliceDiNunno/yeencloud/src/core/domain"
@@ -17,6 +18,7 @@ import (
 func MainBackend(bundle *ApplicationBundle) error {
 	httpConfig := bundle.Config.GetHTTPConfig()
 	databaseConfig := bundle.Config.GetDatabaseConfig()
+	mailConfig := bundle.Config.GetMailConfig()
 	version := bundle.Config.GetVersionConfig()
 	rollbarConfig := bundle.Config.GetRollbarConfig()
 	runContext := bundle.Config.GetRunContextConfig()
@@ -26,6 +28,7 @@ func MainBackend(bundle *ApplicationBundle) error {
 
 	validator := validator.NewValidator()
 	logger := log.Logger()
+	mailer := gomail.NewMailer(mailConfig)
 
 	zlogmiddle := zerolog.NewZeroLogMiddleware()
 	rollbarmiddle := rollbar.NewRollbarMiddleware(rollbarConfig, runContext, version)
@@ -39,6 +42,7 @@ func MainBackend(bundle *ApplicationBundle) error {
 		WithField(domain.LogFieldConfigHTTP, httpConfig).
 		WithField(domain.LogFieldConfigRunContext, runContext).
 		WithField(domain.LogFieldConfigLocalization, localizationConfig).
+		WithField(domain.LogFieldConfigMail, mailConfig).
 		Msg("Starting backend")
 
 	localization := localization2.NewLocalize(logger, localizationConfig, "./src/locale")
@@ -60,9 +64,11 @@ func MainBackend(bundle *ApplicationBundle) error {
 	// #YC-13 TODO: pass the kubernetes config to the k8s adapter
 	cluster := k8s.NewCluster()
 
-	auditer := audit.NewAuditer(logger, nil)
+	auditer := audit.NewAuditer(logger, func(json []byte) {
+		println(string(json))
+	})
 
-	ucs := usecases.NewUsecases(cluster, localization, validator, auditer, database)
+	ucs := usecases.NewUsecases(cluster, mailer, localization, validator, auditer, database)
 
 	http := gin.NewServiceHttpServer(ucs, httpConfig, logger, version, localization, validator, auditer)
 

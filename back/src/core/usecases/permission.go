@@ -1,6 +1,9 @@
 package usecases
 
-import "github.com/AliceDiNunno/yeencloud/src/core/domain"
+import (
+	"github.com/AliceDiNunno/yeencloud/src/adapters/audit"
+	"github.com/AliceDiNunno/yeencloud/src/core/domain"
+)
 
 func (self UCs) roleHasPermission(role domain.Role, permission domain.Permission) bool {
 	for _, p := range role.Permissions {
@@ -13,7 +16,7 @@ func (self UCs) roleHasPermission(role domain.Role, permission domain.Permission
 }
 
 func (self UCs) userHasPermission(auditID domain.AuditTraceID, profileID domain.ProfileID, permission domain.Permission) bool {
-	auditStepID := self.i.Trace.AddStep(auditID, profileID, permission)
+	auditStepID := self.i.Trace.AddStep(auditID, audit.DefaultSkip, profileID, permission)
 
 	profile, err := self.i.Persistence.FindProfileByID(profileID)
 	if err != nil {
@@ -34,7 +37,7 @@ func (self UCs) userHasPermission(auditID domain.AuditTraceID, profileID domain.
 }
 
 func (self UCs) checkPermissions(auditID domain.AuditTraceID, profileID domain.ProfileID, profileToObjectRelationRole *string, permission domain.Permission) *domain.ErrorDescription {
-	auditStepID := self.i.Trace.AddStep(auditID, profileID, profileToObjectRelationRole, permission)
+	auditStepID := self.i.Trace.AddStep(auditID, audit.DefaultSkip, profileID, profileToObjectRelationRole, permission)
 
 	if self.userHasPermission(auditID, profileID, permission) {
 		self.i.Trace.EndStep(auditID, auditStepID)

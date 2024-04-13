@@ -67,7 +67,7 @@ var RoleInvalidRole = Role{
 func AllRoles() []Role {
 	var roles []Role
 
-	roles = append(roles, UserRoles...)
+	roles = append(roles, ProfileRoles...)
 	roles = append(roles, OrganizationRoles...)
 
 	return roles

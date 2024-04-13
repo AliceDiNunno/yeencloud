@@ -7,4 +7,6 @@ type ProfileRepository interface {
 
 	FindProfileByID(profileID domain.ProfileID) (domain.Profile, error)
 	FindProfileByUserID(userID domain.UserID) (domain.Profile, error)
+
+	SetProfileRole(profileID domain.ProfileID, role domain.Role) error
 }

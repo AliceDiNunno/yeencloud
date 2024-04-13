@@ -11,6 +11,7 @@ type Interactor struct {
 	Validator Validator
 	Localize  Localize
 	Trace     Audit
+	Mailer    Mailer
 
 	Persistence persistence.Persistence
 }

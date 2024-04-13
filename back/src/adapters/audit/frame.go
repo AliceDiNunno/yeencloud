@@ -5,8 +5,8 @@ import (
 	"strings"
 )
 
-func (a *Audit) getFrame() runtime.Frame {
-	pc, file, line, ok := runtime.Caller(2)
+func (a *Audit) getFrame(skip int) runtime.Frame {
+	pc, file, line, ok := runtime.Caller(skip)
 
 	functionName := "<unknown>"
 	fn := runtime.FuncForPC(pc)

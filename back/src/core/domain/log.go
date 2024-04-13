@@ -20,6 +20,7 @@ var (
 	LogFieldConfigHTTP         = LogField{Scope: LogFieldConfig, Identifier: "http"}
 	LogFieldConfigRunContext   = LogField{Scope: LogFieldConfig, Identifier: "run_context"}
 	LogFieldConfigLocalization = LogField{Scope: LogFieldConfig, Identifier: "localization"}
+	LogFieldConfigMail         = LogField{Scope: LogFieldConfig, Identifier: "mail"}
 
 	// MARK: - Time
 

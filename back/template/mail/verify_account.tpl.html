@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Title</title>
+</head>
+<style>
+    body {
+        position: fixed;
+        background-color: #f7f7f7;
+        left: 40%;
+        min-width: 30%;
+
+        font-family: Roboto, sans-serif;
+    }
+    .content {
+        border: 1px solid #c8c8c8;
+        background-color: #ffffff;
+        border-radius: 3px;
+
+        box-shadow: 0 0 15px rgba(100, 100, 100, 0.4);
+
+        padding: 10px;
+
+    }
+</style>
+<body>
+    <div class="content">
+        <h3>Welcome, <b>{{ .Name }}</b>!</h3><br />
+        <br /> Thanks for your registration.<br />
+        <br /> To verify your account, please connect with your credentials and enter the following code:
+        <br /> <center><b>{{ .Code }}</b></center>
+        <br /> Be quick, this code will expire in 1 hour.
+        <br /> <br />
+        <br /> This request was made from:
+        <br /> IP: {{ .IP }}
+        <br /> Browser: {{ .Browser }}
+        <br /> Location: {{ .Location }}
+
+        <br /> If you didn't make this request, please <a href="mailto:{{ .ContactEmail }}"> send us an email </a>
+
+    </div>
+
+</body>
+</html>

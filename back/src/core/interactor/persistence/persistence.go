@@ -7,6 +7,7 @@ type Persistence interface {
 	SessionRepository
 	ProfileRepository
 	OrganizationRepository
+	TokenRepository
 
 	// Linking models
 	OrganizationProfileRepository

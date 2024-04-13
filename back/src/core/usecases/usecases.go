@@ -6,5 +6,7 @@ type Usecases interface {
 	SessionUsecases
 	OrganizationUsecases
 	OrganizationMemberUsecases
+	TokenUsecases
+
 	TransactionRequest
 }
