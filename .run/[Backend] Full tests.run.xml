@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="[Backend] Full tests" type="GoTestRunConfiguration" factoryName="Go Test">
     <module name="YeeenCloud" />
-    <working_directory value="$PROJECT_DIR$/back" />
+    <working_directory value="$PROJECT_DIR$" />
     <useCustomBuildTags value="true" />
     <parameters value="-cover" />
     <EXTENSION ID="net.ashald.envfile">
@@ -15,8 +15,8 @@
       </ENTRIES>
     </EXTENSION>
     <kind value="DIRECTORY" />
-    <package value="back/src/adapters/persistence/database/postgres" />
-    <directory value="$PROJECT_DIR$/back" />
+    <package value="src/adapters/persistence/database/postgres" />
+    <directory value="$PROJECT_DIR$" />
     <filePath value="$PROJECT_DIR$" />
     <framework value="gotest" />
     <method v="2" />

@@ -1,0 +1,76 @@
+package apps
+
+import (
+	"github.com/AliceDiNunno/yeencloud/internal/adapters/audit"
+	"github.com/AliceDiNunno/yeencloud/internal/adapters/cluster/k8s"
+	"github.com/AliceDiNunno/yeencloud/internal/adapters/http/gin"
+	localization2 "github.com/AliceDiNunno/yeencloud/internal/adapters/localization/i18n"
+	"github.com/AliceDiNunno/yeencloud/internal/adapters/log"
+	"github.com/AliceDiNunno/yeencloud/internal/adapters/log/reporting/rollbar"
+	"github.com/AliceDiNunno/yeencloud/internal/adapters/log/terminal/zerolog"
+	"github.com/AliceDiNunno/yeencloud/internal/adapters/mail/gomail"
+	"github.com/AliceDiNunno/yeencloud/internal/adapters/persistence/postgres"
+	"github.com/AliceDiNunno/yeencloud/internal/adapters/validator"
+	"github.com/AliceDiNunno/yeencloud/internal/core/domain"
+	"github.com/AliceDiNunno/yeencloud/internal/core/usecases"
+)
+
+func MainBackend(bundle *ApplicationBundle) error {
+	httpConfig := bundle.Config.GetHTTPConfig()
+	databaseConfig := bundle.Config.GetDatabaseConfig()
+	mailConfig := bundle.Config.GetMailConfig()
+	version := bundle.Config.GetVersionConfig()
+	rollbarConfig := bundle.Config.GetRollbarConfig()
+	runContext := bundle.Config.GetRunContextConfig()
+	localizationConfig := bundle.Config.GetLocalizationConfig()
+
+	_ = bundle.Config.GetKubernetesConfig()
+
+	validator := validator.NewValidator()
+	logger := log.Logger()
+	mailer := gomail.NewMailer(mailConfig)
+
+	zlogmiddle := zerolog.NewZeroLogMiddleware()
+	rollbarmiddle := rollbar.NewRollbarMiddleware(rollbarConfig, runContext, version)
+
+	logger.AddMiddleware(zlogmiddle)
+	logger.AddMiddleware(rollbarmiddle)
+
+	logger.Log(domain.LogLevelDebug).
+		WithField(domain.LogFieldConfigVersion, version).
+		WithField(domain.LogFieldConfigDatabase, databaseConfig).
+		WithField(domain.LogFieldConfigHTTP, httpConfig).
+		WithField(domain.LogFieldConfigRunContext, runContext).
+		WithField(domain.LogFieldConfigLocalization, localizationConfig).
+		WithField(domain.LogFieldConfigMail, mailConfig).
+		Msg("Starting backend")
+
+	localization := localization2.NewLocalize(logger, localizationConfig, "./localization")
+
+	// #YC-12 TODO: make database dependent on config in order to have a local database for tests
+	logger.Log(domain.LogLevelInfo).Msg("Connecting to database")
+
+	database, err := postgres.StartGormDatabase(logger, databaseConfig)
+	if err != nil {
+		logger.Log(domain.LogLevelError).WithField(domain.LogFieldError, err).Msg("Error connecting to database")
+		return err
+	}
+	err = database.Migrate()
+	if err != nil {
+		logger.Log(domain.LogLevelError).WithField(domain.LogFieldError, err).Msg("Error migrating database")
+		return err
+	}
+
+	// #YC-13 TODO: pass the kubernetes config to the k8s adapter
+	cluster := k8s.NewCluster()
+
+	auditer := audit.NewAuditer(logger, func(json []byte) {
+		println(string(json))
+	})
+
+	ucs := usecases.NewUsecases(cluster, mailer, localization, validator, auditer, database)
+
+	http := gin.NewServiceHttpServer(ucs, httpConfig, logger, version, localization, validator, auditer)
+
+	return http.Listen()
+}

@@ -1,0 +1,69 @@
+LanguageDisplayName = "Français"
+LanguageFlag = "🇫🇷"
+#
+ShortLanguageCode = "fr"
+
+MethodNotAllowed = "Méthode non autorisée"
+PageNotFound = "Page introuvable"
+BadRequest = "Requête invalide ou incomplète"
+InternalError = "Erreur interne du serveur"
+
+SessionNotFound = "Session introuvable"
+UnableToGetUserOrganizations = "Impossible de récupérer les organisations de l'utilisateur"
+AuthenticationTokenMissing = "Le jeton d'authentification est manquant"
+
+#Role
+RoleInvalidDisplayName = "rôle invalide"
+
+#Permission
+PermissionRequired = "Permission necessaire ({{.PermissionIdentifier}}) pour effectuer cette action"
+
+#User
+UserNotFound="Utilisateur introuvable"
+UnableToCreateUser = "Impossible de créer l'utilisateur"
+UnableToHashPassword = "Impossible de sécuriser le mot de passe"
+
+#Profile
+ProfileNotFound = "Profile introuvable"
+UnableToCreateProfile = "Impossible de créer le profile"
+ProfileRoleUnvalidatedDisplayName = "Non validé"
+ProfileRoleStandardDisplayName = "Standard"
+ProfileRoleUserDisplayName = "Utilisateur"
+ProfileRoleAdminDisplayName = "Administrateur"
+ProfileRoleStaffDisplayName = "Staff"
+UnableToSetProfileRole = "Impossible de définir le rôle du profile"
+
+#Organization
+OrganizationNotFound = "Organisation introuvable"
+DefaultOrganizationDescription = "Organisation de {{.UserFullName}}"
+UnableToDeleteOrganization = "Impossible de supprimer l'organisation"
+UnableToCreateOrganization = "Impossible de créer l'organisation"
+UnableToGetOrganizationMembers = "Impossible de récupérer les membres de l'organisation"
+UnableToUpdateOrganization = "Impossible de mettre à jour l'organisation"
+UnableToLinkUserOrganization = "Impossible de lier l'utilisateur à l'organisation"
+UnableToRemoveOrganizationMember = "Impossible de supprimer le membre de l'organisation"
+UnableToRemoveOrganizationMembers = "Impossible de supprimer les membres de l'organisation"
+OrganizationMemberRoleDisplayName = "Membre"
+OrganizationAdminRoleDisplayName = "Administrateur"
+OrganizationOwnerRoleDisplayName = "Propriétaire"
+UnableToGetOrganizationRoles = "Impossible de récupérer les rôles de l'organisation"
+UnableToGetOrganizationRole = "Impossible de récupérer le rôle de l'organisation"
+NotAuthorizedToModifyOrganization = "Vous n'êtes pas autorisé à modifier cette organisation"
+
+#Validation
+ValidationFieldIsRequired = "Ce champ est requis"
+ValidationMailIsInvalid = "L'adresse mail est invalide"
+ValidationUserAlreadyExists = "Cet utilisateur existe déjà"
+ValidationPasswordMustBeBetween8And64Characters = "Le mot de passe doit contenir entre 8 et 64 caractères"
+ValidationPasswordMustContainAtLeastANumber = "Le mot de passe doit contenir au moins un chiffre"
+ValidationPasswordMustContainAtLeastASpecialCharacter = "Le mot de passe doit contenir au moins un caractère spécial"
+ValidationPasswordMustContainAtLeastAnUppercaseLetter = "Le mot de passe doit contenir au moins une lettre majuscule"
+ValidationPasswordMustContainAtLeastALowercaseLetter = "Le mot de passe doit contenir au moins une lettre minuscule"
+
+#Mail
+UnableToSendVerificationMail = "Impossible d'envoyer le mail de vérification"
+
+#Token
+UnableToGenerateToken = "Impossible de générer le jeton"
+TokenNotFound = "Jeton introuvable"
+FailedToInvalidateToken = "Impossible d'invalider le jeton"

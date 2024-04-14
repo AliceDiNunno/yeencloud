@@ -6,10 +6,8 @@ if ! command -v golangci-lint &>/dev/null; then
   echo "Linter golangci-lint not found in PATH"
   exit 1
 else
-  cd back
   echo "Running Go linter"
   golangci-lint run
-  cd ..
   status=$?
   if test $status -eq 0; then
     echo "Golang lint success"

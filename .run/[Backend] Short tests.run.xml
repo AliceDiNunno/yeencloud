@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="[Backend] Short tests" type="GoTestRunConfiguration" factoryName="Go Test">
     <module name="YeeenCloud" />
-    <working_directory value="$PROJECT_DIR$/back" />
+    <working_directory value="$PROJECT_DIR$" />
     <useCustomBuildTags value="true" />
     <parameters value="-short" />
     <EXTENSION ID="net.ashald.envfile">
@@ -16,7 +16,7 @@
     </EXTENSION>
     <kind value="DIRECTORY" />
     <package value="back" />
-    <directory value="$PROJECT_DIR$/back" />
+    <directory value="$PROJECT_DIR$" />
     <filePath value="$PROJECT_DIR$" />
     <framework value="gotest" />
     <method v="2" />

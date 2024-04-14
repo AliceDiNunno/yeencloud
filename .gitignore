@@ -1,4 +1,4 @@
 .idea
-back/.env
+.env
 front/.env
 front/node_modules
