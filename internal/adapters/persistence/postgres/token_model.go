@@ -27,7 +27,7 @@ func (db *Database) CreateToken(domainToken domain.Token) (domain.Token, error) 
 	result := db.engine.Create(&token)
 
 	if result.Error != nil {
-		return domain.Token{}, result.Error
+		return domain.Token{}, sqlerr(result.Error)
 	}
 
 	return tokenToDomain(token), nil
@@ -39,7 +39,7 @@ func (db *Database) FindToken(mail string, token string, tokenType domain.TokenT
 	result := db.engine.Preload("User").Joins("LEFT JOIN users on users.id = user_id").Where("token = ? AND type = ? AND users.email = ?", token, tokenType, mail).First(&tokenModel)
 
 	if result.Error != nil {
-		return domain.Token{}, result.Error
+		return domain.Token{}, sqlerr(result.Error)
 	}
 
 	return tokenToDomain(tokenModel), nil
@@ -49,7 +49,7 @@ func (db *Database) InvalidateToken(token domain.TokenID) error {
 	result := db.engine.Where("id = ?", token).Delete(&Token{})
 
 	if result.Error != nil {
-		return result.Error
+		return sqlerr(result.Error)
 	}
 
 	return nil

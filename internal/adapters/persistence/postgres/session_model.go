@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"errors"
 	"time"
 
 	"github.com/AliceDiNunno/yeencloud/internal/core/domain"
@@ -24,7 +25,7 @@ func (db *Database) CreateSession(session domain.Session) (domain.Session, error
 	result := db.engine.Create(&sessionToCreate)
 
 	if result.Error != nil {
-		return domain.Session{}, result.Error
+		return domain.Session{}, sqlerr(result.Error)
 	}
 
 	return sessionToDomain(sessionToCreate), nil
@@ -37,7 +38,10 @@ func (db *Database) FindSessionByToken(token string) (domain.Session, error) {
 	result := db.engine.Where("token = ? AND expire_at > ?", token, currentTime).First(&session)
 
 	if result.Error != nil {
-		return domain.Session{}, result.Error
+		return domain.Session{}, errors.Join(&domain.ResourceNotFoundError{
+			Id:   token,
+			Type: "Session",
+		}, sqlerr(result.Error))
 	}
 
 	return sessionToDomain(session), nil

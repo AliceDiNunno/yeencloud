@@ -8,6 +8,10 @@ type Language struct {
 	DisplayName string `json:"displayName"`
 }
 
+type TranslatableError interface {
+	RawKey() Translatable
+}
+
 type TranslatableArgument struct {
 	Key string `json:"key"`
 }

@@ -36,7 +36,7 @@ func (self UCs) userHasPermission(auditID domain.AuditTraceID, profileID domain.
 	return false
 }
 
-func (self UCs) checkPermissions(auditID domain.AuditTraceID, profileID domain.ProfileID, profileToObjectRelationRole *string, permission domain.Permission) *domain.ErrorDescription {
+func (self UCs) checkPermissions(auditID domain.AuditTraceID, profileID domain.ProfileID, profileToObjectRelationRole *string, permission domain.Permission) error {
 	auditStepID := self.i.Trace.AddStep(auditID, audit.DefaultSkip, profileID, profileToObjectRelationRole, permission)
 
 	if self.userHasPermission(auditID, profileID, permission) {

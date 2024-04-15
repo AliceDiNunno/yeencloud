@@ -26,7 +26,7 @@ func (db *Database) LinkProfileToOrganization(profileID domain.ProfileID, organi
 
 	result := db.engine.Create(&NewLink)
 
-	return result.Error
+	return sqlerr(result.Error)
 }
 
 func (db *Database) ListProfileOrganizationsByProfileID(profileID domain.ProfileID) ([]domain.OrganizationMember, error) {
@@ -35,7 +35,7 @@ func (db *Database) ListProfileOrganizationsByProfileID(profileID domain.Profile
 	result := db.engine.Preload("Profile").Preload("Organization").Where("profile_id = ?", profileID).Find(&orgs)
 
 	if result.Error != nil {
-		return nil, result.Error
+		return nil, sqlerr(result.Error)
 	}
 
 	return organizationMembersToDomain(orgs), nil
@@ -47,7 +47,7 @@ func (db *Database) ListOrganizationMembers(orgID domain.OrganizationID) ([]doma
 	result := db.engine.Where("organization_id = ?", orgID).Find(&users)
 
 	if result.Error != nil {
-		return nil, result.Error
+		return nil, sqlerr(result.Error)
 	}
 
 	return organizationMembersToDomain(users), nil
@@ -59,7 +59,7 @@ func (db *Database) GetOrganizationByIDAndProfileID(profileID domain.ProfileID, 
 	result := db.engine.Preload("Organization").Where("profile_id = ? AND organization_id = ?", profileID, organizationID).First(&org)
 
 	if result.Error != nil {
-		return domain.Organization{}, result.Error
+		return domain.Organization{}, sqlerr(result.Error)
 	}
 
 	return organizationToDomain(org.Organization), nil
@@ -71,7 +71,7 @@ func (db *Database) GetOrganizationMemberRole(profileID domain.ProfileID, organi
 	result := db.engine.Where("profile_id = ? AND organization_id = ?", profileID.String(), organizationID.String()).First(&organizationProfile)
 
 	if result.Error != nil {
-		return "", result.Error
+		return "", sqlerr(result.Error)
 	}
 
 	return organizationProfile.UserRole, nil
@@ -80,7 +80,7 @@ func (db *Database) GetOrganizationMemberRole(profileID domain.ProfileID, organi
 func (db *Database) RemoveAllMembersFromOrganization(organizationID domain.OrganizationID) error {
 	result := db.engine.Where("organization_id = ?", organizationID).Delete(&OrganizationProfile{})
 
-	return result.Error
+	return sqlerr(result.Error)
 }
 
 func organizationMembersToDomain(organizationProfiles []OrganizationProfile) []domain.OrganizationMember {

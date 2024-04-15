@@ -10,12 +10,12 @@ import (
 )
 
 type SessionUsecases interface {
-	CreateSession(auditID domain.AuditTraceID, user domain.NewSession) (domain.Session, *domain.ErrorDescription)
+	CreateSession(auditID domain.AuditTraceID, user domain.NewSession) (domain.Session, error)
 
-	GetSessionByToken(auditID domain.AuditTraceID, token string) (domain.Session, *domain.ErrorDescription)
+	GetSessionByToken(auditID domain.AuditTraceID, token string) (domain.Session, error)
 }
 
-func (self UCs) createSession(auditID domain.AuditTraceID, origin string, us domain.User) (domain.Session, *domain.ErrorDescription) {
+func (self UCs) createSession(auditID domain.AuditTraceID, origin string, us domain.User) (domain.Session, error) {
 	step := self.i.Trace.AddStep(auditID, audit.DefaultSkip)
 
 	sessionToken := uuid.New().String()
@@ -38,7 +38,7 @@ func (self UCs) createSession(auditID domain.AuditTraceID, origin string, us dom
 	return session, nil
 }
 
-func (self UCs) CreateSession(auditID domain.AuditTraceID, newSessionRequest domain.NewSession) (domain.Session, *domain.ErrorDescription) {
+func (self UCs) CreateSession(auditID domain.AuditTraceID, newSessionRequest domain.NewSession) (domain.Session, error) {
 	step := self.i.Trace.AddStep(auditID, audit.DefaultSkip, newSessionRequest.Secure())
 
 	// #YC-3 TODO: implement OTP
@@ -46,13 +46,13 @@ func (self UCs) CreateSession(auditID domain.AuditTraceID, newSessionRequest dom
 
 	if err != nil {
 		self.i.Trace.EndStep(auditID, step)
-		return domain.Session{}, &domain.ErrorUserNotFound
+		return domain.Session{}, err
 	}
 
 	if bcrypt.CompareHashAndPassword([]byte(us.Password), []byte(newSessionRequest.Password)) != nil {
 		self.i.Trace.Log(auditID, step).WithLevel(domain.LogLevelWarn).WithField(domain.LogFieldSessionRequestMail, newSessionRequest.Email).Msg("User tried to login with wrong password")
 		self.i.Trace.EndStep(auditID, step)
-		return domain.Session{}, &domain.ErrorUserNotFound
+		return domain.Session{}, err
 	}
 
 	session, derr := self.createSession(auditID, newSessionRequest.Origin, us)
@@ -65,14 +65,14 @@ func (self UCs) CreateSession(auditID domain.AuditTraceID, newSessionRequest dom
 	return session, nil
 }
 
-func (self UCs) GetSessionByToken(auditID domain.AuditTraceID, token string) (domain.Session, *domain.ErrorDescription) {
+func (self UCs) GetSessionByToken(auditID domain.AuditTraceID, token string) (domain.Session, error) {
 	step := self.i.Trace.AddStep(auditID, audit.DefaultSkip)
 
 	// #YC-20 TODO: this should check if the user still exists and if the session is still valid
 	session, err := self.i.Persistence.FindSessionByToken(token)
 	if err != nil {
 		self.i.Trace.EndStep(auditID, step)
-		return domain.Session{}, &domain.ErrorSessionNotFound
+		return domain.Session{}, err
 	}
 
 	self.i.Trace.EndStep(auditID, step)

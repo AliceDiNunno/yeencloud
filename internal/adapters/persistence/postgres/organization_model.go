@@ -1,6 +1,8 @@
 package postgres
 
 import (
+	"errors"
+
 	"github.com/AliceDiNunno/yeencloud/internal/core/domain"
 	"gorm.io/gorm"
 )
@@ -22,7 +24,7 @@ func (db *Database) CreateOrganization(organization domain.Organization) (domain
 	result := db.engine.Create(&organizationToCreate)
 
 	if result.Error != nil {
-		return domain.Organization{}, result.Error
+		return domain.Organization{}, sqlerr(result.Error)
 	}
 
 	return organizationToDomain(organizationToCreate), nil
@@ -34,7 +36,10 @@ func (db *Database) FindOrganizationByID(id domain.OrganizationID) (domain.Organ
 	result := db.engine.Where("id = ?", id.String()).First(&org)
 
 	if result.Error != nil {
-		return domain.Organization{}, result.Error
+		return domain.Organization{}, errors.Join(&domain.ResourceNotFoundError{
+			Id:   id.String(),
+			Type: "Organization",
+		}, sqlerr(result.Error))
 	}
 
 	return organizationToDomain(org), nil
@@ -46,7 +51,7 @@ func (db *Database) FindOrganizationBySlug(slug string) (domain.Organization, er
 	result := db.engine.Where("slug = ?", slug).First(&org)
 
 	if result.Error != nil {
-		return domain.Organization{}, result.Error
+		return domain.Organization{}, sqlerr(result.Error)
 	}
 
 	return organizationToDomain(org), nil
@@ -65,7 +70,7 @@ func (db *Database) UpdateOrganization(organization domain.OrganizationID, updat
 func (db *Database) DeleteOrganizationByID(id domain.OrganizationID) error {
 	err := db.engine.Where("id = ?", id.String()).Delete(&Organization{}).Error
 
-	return err
+	return sqlerr(err)
 }
 
 func domainToOrganization(org domain.Organization) Organization {

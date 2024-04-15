@@ -1,7 +1,5 @@
 package domain
 
-import "net/http"
-
 // MARK: - Objects
 
 type ProfileID string
@@ -27,20 +25,9 @@ type UpdateProfile struct {
 
 // MARK: - Translatable
 var (
-	TranslatableProfileNotFound       = Translatable{Key: "ProfileNotFound"}
-	TranslatableUnableToCreateProfile = Translatable{Key: "UnableToCreateProfile"}
-
 	TranslatableProfileRoleUnvalidatedDisplayName = Translatable{Key: "ProfileRoleUnvalidatedDisplayName"}
 	TranslatableProfileRoleStandardDisplayName    = Translatable{Key: "ProfileRoleStandardDisplayName"}
 	TranslatableProfileRoleStaffDisplayName       = Translatable{Key: "ProfileRoleStaffDisplayName"}
-	TranslatableUnableToSetProfileRole            = Translatable{Key: "UnableToSetProfileRole"}
-)
-
-// MARK: - Errors
-var (
-	ErrorProfileNotFound       = ErrorDescription{HttpCode: http.StatusNotFound, Code: TranslatableProfileNotFound}
-	ErrorUnableToCreateProfile = ErrorDescription{HttpCode: http.StatusInternalServerError, Code: TranslatableUnableToCreateProfile}
-	ErrUnableToSetProfileRole  = ErrorDescription{HttpCode: http.StatusInternalServerError, Code: TranslatableUnableToSetProfileRole}
 )
 
 // MARK: - Logs

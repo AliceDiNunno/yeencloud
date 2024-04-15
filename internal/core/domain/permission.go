@@ -1,6 +1,8 @@
 package domain
 
-import "net/http"
+import (
+	"fmt"
+)
 
 // MARK: - Objects
 
@@ -20,10 +22,19 @@ var (
 	TranslatablePermissionRequired = Translatable{Key: "PermissionRequired", Arguments: []TranslatableArgument{TranslatableArgumentPermissionIdentifier}}
 )
 
-// MARK: - Errors
-var (
-	errorPermissionRequired = ErrorDescription{HttpCode: http.StatusForbidden, Code: TranslatablePermissionRequired}
-)
+// MARK: - Resource Not Found
+
+type PermissionRequiredError struct {
+	Permission string
+}
+
+func (e *PermissionRequiredError) Error() string {
+	return fmt.Sprintf("usecases: permission required: '%v' to perform this operation", e.Permission)
+}
+
+func (e *PermissionRequiredError) RawKey() Translatable {
+	return TranslatablePermissionRequired
+}
 
 // MARK: - Functions
 
@@ -40,9 +51,9 @@ func PermissionByIdentifier(id string) *Permission {
 	return nil
 }
 
-func ErrorPermissionRequired(permission Permission) *ErrorDescription {
-	errorPermissionRequired.Arguments = TranslatableArgumentMap{TranslatableArgumentPermissionIdentifier: permission.Identifier()}
-	return &errorPermissionRequired
+func ErrorPermissionRequired(permission Permission) error {
+	err := PermissionRequiredError{Permission: permission.Identifier()}
+	return &err
 }
 
 // MARK: - Permissions

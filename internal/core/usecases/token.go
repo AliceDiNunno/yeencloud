@@ -10,7 +10,7 @@ import (
 )
 
 type TokenUsecases interface {
-	ValidateMail(auditID domain.AuditTraceID, validation domain.ValidateMail) (domain.Session, *domain.ErrorDescription)
+	ValidateMail(auditID domain.AuditTraceID, validation domain.ValidateMail) (domain.Session, error)
 }
 
 func (self UCs) generateToken() string {
@@ -32,31 +32,31 @@ func (self UCs) generateToken() string {
 	return string(b)
 }
 
-func (self UCs) ValidateMail(auditID domain.AuditTraceID, validation domain.ValidateMail) (domain.Session, *domain.ErrorDescription) {
+func (self UCs) ValidateMail(auditID domain.AuditTraceID, validation domain.ValidateMail) (domain.Session, error) {
 	auditStepID := self.i.Trace.AddStep(auditID, audit.DefaultSkip)
 
 	token, err := self.i.Persistence.FindToken(validation.Email, validation.Token, domain.TokenTypeVerifyEmail)
 
 	if err != nil {
-		return domain.Session{}, &domain.ErrorTokenNotFound
+		return domain.Session{}, err
 	}
 
 	err = self.i.Persistence.InvalidateToken(token.ID)
 
 	if err != nil {
-		return domain.Session{}, &domain.ErrorFailedToInvalidateToken
+		return domain.Session{}, err
 	}
 
 	profile, err := self.i.Persistence.FindProfileByUserID(token.User.ID)
 
 	if err != nil {
-		return domain.Session{}, &domain.ErrorProfileNotFound
+		return domain.Session{}, err
 	}
 
-	derr := self.SetProfileRole(auditID, profile.ID, domain.RoleProfileStandard)
+	err = self.SetProfileRole(auditID, profile.ID, domain.RoleProfileStandard)
 
-	if derr != nil {
-		return domain.Session{}, &domain.ErrUnableToSetProfileRole
+	if err != nil {
+		return domain.Session{}, err
 	}
 
 	localizedDescription := self.i.Localize.GetLocalizedText(profile.Language, domain.TranslatableDefaultOrganization, domain.TranslatableArgumentMap{
@@ -68,11 +68,11 @@ func (self UCs) ValidateMail(auditID domain.AuditTraceID, validation domain.Vali
 		Description: localizedDescription,
 	}
 
-	_, derr = self.CreateOrganization(auditID, profile.ID, organizationToCreate)
+	_, err = self.CreateOrganization(auditID, profile.ID, organizationToCreate)
 
-	if derr != nil {
+	if err != nil {
 		self.i.Trace.EndStep(auditID, auditStepID)
-		return domain.Session{}, derr
+		return domain.Session{}, err
 	}
 
 	session, derr := self.createSession(auditID, "", token.User)

@@ -7,16 +7,16 @@ import (
 )
 
 type OrganizationUsecases interface {
-	CreateOrganization(auditID domain.AuditTraceID, profileID domain.ProfileID, organization domain.NewOrganization) (domain.Organization, *domain.ErrorDescription)
+	CreateOrganization(auditID domain.AuditTraceID, profileID domain.ProfileID, organization domain.NewOrganization) (domain.Organization, error)
 
-	GetOrganizationByID(auditID domain.AuditTraceID, profileID domain.ProfileID, organizationID domain.OrganizationID) (domain.Organization, *domain.ErrorDescription)
+	GetOrganizationByID(auditID domain.AuditTraceID, profileID domain.ProfileID, organizationID domain.OrganizationID) (domain.Organization, error)
 
-	UpdateOrganization(auditID domain.AuditTraceID, profileID domain.ProfileID, organizationID domain.OrganizationID, update domain.UpdateOrganization) (domain.Organization, *domain.ErrorDescription)
+	UpdateOrganization(auditID domain.AuditTraceID, profileID domain.ProfileID, organizationID domain.OrganizationID, update domain.UpdateOrganization) (domain.Organization, error)
 
-	DeleteOrganization(auditID domain.AuditTraceID, profileID domain.ProfileID, organizationID domain.OrganizationID) *domain.ErrorDescription
+	DeleteOrganization(auditID domain.AuditTraceID, profileID domain.ProfileID, organizationID domain.OrganizationID) error
 }
 
-func (self UCs) CreateOrganization(auditID domain.AuditTraceID, profileID domain.ProfileID, newOrganization domain.NewOrganization) (domain.Organization, *domain.ErrorDescription) {
+func (self UCs) CreateOrganization(auditID domain.AuditTraceID, profileID domain.ProfileID, newOrganization domain.NewOrganization) (domain.Organization, error) {
 	auditStepID := self.i.Trace.AddStep(auditID, audit.DefaultSkip, newOrganization)
 
 	if err := self.checkPermissions(auditID, profileID, nil, domain.PermissionGlobalOrganizationCreation); err != nil {
@@ -39,7 +39,7 @@ func (self UCs) CreateOrganization(auditID domain.AuditTraceID, profileID domain
 			domain.LogFieldUserID: profileID.String()}).
 			Msg("Error creating organization for user")
 		self.i.Trace.EndStep(auditID, auditStepID)
-		return domain.Organization{}, &domain.ErrorUnableToCreateOrganization
+		return domain.Organization{}, err
 	}
 
 	err = self.i.Persistence.LinkProfileToOrganization(profileID, organization.ID, domain.RoleOrganizationOwner)
@@ -50,21 +50,21 @@ func (self UCs) CreateOrganization(auditID domain.AuditTraceID, profileID domain
 			domain.LogFieldUserID: profileID.String()}).
 			Msg("Error linking user to organization")
 		self.i.Trace.EndStep(auditID, auditStepID)
-		return domain.Organization{}, &domain.ErrorUnableToLinkUserOrganization
+		return domain.Organization{}, err
 	}
 
 	self.i.Trace.EndStep(auditID, auditStepID)
 	return organization, nil
 }
 
-func (self UCs) GetOrganizationByID(auditID domain.AuditTraceID, profileID domain.ProfileID, organizationID domain.OrganizationID) (domain.Organization, *domain.ErrorDescription) {
+func (self UCs) GetOrganizationByID(auditID domain.AuditTraceID, profileID domain.ProfileID, organizationID domain.OrganizationID) (domain.Organization, error) {
 	auditStepID := self.i.Trace.AddStep(auditID, audit.DefaultSkip, profileID, organizationID)
 
 	role, err := self.i.Persistence.GetOrganizationMemberRole(profileID, organizationID)
 
 	if err != nil {
 		self.i.Trace.EndStep(auditID, auditStepID)
-		return domain.Organization{}, &domain.ErrorOrganizationNotFound
+		return domain.Organization{}, err
 	}
 
 	if err := self.checkPermissions(auditID, profileID, &role, domain.PermissionOrganizationRead); err != nil {
@@ -76,21 +76,21 @@ func (self UCs) GetOrganizationByID(auditID domain.AuditTraceID, profileID domai
 
 	if err != nil {
 		self.i.Trace.EndStep(auditID, auditStepID)
-		return domain.Organization{}, &domain.ErrorOrganizationNotFound
+		return domain.Organization{}, err
 	}
 
 	self.i.Trace.EndStep(auditID, auditStepID)
 	return organization, nil
 }
 
-func (self UCs) UpdateOrganization(auditID domain.AuditTraceID, profileID domain.ProfileID, organizationID domain.OrganizationID, update domain.UpdateOrganization) (domain.Organization, *domain.ErrorDescription) {
+func (self UCs) UpdateOrganization(auditID domain.AuditTraceID, profileID domain.ProfileID, organizationID domain.OrganizationID, update domain.UpdateOrganization) (domain.Organization, error) {
 	auditStepID := self.i.Trace.AddStep(auditID, audit.DefaultSkip, profileID, organizationID, update)
 
 	role, err := self.i.Persistence.GetOrganizationMemberRole(profileID, organizationID)
 
 	if err != nil {
 		self.i.Trace.EndStep(auditID, auditStepID)
-		return domain.Organization{}, &domain.ErrorOrganizationNotFound
+		return domain.Organization{}, err
 	}
 
 	if err := self.checkPermissions(auditID, profileID, &role, domain.PermissionOrganizationMetaUpdate); err != nil {
@@ -101,7 +101,7 @@ func (self UCs) UpdateOrganization(auditID domain.AuditTraceID, profileID domain
 	organization, err := self.i.Persistence.GetOrganizationByIDAndProfileID(profileID, organizationID)
 
 	if err != nil {
-		return domain.Organization{}, &domain.ErrorOrganizationNotFound
+		return domain.Organization{}, err
 	}
 
 	if update.Name == "" {
@@ -116,38 +116,38 @@ func (self UCs) UpdateOrganization(auditID domain.AuditTraceID, profileID domain
 
 	if err != nil {
 		self.i.Trace.EndStep(auditID, auditStepID)
-		return domain.Organization{}, &domain.ErrorUnableToUpdateOrganization
+		return domain.Organization{}, err
 	}
 
 	self.i.Trace.EndStep(auditID, auditStepID)
 	return organization, nil
 }
 
-func (self UCs) DeleteOrganization(auditID domain.AuditTraceID, profileID domain.ProfileID, organizationID domain.OrganizationID) *domain.ErrorDescription {
+func (self UCs) DeleteOrganization(auditID domain.AuditTraceID, profileID domain.ProfileID, organizationID domain.OrganizationID) error {
 	auditStepID := self.i.Trace.AddStep(auditID, audit.DefaultSkip, profileID, organizationID)
 
 	role, err := self.i.Persistence.GetOrganizationMemberRole(profileID, organizationID)
 
 	if err != nil {
 		self.i.Trace.EndStep(auditID, auditStepID)
-		return &domain.ErrorOrganizationNotFound
+		return err
 	}
 
-	if err := self.checkPermissions(auditID, profileID, &role, domain.PermissionOrganizationMetaUpdate); err != nil {
+	if err = self.checkPermissions(auditID, profileID, &role, domain.PermissionOrganizationMetaUpdate); err != nil {
 		self.i.Trace.EndStep(auditID, auditStepID)
 		return err
 	}
 
-	derr := self.removeAllMembersFromOrganization(auditID, organizationID)
-	if derr != nil {
+	err = self.removeAllMembersFromOrganization(auditID, organizationID)
+	if err != nil {
 		self.i.Trace.EndStep(auditID, auditStepID)
-		return derr
+		return err
 	}
 
 	err = self.i.Persistence.DeleteOrganizationByID(organizationID)
 	if err != nil {
 		self.i.Trace.EndStep(auditID, auditStepID)
-		return &domain.ErrorUnableToDeleteOrganization
+		return err
 	}
 
 	self.i.Trace.EndStep(auditID, auditStepID)

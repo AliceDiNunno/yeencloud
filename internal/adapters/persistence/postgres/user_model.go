@@ -1,6 +1,8 @@
 package postgres
 
 import (
+	"errors"
+
 	"github.com/AliceDiNunno/yeencloud/internal/core/domain"
 	"gorm.io/gorm"
 )
@@ -21,7 +23,7 @@ func (db *Database) CreateUser(user domain.User) (domain.User, error) {
 	result := db.engine.Create(&userToCreate)
 
 	if result.Error != nil {
-		return domain.User{}, result.Error
+		return domain.User{}, sqlerr(result.Error)
 	}
 
 	return userToDomain(userToCreate), nil
@@ -38,7 +40,10 @@ func (db *Database) FindUserByID(id domain.UserID) (domain.User, error) {
 	result := db.engine.Where("id = ?", id).First(&user)
 
 	if result.Error != nil {
-		return domain.User{}, result.Error
+		return domain.User{}, errors.Join(&domain.ResourceNotFoundError{
+			Id:   id.String(),
+			Type: "User",
+		}, sqlerr(result.Error))
 	}
 
 	return userToDomain(user), nil
@@ -49,7 +54,10 @@ func (db *Database) FindUserByEmail(email string) (domain.User, error) {
 	result := db.engine.Where("email = ?", email).First(&user)
 
 	if result.Error != nil {
-		return domain.User{}, result.Error
+		return domain.User{}, errors.Join(&domain.ResourceNotFoundError{
+			Id:   email,
+			Type: "User",
+		}, sqlerr(result.Error))
 	}
 
 	return userToDomain(user), nil

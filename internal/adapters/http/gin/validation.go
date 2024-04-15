@@ -28,7 +28,7 @@ func (server *ServiceHTTPServer) validate(c *gin.Context, obj interface{}) bool 
 		translatedErrors[name] = fields
 	}
 
-	server.abortWithError(c, ErrorBadRequest, translatedErrors)
+	server.abortWithError(c, &BadRequestError{}, translatedErrors)
 
 	return false
 }

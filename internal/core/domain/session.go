@@ -1,7 +1,5 @@
 package domain
 
-import "net/http"
-
 // MARK: - Objects
 
 type Session struct {
@@ -21,18 +19,6 @@ type NewSession struct {
 	// Origin of the request to be filled internally (can, and will probably be an IP)
 	Origin string `json:"-"` // TODO: remove it and use the request context
 }
-
-// MARK: - Translatable
-
-var (
-	TranslatableSessionNotFound = Translatable{Key: "SessionNotFound"}
-)
-
-// MARK: - Errors
-
-var (
-	ErrorSessionNotFound = ErrorDescription{HttpCode: http.StatusUnauthorized, Code: TranslatableSessionNotFound}
-)
 
 // MARK: - Logs
 var (

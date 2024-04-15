@@ -27,7 +27,7 @@ func (db *Database) CreateProfile(profile domain.Profile) (domain.Profile, error
 	result := db.engine.Create(&profileToCreate)
 
 	if result.Error != nil {
-		return domain.Profile{}, result.Error
+		return domain.Profile{}, sqlerr(result.Error)
 	}
 
 	return profileToDomain(profileToCreate), nil
@@ -39,7 +39,7 @@ func (db *Database) FindProfileByID(profileID domain.ProfileID) (domain.Profile,
 	result := db.engine.Where("id = ?", profileID).First(&profile)
 
 	if result.Error != nil {
-		return domain.Profile{}, result.Error
+		return domain.Profile{}, sqlerr(result.Error)
 	}
 
 	return profileToDomain(profile), nil
@@ -51,7 +51,7 @@ func (db *Database) FindProfileByUserID(userID domain.UserID) (domain.Profile, e
 	result := db.engine.Where("user_id = ?", userID).First(&profile)
 
 	if result.Error != nil {
-		return domain.Profile{}, result.Error
+		return domain.Profile{}, sqlerr(result.Error)
 	}
 
 	return profileToDomain(profile), nil
@@ -61,7 +61,7 @@ func (db *Database) SetProfileRole(profileID domain.ProfileID, role domain.Role)
 	result := db.engine.Model(&Profile{}).Where("id = ?", profileID).Update("role", role.String())
 
 	if result.Error != nil {
-		return result.Error
+		return sqlerr(result.Error)
 	}
 
 	return nil

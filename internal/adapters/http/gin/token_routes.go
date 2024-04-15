@@ -17,7 +17,7 @@ func (server *ServiceHTTPServer) validateMailHandler(ctx *gin.Context) {
 	var validateMailRequest domain.ValidateMail
 
 	if err := ctx.ShouldBindJSON(&validateMailRequest); err != nil {
-		server.abortWithError(ctx, ErrorBadRequest)
+		server.abortWithError(ctx, &BadRequestError{})
 		return
 	}
 
@@ -30,7 +30,7 @@ func (server *ServiceHTTPServer) validateMailHandler(ctx *gin.Context) {
 	session, err := server.usecases(ctx).ValidateMail(audit, validateMailRequest)
 
 	if err != nil {
-		server.abortWithError(ctx, *err)
+		server.abortWithError(ctx, err)
 		return
 	}
 
@@ -41,7 +41,7 @@ func (server *ServiceHTTPServer) forgottenPasswordHandler(ctx *gin.Context) {
 	var validateMailRequest domain.RequestNewPassword
 
 	if err := ctx.ShouldBindJSON(&validateMailRequest); err != nil {
-		server.abortWithError(ctx, ErrorBadRequest)
+		server.abortWithError(ctx, &BadRequestError{})
 		return
 	}
 
@@ -58,7 +58,7 @@ func (server *ServiceHTTPServer) recoverPasswordHandler(ctx *gin.Context) {
 	var recoverPasswordRequest domain.RecoverPassword
 
 	if err := ctx.ShouldBindJSON(&recoverPasswordRequest); err != nil {
-		server.abortWithError(ctx, ErrorBadRequest)
+		server.abortWithError(ctx, &BadRequestError{})
 		return
 	}
 

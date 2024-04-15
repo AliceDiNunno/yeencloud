@@ -19,7 +19,7 @@ func (server *ServiceHTTPServer) getUserProfileMiddleware(ctx *gin.Context) {
 	user, err := server.usecases(ctx).GetUserByID(server.getTrace(ctx), session.(domain.Session).UserID)
 
 	if err != nil {
-		server.abortWithError(ctx, *err)
+		server.abortWithError(ctx, err)
 		return
 	}
 
@@ -28,7 +28,7 @@ func (server *ServiceHTTPServer) getUserProfileMiddleware(ctx *gin.Context) {
 	profile, err := server.usecases(ctx).GetProfileByUserID(server.getTrace(ctx), user.ID)
 
 	if err != nil {
-		server.abortWithError(ctx, *err)
+		server.abortWithError(ctx, err)
 		return
 	}
 

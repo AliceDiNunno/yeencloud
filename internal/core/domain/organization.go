@@ -1,7 +1,5 @@
 package domain
 
-import "net/http"
-
 // MARK: - Objects
 
 type OrganizationID string
@@ -27,22 +25,9 @@ type UpdateOrganization struct {
 
 // MARK: - Translatable
 var (
-	TranslatableOrganizationNotFound       = Translatable{Key: "OrganizationNotFound"}
-	TranslatableUnableToCreateOrganization = Translatable{Key: "UnableToCreateOrganization"}
-	TranslatableUnableToUpdateOrganization = Translatable{Key: "UnableToUpdateOrganization"}
-	TranslatableUnableToDeleteOrganization = Translatable{Key: "UnableToDeleteOrganization"}
-
 	TranslatableOrganizationMemberRoleDisplayName = Translatable{Key: "OrganizationMemberRoleDisplayName"}
 	TranslatableOrganizationAdminRoleDisplayName  = Translatable{Key: "OrganizationAdminRoleDisplayName"}
 	TranslatableOrganizationOwnerRoleDisplayName  = Translatable{Key: "OrganizationOwnerRoleDisplayName"}
-)
-
-// MARK: - Errors
-var (
-	ErrorOrganizationNotFound       = ErrorDescription{HttpCode: http.StatusNotFound, Code: TranslatableOrganizationNotFound}
-	ErrorUnableToCreateOrganization = ErrorDescription{HttpCode: http.StatusInternalServerError, Code: TranslatableUnableToCreateOrganization}
-	ErrorUnableToUpdateOrganization = ErrorDescription{HttpCode: http.StatusInternalServerError, Code: TranslatableUnableToUpdateOrganization}
-	ErrorUnableToDeleteOrganization = ErrorDescription{HttpCode: http.StatusInternalServerError, Code: TranslatableUnableToDeleteOrganization}
 )
 
 // MARK: - Functions

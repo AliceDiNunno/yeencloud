@@ -7,12 +7,12 @@ import (
 
 type OrganizationMemberUsecases interface {
 	ListOrganizationsByProfile(rc *domain.RequestContext, profileID domain.ProfileID)
-	ListOrganizationsMembers(auditID domain.AuditTraceID, organizationID domain.OrganizationID) ([]domain.OrganizationMember, *domain.ErrorDescription)
+	ListOrganizationsMembers(auditID domain.AuditTraceID, organizationID domain.OrganizationID) ([]domain.OrganizationMember, error)
 
-	removeAllMembersFromOrganization(auditID domain.AuditTraceID, organizationID domain.OrganizationID) *domain.ErrorDescription
+	removeAllMembersFromOrganization(auditID domain.AuditTraceID, organizationID domain.OrganizationID) error
 }
 
-func (self UCs) listOrganizationsByProfile(rc *domain.RequestContext, profileID domain.ProfileID) ([]domain.OrganizationMember, *domain.ErrorDescription) {
+func (self UCs) listOrganizationsByProfile(rc *domain.RequestContext, profileID domain.ProfileID) ([]domain.OrganizationMember, error) {
 	organizations, err := self.i.Persistence.ListProfileOrganizationsByProfileID(profileID)
 
 	if err != nil {
@@ -20,7 +20,7 @@ func (self UCs) listOrganizationsByProfile(rc *domain.RequestContext, profileID 
 			domain.LogFieldError:     err,
 			domain.LogFieldProfileID: profileID.String()}).
 			Msg("Error getting organizations for user")
-		return nil, &domain.ErrorUnableToGetOrganizationMembers
+		return nil, err
 	}
 
 	return organizations, nil
@@ -34,28 +34,28 @@ func (self UCs) ListOrganizationsByProfile(rc *domain.RequestContext, profileID 
 	})
 }
 
-func (self UCs) ListOrganizationsMembers(auditID domain.AuditTraceID, organizationID domain.OrganizationID) ([]domain.OrganizationMember, *domain.ErrorDescription) {
+func (self UCs) ListOrganizationsMembers(auditID domain.AuditTraceID, organizationID domain.OrganizationID) ([]domain.OrganizationMember, error) {
 	auditStepID := self.i.Trace.AddStep(auditID, audit.DefaultSkip, organizationID)
 
 	organizationMembers, err := self.i.Persistence.ListOrganizationMembers(organizationID)
 
 	if err != nil {
 		self.i.Trace.EndStep(auditID, auditStepID)
-		return nil, &domain.ErrorUnableToGetOrganizationMembers
+		return nil, err
 	}
 
 	self.i.Trace.EndStep(auditID, auditStepID)
 	return organizationMembers, nil
 }
 
-func (self UCs) removeAllMembersFromOrganization(auditID domain.AuditTraceID, organizationID domain.OrganizationID) *domain.ErrorDescription {
+func (self UCs) removeAllMembersFromOrganization(auditID domain.AuditTraceID, organizationID domain.OrganizationID) error {
 	auditStepID := self.i.Trace.AddStep(auditID, audit.DefaultSkip, organizationID)
 
 	err := self.i.Persistence.RemoveAllMembersFromOrganization(organizationID)
 
 	if err != nil {
 		self.i.Trace.EndStep(auditID, auditStepID)
-		return &domain.ErrorUnableToRemoveOrganizationMembers
+		return err
 	}
 
 	self.i.Trace.EndStep(auditID, auditStepID)

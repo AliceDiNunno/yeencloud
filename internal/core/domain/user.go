@@ -1,7 +1,5 @@
 package domain
 
-import "net/http"
-
 // MARK: - Objects
 
 type UserID string
@@ -30,17 +28,12 @@ type UpdateUser struct {
 
 // MARK: - Translatable
 var (
-	TranslatableUserNotFound                 = Translatable{Key: "UserNotFound"}
-	TranslatableUnableToCreateUser           = Translatable{Key: "UnableToCreateUser"}
-	TranslatableUnableToHashPassword         = Translatable{Key: "UnableToHashPassword"}
-	TranslatableUnableToGetUserOrganizations = Translatable{Key: "UnableToGetUserOrganizations"}
+	TranslatableUnableToHashPassword = Translatable{Key: "UnableToHashPassword"}
 )
 
 // MARK: - Errors
 var (
-	ErrorUserNotFound         = ErrorDescription{HttpCode: http.StatusNotFound, Code: TranslatableUserNotFound}
-	ErrorUnableToCreateUser   = ErrorDescription{HttpCode: http.StatusInternalServerError, Code: TranslatableUnableToCreateUser}
-	ErrorUnableToHashPassword = ErrorDescription{HttpCode: http.StatusInternalServerError, Code: TranslatableUnableToHashPassword}
+	ErrorUnableToHashPassword = UsecasesError{Msg: "unable to hash password", Key: TranslatableUnableToHashPassword}
 )
 
 // MARK: - Logs

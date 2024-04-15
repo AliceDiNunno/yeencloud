@@ -10,16 +10,16 @@ import (
 )
 
 type UserUsecases interface {
-	CreateUser(auditID domain.AuditTraceID, user domain.NewUser, language string) (domain.User, *domain.ErrorDescription)
+	CreateUser(auditID domain.AuditTraceID, user domain.NewUser, language string) (domain.User, error)
 
-	GetUserByID(auditID domain.AuditTraceID, userID domain.UserID) (domain.User, *domain.ErrorDescription)
+	GetUserByID(auditID domain.AuditTraceID, userID domain.UserID) (domain.User, error)
 }
 
 func (self UCs) newUserID() domain.UserID {
 	return domain.UserID(uuid.New().String())
 }
 
-func (self UCs) CreateUser(auditID domain.AuditTraceID, newUser domain.NewUser, profileLanguage string) (domain.User, *domain.ErrorDescription) {
+func (self UCs) CreateUser(auditID domain.AuditTraceID, newUser domain.NewUser, profileLanguage string) (domain.User, error) {
 	auditStepID := self.i.Trace.AddStep(auditID, audit.DefaultSkip, newUser.Secure())
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
@@ -41,14 +41,14 @@ func (self UCs) CreateUser(auditID domain.AuditTraceID, newUser domain.NewUser, 
 	if err != nil {
 		self.i.Trace.Log(auditID, auditStepID).WithField(domain.LogFieldProfileMail, newUser.Email).WithField(domain.LogFieldError, err).Msg("Error creating user")
 		self.i.Trace.EndStep(auditID, auditStepID)
-		return domain.User{}, &domain.ErrorUnableToCreateUser
+		return domain.User{}, err
 	}
 
-	_, derr := self.createProfile(auditID, user.ID, newUser.Name, profileLanguage)
+	_, err = self.createProfile(auditID, user.ID, newUser.Name, profileLanguage)
 
-	if derr != nil {
+	if err != nil {
 		self.i.Trace.EndStep(auditID, auditStepID)
-		return domain.User{}, derr
+		return domain.User{}, err
 	}
 
 	token := domain.Token{
@@ -65,7 +65,7 @@ func (self UCs) CreateUser(auditID domain.AuditTraceID, newUser domain.NewUser, 
 	if err != nil {
 		self.i.Trace.Log(auditID, auditStepID).WithField(domain.LogFieldProfileMail, newUser.Email).WithField(domain.LogFieldError, err).Msg("Error sending verification mail")
 		self.i.Trace.EndStep(auditID, auditStepID)
-		return domain.User{}, &domain.ErrorUnableToGenerateToken
+		return domain.User{}, err
 	}
 
 	err = self.i.Mailer.SendVerificationMail(user.Email, token.Token)
@@ -73,20 +73,20 @@ func (self UCs) CreateUser(auditID domain.AuditTraceID, newUser domain.NewUser, 
 	if err != nil {
 		self.i.Trace.Log(auditID, auditStepID).WithField(domain.LogFieldProfileMail, newUser.Email).WithField(domain.LogFieldError, err).Msg("Error sending verification mail")
 		self.i.Trace.EndStep(auditID, auditStepID)
-		return domain.User{}, &domain.ErrorUnableToSendVerificationMail
+		return domain.User{}, err
 	}
 
 	return user, nil
 }
 
-func (self UCs) GetUserByID(auditID domain.AuditTraceID, id domain.UserID) (domain.User, *domain.ErrorDescription) {
+func (self UCs) GetUserByID(auditID domain.AuditTraceID, id domain.UserID) (domain.User, error) {
 	auditStepID := self.i.Trace.AddStep(auditID, audit.DefaultSkip)
 	user, err := self.i.Persistence.FindUserByID(id)
 
 	if err != nil {
 		self.i.Trace.Log(auditID, auditStepID).WithLevel(domain.LogLevelError).WithField(domain.LogFieldError, err).WithField(domain.LogFieldUserID, id).Msg("Error finding user")
 		self.i.Trace.EndStep(auditID, auditStepID)
-		return domain.User{}, &domain.ErrorUserNotFound
+		return domain.User{}, err
 	}
 	self.i.Trace.EndStep(auditID, auditStepID)
 	return user, nil

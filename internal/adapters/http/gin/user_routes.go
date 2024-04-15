@@ -9,7 +9,7 @@ func (server *ServiceHTTPServer) createUserHandler(ctx *gin.Context) {
 	var createUserRequest domain.NewUser
 
 	if err := ctx.ShouldBindJSON(&createUserRequest); err != nil {
-		server.abortWithError(ctx, ErrorBadRequest)
+		server.abortWithError(ctx, &BadRequestError{})
 		return
 	}
 
@@ -22,7 +22,7 @@ func (server *ServiceHTTPServer) createUserHandler(ctx *gin.Context) {
 	profile, err := server.usecases(ctx).CreateUser(server.getTrace(ctx), createUserRequest, language)
 
 	if err != nil {
-		server.abortWithError(ctx, *err)
+		server.abortWithError(ctx, err)
 		return
 	}
 
@@ -39,7 +39,7 @@ func (server *ServiceHTTPServer) retrieveCurrentUserHandler(ctx *gin.Context) {
 	profile, ok := id.(domain.Profile)
 
 	if !ok {
-		server.abortWithError(ctx, domain.ErrorProfileNotFound)
+		server.abortWithError(ctx, &BadRequestError{})
 		return
 	}
 

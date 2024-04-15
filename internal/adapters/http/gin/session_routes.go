@@ -1,6 +1,8 @@
 package gin
 
 import (
+	"errors"
+
 	"github.com/AliceDiNunno/yeencloud/internal/adapters/audit"
 	"github.com/AliceDiNunno/yeencloud/internal/core/domain"
 	"github.com/gin-gonic/gin"
@@ -16,7 +18,7 @@ func (server *ServiceHTTPServer) retrieveSessionMiddleware(ctx *gin.Context) {
 
 	session, err := server.usecases(ctx).GetSessionByToken(server.getTrace(ctx), token)
 	if err != nil {
-		server.abortWithError(ctx, *err)
+		server.abortWithError(ctx, errors.Join(&UnauthorizedError{}, err))
 		return
 	}
 
@@ -28,13 +30,13 @@ func (server *ServiceHTTPServer) requireSessionMiddleware(ctx *gin.Context) {
 
 	_, exists := ctx.Get(CtxSessionField)
 	if !exists {
-		server.abortWithError(ctx, ErrorAuthenticationTokenMissing)
+		server.abortWithError(ctx, &BadRequestError{})
 		return
 	}
 
 	_, exists = ctx.Get(CtxUserField)
 	if !exists {
-		server.abortWithError(ctx, domain.ErrorUserNotFound)
+		server.abortWithError(ctx, &UnauthorizedError{})
 		return
 	}
 }
@@ -43,7 +45,7 @@ func (server *ServiceHTTPServer) createSessionHandler(ctx *gin.Context) {
 	var createSessionRequest domain.NewSession
 
 	if err := ctx.ShouldBindJSON(&createSessionRequest); err != nil {
-		server.abortWithError(ctx, ErrorBadRequest)
+		server.abortWithError(ctx, &BadRequestError{})
 		return
 	}
 
@@ -56,7 +58,7 @@ func (server *ServiceHTTPServer) createSessionHandler(ctx *gin.Context) {
 	session, err := server.usecases(ctx).CreateSession(server.getTrace(ctx), createSessionRequest)
 
 	if err != nil {
-		server.abortWithError(ctx, *err)
+		server.abortWithError(ctx, errors.Join(&UnauthorizedError{}, err))
 		return
 	}
 

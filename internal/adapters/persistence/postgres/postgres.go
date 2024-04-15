@@ -45,7 +45,7 @@ func StartGormDatabase(log interactor.Logger, config config.DatabaseConfig) (*Da
 	})
 
 	if err != nil {
-		return nil, err
+		return nil, sqlerr(err)
 	}
 
 	return &Database{

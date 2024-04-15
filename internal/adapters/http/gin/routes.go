@@ -54,11 +54,12 @@ func (server *ServiceHTTPServer) SetRoutes() {
 
 func (server *ServiceHTTPServer) SetErrors(r *gin.Engine) {
 	r.NoRoute(func(ctx *gin.Context) {
-		server.abortWithError(ctx, ErrorPageNotFound)
+		err := pageNotFoundError(ctx.Request.Method, ctx.Request.URL.Path)
+		server.abortWithError(ctx, err)
 	})
 
 	r.NoMethod(func(ctx *gin.Context) {
-		server.abortWithError(ctx, ErrorMethodNotAllowed)
+		server.abortWithError(ctx, &MethodNotAllowedError{})
 	})
 }
 
@@ -72,7 +73,7 @@ func (server *ServiceHTTPServer) noResponseHandlerMiddleware(ctx *gin.Context) {
 
 	server.auditer.Log(server.getTrace(ctx), audit.NoStep).WithLevel(domain.LogLevelError).Msg("No response written")
 
-	server.abortWithError(ctx, ErrorInternal)
+	server.abortWithError(ctx, &InternalServerError{})
 }
 
 func (server *ServiceHTTPServer) printRoutes(httpMethod, absolutePath, handlerName string, nuHandlers int) {

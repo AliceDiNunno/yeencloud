@@ -2,13 +2,13 @@ package gomail
 
 import (
 	"bytes"
+	"errors"
 	"html/template"
 	"os"
 	"path"
 	"strings"
 
 	"github.com/AliceDiNunno/yeencloud/internal/core/domain/config"
-	"github.com/davecgh/go-spew/spew"
 	gomail "gopkg.in/mail.v2"
 )
 
@@ -72,7 +72,6 @@ func (m *Mailer) sendMail(to, subject, file string, data any) error {
 	templateResult, err := m.executeTemplateFile(file, data)
 
 	if err != nil {
-		spew.Dump(err)
 		return err
 	}
 
@@ -101,7 +100,13 @@ func (m *Mailer) SendVerificationMail(to string, token string) error {
 	}
 	var tmplFile = "verify_account.tpl.html"
 
-	return m.sendMail(to, "Yeencloud - Verify your email", tmplFile, validation)
+	err := m.sendMail(to, "Yeencloud - Verify your email", tmplFile, validation)
+
+	if err != nil {
+		return errors.Join(&ErrUnableToSendVerificationMail, err)
+	}
+
+	return nil
 }
 
 func NewMailer(config config.MailConfig) *Mailer {
